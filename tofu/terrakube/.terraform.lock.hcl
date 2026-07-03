@@ -1,0 +1,25 @@
+# This file is maintained automatically by "tofu init".
+# Manual edits may be lost in future updates.
+
+provider "registry.opentofu.org/azbuilder/terrakube" {
+  version     = "0.24.1"
+  constraints = "~> 0.24"
+  hashes = [
+    "h1:IT9S24clFI1q050XDWPNqoDnVOi5H32YJzeNz11nCHc=",
+    "zh:04daf0eda72285dc26adf1268eca548a706e806ca9fee95e8097cb675c6811e1",
+    "zh:056b34d6f3ae3a46a591040ddd3fc8889627799f4bf23fe1fc0664eff93564c7",
+    "zh:2a67def29e619da0ef8fa10d2f0f3d315ee33de9dc7fbaa24b5f2f9288010b3f",
+    "zh:2b6f1f3983018d87369d3c8910218991606dddf1673386fdebce7f5bcf5f82e6",
+    "zh:3371895a41d6661b8306a200d3049a2414075bc9ae48378cce190f4cbeb2f885",
+    "zh:5486bcc63490059db55d05e0dce1b11aac01339a6853be1183cc1381721f8172",
+    "zh:5b34a98e6404b831b7de0eaa8b2f5ed2e1edcb00c0ea4e9671b2fd0f8865790e",
+    "zh:6d0b515155278e93a003418f8f973372fd2200d1a7bc0d280b69146e7ad235a4",
+    "zh:81fdaef420319d1243f551e8de57741f8d9cdf3da1c16bea09e1d667b1879c20",
+    "zh:890df766e9b839623b1f0437355032a3c006226a6c200cd911e15ee1a9014e9f",
+    "zh:90a9190e927d054f64f852673f70c7a75252de160cc98d1c900253a535921c9f",
+    "zh:b94ec16781401803692e32b3c74a2e0eb504af0a255b02877a2ee78580c1818a",
+    "zh:c601919da0588c0ef22cd3ff6efc1ef3057fcfe6cc49c7e5513b181bd92a731e",
+    "zh:c659728ac6bd88488c17154182ae2a8a66caf1e7b4c443994fab657da7dcb6ca",
+    "zh:d63801c184a78e24cd2bdc0ed281fef6de2934396c44f4ad31aeac82072c873e",
+  ]
+}

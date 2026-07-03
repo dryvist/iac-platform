@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>dryvist/.github//configs/renovate-default"],
+  "docker-compose": {
+    "managerFilePatterns": ["/^compose/docker-compose\\.yml$/"]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Image pins in compose/.env (TK_VERSION etc.)",
+      "managerFilePatterns": ["/^compose/\\.env$/"],
+      "matchStrings": [
+        "TK_VERSION=(?<currentValue>.+)"
+      ],
+      "depNameTemplate": "azbuilder/api-server",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^compose/\\.env$/"],
+      "matchStrings": ["TK_DEX_VERSION=(?<currentValue>.+)"],
+      "depNameTemplate": "ghcr.io/dexidp/dex",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^compose/\\.env$/"],
+      "matchStrings": ["SEMAPHORE_VERSION=(?<currentValue>.+)"],
+      "depNameTemplate": "semaphoreui/semaphore",
+      "datasourceTemplate": "docker"
+    }
+  ]
+}
