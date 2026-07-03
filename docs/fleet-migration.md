@@ -10,23 +10,38 @@ state** and follows the standard rollout.
 1. **Workspace as code** (this repo): add a `terrakube_workspace_cli` (+ any
    sensitive workspace variables the provider needs) to
    `tofu/terrakube/workspaces.tf`; apply.
-2. **Snapshot state** (last AWS-era touch): `aws s3 cp s3://<bucket>/<key>
-   <archive-prefix>` — keep the bucket read-only until the tail (step 7).
-3. **Backend swap** in the repo: delete `terragrunt.hcl` (and root includes),
-   replace `backend "s3" {}` with the `cloud {}` block (hostname
+2. **Snapshot state** (last AWS-era touch): `terragrunt state pull >
+   <repo>-<env>-pre-terrakube.tfstate` locally AND `aws s3 cp` to an archive
+   prefix — keep the bucket read-only until the tail (step 7).
+3. **Attach to the OLD backend explicitly first.** terragrunt *generated* the
+   `backend "s3"` block, so a fresh clone has neither the block nor a
+   `.terraform/` cache — deleting terragrunt first would leave `tofu init`
+   nothing to migrate FROM (it would attach an empty workspace and the plan
+   would propose recreating the world). On the migration branch: temporarily
+   commit the equivalent `backend "s3" {}` + run `tofu init -backend-config=`
+   with the literal bucket/key terragrunt used; verify `tofu state list`
+   matches the snapshot.
+4. **Backend swap**: delete `terragrunt.hcl` (and root includes — first diff
+   the `.terragrunt-cache/` generated files: provider blocks, default tags,
+   retry config from `generate` blocks must become committed `.tf` or they're
+   silently lost), replace the s3 block with the `cloud {}` block (hostname
    `terrakube-api.pve.jacobpevans.com`, its workspace name).
-4. **Migrate state**: `tofu init` detects the backend change and offers state
-   migration into the workspace — verify resource count matches the snapshot
-   (`tofu state list | wc -l`).
-5. **Prove no-op**: `tofu plan` (remote) must be empty. Anything else stops
+5. **Migrate state**: plain `tofu init` (with old AWS creds still in env) and
+   answer **yes** to the interactive migrate prompt. NOTE (verified):
+   `tofu init -migrate-state` is REJECTED with a cloud block — the plain-init
+   interactive prompt is the only path. Verify the state version appears in
+   the Terrakube UI and `tofu state list` count matches the snapshot.
+6. **Prove no-op**: `tofu plan` (remote) must be empty. Anything else stops
    the migration for that repo.
-6. **CI + docs**: copy tofu-github's `terrakube.yml` pattern (reachability
-   skip on PR, `production`-environment gate on main); runner entry in
-   ansible-proxmox-apps `docker_vms.yml` if the repo lacks one; rewrite the
-   repo's Applying/State-backend docs; drop aws-vault instructions.
-7. **Decommission tail** (per repo, LAST): empty + delete the state bucket,
-   DynamoDB lock table, `tf-<project>` IAM role; remove the aws-vault profile
-   from nix-home `modules/home-manager/aws/tf-projects.nix`.
+7. **CI + docs**: copy tofu-github's `terrakube.yml` pattern (reachability
+   skip on PR, `TERRAKUBE_ENABLED` arming variable, `production`-environment
+   gate on main); runner entry in ansible-proxmox-apps `docker_vms.yml` if the
+   repo lacks one; rewrite the repo's Applying/State-backend docs; drop
+   aws-vault instructions.
+8. **Decommission tail** (per repo, LAST, after a **30-day soak** with the
+   versioned bucket untouched): empty + delete the state bucket, DynamoDB
+   lock table, `tf-<project>` IAM role; remove the aws-vault profile from
+   nix-home `modules/home-manager/aws/tf-projects.nix`.
 
 ## Terragrunt retirement notes
 
@@ -37,7 +52,9 @@ state** and follows the standard rollout.
 - Generated `backend.tf` files (terragrunt `remote_state.generate`) are
   deleted; the committed `cloud {}` block replaces them.
 - Once the last repo migrates, drop terragrunt (and the terraform binary)
-  from nix-devenv shells; `tofu` only.
+  from nix-devenv shells; `tofu` only. The pre-commit-terraform hooks exec
+  the `terraform` binary by default — export `PCT_TFPATH=tofu` from the nix
+  devshell env (supported ≥ v1.86; terraform-proxmox already does this).
 
 ## Migration order (dependencies first, riskiest last)
 
