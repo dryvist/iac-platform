@@ -5,7 +5,7 @@
 # runbook.md "RustFS compatibility" — the #1 MVP risk).
 set -euo pipefail
 
-DOMAIN="pve.jacobpevans.com"
+DOMAIN="${DOMAIN:?run under sops exec-env (real domain never committed)}"
 BUCKET="terrakube"
 FAIL=0
 

@@ -25,7 +25,7 @@ Then re-run the plan; remote runs are idempotent up to the apply boundary.
 
 ## RustFS compatibility (top MVP risk)
 
-Terrakube's Java AWS SDK talks to RustFS through `https://s3.pve.jacobpevans.com`
+Terrakube's Java AWS SDK talks to RustFS through `https://s3.<domain>`
 (path-style). If state writes fail with checksum/XML errors after an image
 bump, suspect SDK flexible-checksums vs RustFS. Contained fallback: re-add the
 upstream reference's bundled minio service to the compose file temporarily and

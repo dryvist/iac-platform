@@ -125,8 +125,10 @@ services:
     container_name: terrakube-ui
     environment:
       <<: [*ui_env]
-    volumes:
-      - ./terrakube/env-config.js:/usr/share/nginx/html/env-config.js:ro
+    # No env-config.js mount: the ui image renders it from the REACT_APP_*
+    # environment at startup, so the domain stays env-sourced (sops), never
+    # a committed file. Verify on first deploy; if the image doesn't render
+    # it, generate the file in deploy.sh from the same env.
     ports:
       - "${PORT_TERRAKUBE_UI}:8080"
     mem_limit: 64m
@@ -157,6 +159,7 @@ services:
     container_name: terrakube-dex
     command: ["dex", "serve", "/etc/dex/config.yaml"]
     environment:
+      DOMAIN: ${DOMAIN}
       DEX_GITHUB_CLIENT_ID: ${DEX_GITHUB_CLIENT_ID}
       DEX_GITHUB_CLIENT_SECRET: ${DEX_GITHUB_CLIENT_SECRET}
     volumes:

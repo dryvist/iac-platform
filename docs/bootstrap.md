@@ -7,11 +7,11 @@ One-time sequence from zero to a working platform. Ongoing operations live in
 
 1. **VM + ingress applied** — terraform-proxmox PR with the `iac-platform` VM
    (deployment.json), the six ingress rows, and the `iac_platform_ports`
-   constants is merged and applied. `iac.pve.jacobpevans.com` resolves and is
-   SSH-reachable; `terrakube*.pve.jacobpevans.com` / `semaphore.pve.jacobpevans.com`
+   constants is merged and applied. `<vm-fqdn>` resolves and is
+   SSH-reachable; `terrakube*.<domain>` / `semaphore.<domain>`
    route (502 until the stack is up — expected).
-2. **GitHub OAuth App** (dryvist org): homepage `https://terrakube.pve.jacobpevans.com`,
-   callback `https://terrakube-dex.pve.jacobpevans.com/dex/callback`. Put the
+2. **GitHub OAuth App** (dryvist org): homepage `https://terrakube.<domain>`,
+   callback `https://terrakube-dex.<domain>/dex/callback`. Put the
    client id/secret into the sops env (`sops secrets/platform.sops.env`,
    replacing the CHANGEME values).
 3. **GitHub team `terrakube-admins`** in the org, with every operator as a
@@ -19,8 +19,8 @@ One-time sequence from zero to a working platform. Ongoing operations live in
    Terrakube admin group.
 4. **RustFS bucket + access key**: create bucket `terrakube` and an access
    key pair matching `TK_OUTPUT_ACCESS_KEY`/`TK_OUTPUT_SECRET_KEY` from the
-   sops env (RustFS console at `https://object-storage.pve.jacobpevans.com`).
-   Gotcha when using `aws --endpoint-url https://s3.pve.jacobpevans.com` from
+   sops env (RustFS console at `https://object-storage.<domain>`).
+   Gotcha when using `aws --endpoint-url https://s3.<domain>` from
    an aws-vault-injected shell: **unset `AWS_SESSION_TOKEN` first** — RustFS
    rejects requests carrying an STS session token ("check claims failed /
    invalid token2"), exactly why terragrunt's fetch pattern unsets it.
@@ -44,14 +44,14 @@ sops --config secrets/.sops.yaml exec-env secrets/platform.sops.env \
   ./scripts/smoke-test.sh                 # health + S3 roundtrip
 ```
 
-Browser: `https://terrakube.pve.jacobpevans.com` → Login with GitHub → confirm
+Browser: `https://terrakube.<domain>` → Login with GitHub → confirm
 the Organizations page offers admin actions (admin group mapped).
 
 ## Workspaces-as-code (local state first)
 
 ```bash
 cd tofu/terrakube
-export TERRAKUBE_ENDPOINT=https://terrakube-api.pve.jacobpevans.com
+export TERRAKUBE_ENDPOINT=https://terrakube-api.<domain>
 export TERRAKUBE_TOKEN=<PAT from UI: user settings → API tokens>
 export TF_VAR_github_org_admin_token=<classic PAT with admin:org>
 tofu init && tofu apply
@@ -59,7 +59,7 @@ tofu init && tofu apply
 
 Then migrate this stack's own state into the instance it just configured:
 uncomment the `cloud {}` block in `providers.tf`, run `tofu login
-terrakube-api.pve.jacobpevans.com` once, then `tofu init` and approve the
+terrakube-api.<domain>` once, then `tofu init` and approve the
 state migration.
 
 ## First consumer
@@ -71,14 +71,14 @@ already a sensitive workspace variable — dev machines and CI never hold it.
 ## Per-machine login (any machine, zero keychain)
 
 ```bash
-tofu login terrakube-api.pve.jacobpevans.com
+tofu login terrakube-api.<domain>
 ```
 
 On a machine without a global `tofu` (e.g. a nix-darwin host that only gets
 it via per-repo dev shells), stay policy-compliant with an ephemeral shell:
 
 ```bash
-nix shell nixpkgs#opentofu -c tofu login terrakube-api.pve.jacobpevans.com
+nix shell nixpkgs#opentofu -c tofu login terrakube-api.<domain>
 ```
 
 The credential lands in `~/.terraform.d/credentials.tfrc.json`; from then on

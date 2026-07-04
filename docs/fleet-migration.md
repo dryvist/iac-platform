@@ -25,7 +25,7 @@ state** and follows the standard rollout.
    the `.terragrunt-cache/` generated files: provider blocks, default tags,
    retry config from `generate` blocks must become committed `.tf` or they're
    silently lost), replace the s3 block with the `cloud {}` block (hostname
-   `terrakube-api.pve.jacobpevans.com`, its workspace name).
+   `terrakube-api.<domain>`, its workspace name).
 5. **Migrate state**: plain `tofu init` (with old AWS creds still in env) and
    answer **yes** to the interactive migrate prompt. NOTE (verified):
    `tofu init -migrate-state` is REJECTED with a cloud block — the plain-init

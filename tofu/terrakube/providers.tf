@@ -24,7 +24,7 @@ terraform {
   }
 
   # cloud {
-  #   hostname     = "terrakube-api.pve.jacobpevans.com"
+  #   hostname     = "terrakube-api.<domain>"   # real FQDN from your env/notes
   #   organization = "dryvist"
   #   workspaces { name = "iac-platform" }
   # }

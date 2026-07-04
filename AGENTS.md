@@ -10,9 +10,14 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
 
 ## Laws and doctrine
 
+- **No real domain in committed files.** `<domain>` in these docs is the
+  internal base domain; the real value lives ONLY in `secrets/platform.sops.env`
+  (`DOMAIN`, `DEPLOY_HOST`, `TK_OUTPUT_ENDPOINT`, `SEMAPHORE_ADMIN_EMAIL`) and
+  reaches compose/dex via `sops exec-env`. Same for every consumer repo: tofu
+  cloud blocks stay empty and take `TF_CLOUD_HOSTNAME` from the environment.
 - **FQDN LAW: never reference any system by IP:port.** Every system is reached
   via its valid-HTTPS FQDN behind the ACME wildcard cert
-  (`<name>.pve.jacobpevans.com`, Traefik ingress rows in terraform-proxmox
+  (`<name>.<domain>`, Traefik ingress rows in terraform-proxmox
   `ingress.tf`). This applies to configs, scripts, docs, and conversation. If
   something lacks an FQDN, add the ingress row — don't use the IP.
 - **pve3 doctrine**: the platform is deliberately **not 24/7** (pve3 powers
@@ -60,5 +65,5 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
 - `tofu/terrakube/` authenticates via `TERRAKUBE_ENDPOINT` + `TERRAKUBE_TOKEN`
   env vars (PAT from the UI). `TF_VAR_github_org_admin_token`
   supplies the tofu-github workspace secret — via env at apply, never a file.
-- `deploy.sh` needs: age key locally, SSH to `iac.pve.jacobpevans.com`,
+- `deploy.sh` needs: age key locally, SSH to `<vm-fqdn>`,
   pve3 powered on.

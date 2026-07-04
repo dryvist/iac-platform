@@ -11,7 +11,8 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEPLOY_HOST="${DEPLOY_HOST:-ssh://debian@iac.pve.jacobpevans.com}"
+# DEPLOY_HOST (the VM's SSH FQDN) is real-domain-bearing, so it comes from the
+# sops env (or the caller's environment) — never a committed default.
 
 command -v sops >/dev/null || { echo "sops not found (enter the dev shell)" >&2; exit 1; }
 
@@ -28,8 +29,8 @@ fi
 # nightly — if this fails to connect, check that the node is powered on first.
 exec sops --config "$REPO_ROOT/secrets/.sops.yaml" exec-env \
   "$REPO_ROOT/secrets/platform.sops.env" \
-  "docker --host '$DEPLOY_HOST' compose \
+  'docker --host "${DEPLOY_HOST:?DEPLOY_HOST missing from sops env}" compose \
      --project-name iac-platform \
-     --project-directory '$REPO_ROOT/compose' \
-     --env-file '$REPO_ROOT/compose/.env' \
-     up -d --remove-orphans"
+     --project-directory '"'$REPO_ROOT/compose'"' \
+     --env-file '"'$REPO_ROOT/compose/.env'"' \
+     up -d --remove-orphans'

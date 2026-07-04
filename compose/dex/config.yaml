@@ -1,7 +1,8 @@
 # Dex for Terrakube: GitHub-connector-only (no local passwords, no LDAP).
-# Client secrets arrive as env vars ($DEX_GITHUB_CLIENT_ID/_SECRET) from the
-# sops env at deploy time — dex expands $ENV references in this file itself.
-issuer: https://terrakube-dex.pve.jacobpevans.com/dex
+# Secrets AND the real domain arrive as env vars ($DEX_GITHUB_CLIENT_ID/
+# _SECRET, $DOMAIN) from the sops env at deploy time — dex expands $ENV in
+# this file itself, so no real hostname is ever committed.
+issuer: https://terrakube-dex.$DOMAIN/dex
 
 storage:
   type: memory
@@ -11,7 +12,7 @@ web:
   # Replaces the upstream reference's Traefik CORS middleware: the UI origin
   # must be allowed to hit dex from the browser.
   allowedOrigins:
-    - 'https://terrakube.pve.jacobpevans.com'
+    - 'https://terrakube.$DOMAIN'
 
 oauth2:
   responseTypes: ["code"]
@@ -26,7 +27,7 @@ staticClients:
     name: Terrakube
     public: true
     redirectURIs:
-      - https://terrakube.pve.jacobpevans.com
+      - https://terrakube.$DOMAIN
       # tofu/terraform login device flow callbacks (CLI-driven workflow).
       - http://localhost:10000/login
       - http://localhost:10001/login
@@ -38,7 +39,7 @@ connectors:
     config:
       clientID: $DEX_GITHUB_CLIENT_ID
       clientSecret: $DEX_GITHUB_CLIENT_SECRET
-      redirectURI: https://terrakube-dex.pve.jacobpevans.com/dex/callback
+      redirectURI: https://terrakube-dex.$DOMAIN/dex/callback
       # Only members of this org team can log in; the emitted group claim
       # "dryvist:terrakube-admins" is Terrakube's admin group.
       orgs:
