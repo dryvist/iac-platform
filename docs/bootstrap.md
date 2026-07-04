@@ -20,10 +20,21 @@ One-time sequence from zero to a working platform. Ongoing operations live in
 4. **RustFS bucket + access key**: create bucket `terrakube` and an access
    key pair matching `TK_OUTPUT_ACCESS_KEY`/`TK_OUTPUT_SECRET_KEY` from the
    sops env (RustFS console at `https://object-storage.pve.jacobpevans.com`).
-5. **Docker engine on the VM** (docker-host precedent: Debian + docker.io/
-   compose plugin; the deploy user in the `docker` group).
+   Gotcha when using `aws --endpoint-url https://s3.pve.jacobpevans.com` from
+   an aws-vault-injected shell: **unset `AWS_SESSION_TOKEN` first** — RustFS
+   rejects requests carrying an STS session token ("check claims failed /
+   invalid token2"), exactly why terragrunt's fetch pattern unsets it.
+5. **Docker engine on the VM**: Docker CE + compose plugin from the official
+   Docker apt repo (Debian bookworm's own `docker-compose` is v1 — too old for
+   this compose file); deploy user in the `docker` group.
 6. **Age key** present locally (`~/.config/sops/age/keys.txt`) — the only
    secret-zero. No keychain is used anywhere in this flow.
+
+Platform-VM facts recorded during first bring-up: the VM's CPU type must be
+`x86-64-v2` (its node's Nehalem Xeons lack AES-NI, so the terraform module's
+`x86-64-v2-AES` default cannot boot there — set in deployment.json), and the
+clone template must exist on the target node (offline-migrate it over and back
+via the Proxmox API for the one clone).
 
 ## Bring-up
 
@@ -56,3 +67,19 @@ state migration.
 Follow tofu-github's AGENTS.md "Applying" section: its cloud block points at
 the `tofu-github` workspace created here; the org-admin `GITHUB_TOKEN` is
 already a sensitive workspace variable — dev machines and CI never hold it.
+
+## Per-machine login (any machine, zero keychain)
+
+```bash
+tofu login terrakube-api.pve.jacobpevans.com
+```
+
+On a machine without a global `tofu` (e.g. a nix-darwin host that only gets
+it via per-repo dev shells), stay policy-compliant with an ephemeral shell:
+
+```bash
+nix shell nixpkgs#opentofu -c tofu login terrakube-api.pve.jacobpevans.com
+```
+
+The credential lands in `~/.terraform.d/credentials.tfrc.json`; from then on
+every repo with a cloud block plans/applies remotely from that machine.
