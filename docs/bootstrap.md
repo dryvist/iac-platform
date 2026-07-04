@@ -44,8 +44,6 @@ export TERRAKUBE_ENDPOINT=https://terrakube-api.pve.jacobpevans.com
 export TERRAKUBE_TOKEN=<PAT from UI: user settings → API tokens>
 export TF_VAR_github_org_admin_token=<classic PAT with admin:org>
 tofu init && tofu apply
-tofu output -raw ci_team_token   # → GitHub org secret TERRAKUBE_TEAM_TOKEN
-                                 #   + recovery copy in Doppler ai-ci-automation/prd
 ```
 
 Then migrate this stack's own state into the instance it just configured:

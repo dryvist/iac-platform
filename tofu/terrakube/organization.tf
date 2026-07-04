@@ -16,15 +16,8 @@ resource "terrakube_team" "admins" {
   role            = "admin"
 }
 
-# CI token: what GitHub Actions runners present as
-# TF_TOKEN_terrakube__api_pve_jacobpevans_com. MVP scoping note: this token
-# carries the admin team's privileges; tightening CI to a plan-scoped team is
-# phase-2 hardening. Master copy of the value goes to the GitHub org secret
-# TERRAKUBE_TEAM_TOKEN (+ a recovery copy in Doppler ai-ci-automation/prd).
-resource "terrakube_team_token" "ci" {
-  description = "GitHub Actions runners: remote plan/apply via the TFC-compatible backend"
-  team_name   = terrakube_team.admins.name
-  days        = var.ci_token_days
-  hours       = 0
-  minutes     = 0
-}
+# Deliberately NO team token / CI credentials: consumers use Terrakube's
+# native CLI-driven flow (tofu login once per machine; interactive apply
+# confirm; UI approval templates). CI plan/apply choreography — and the
+# team token it would need — gets added only if a real recurring need
+# appears (simplicity directive, 2026-07-03).

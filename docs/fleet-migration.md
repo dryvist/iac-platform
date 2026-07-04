@@ -33,11 +33,9 @@ state** and follows the standard rollout.
    the Terrakube UI and `tofu state list` count matches the snapshot.
 6. **Prove no-op**: `tofu plan` (remote) must be empty. Anything else stops
    the migration for that repo.
-7. **CI + docs**: copy tofu-github's `terrakube.yml` pattern (reachability
-   skip on PR, `TERRAKUBE_ENABLED` arming variable, `production`-environment
-   gate on main); runner entry in ansible-proxmox-apps `docker_vms.yml` if the
-   repo lacks one; rewrite the repo's Applying/State-backend docs; drop
-   aws-vault instructions.
+7. **Docs**: rewrite the repo's Applying/State-backend docs; drop aws-vault
+   instructions. (No CI plan/apply workflow — Terrakube's native CLI/UI flows
+   only, per the simplicity directive.)
 8. **Decommission tail** (per repo, LAST, after a **30-day soak** with the
    versioned bucket untouched): empty + delete the state bucket, DynamoDB
    lock table, `tf-<project>` IAM role; remove the aws-vault profile from

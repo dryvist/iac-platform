@@ -27,9 +27,9 @@ sops --config secrets/.sops.yaml exec-env secrets/platform.sops.env \
 
 Consumer repos point their `cloud {}` block at
 `terrakube-api.pve.jacobpevans.com` and run plain `tofu plan` / `tofu apply` —
-execution happens remotely on the platform's executor. Humans authenticate
-once per machine with `tofu login terrakube-api.pve.jacobpevans.com`; CI
-presents a team token via the `TF_TOKEN_*` environment variable.
+execution happens remotely on the platform's executor. Authenticate once
+per machine with `tofu login terrakube-api.pve.jacobpevans.com`; applies
+confirm interactively (or via the UI's native approval templates).
 
 Workspace onboarding is code: one `terrakube_workspace_cli` resource in
 [`tofu/terrakube/workspaces.tf`](tofu/terrakube/workspaces.tf).

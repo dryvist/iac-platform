@@ -51,9 +51,7 @@ inconsistent, `psql < pg_dumpall-<date>.sql` → workspaces re-apply from
 
 - Everything in `secrets/platform.sops.env` rotates via `sops` edit + redeploy.
 - **PAT_SECRET / INTERNAL_SECRET rotation invalidates every issued Terrakube
-  token** (user PATs and the CI team token) — plan for re-login + re-minting.
-- CI team token expiry (90d default): re-apply `tofu/terrakube` and update the
-  GitHub org secret `TERRAKUBE_TEAM_TOKEN` + Doppler recovery copy.
+  token** (user PATs) — plan for re-login on every machine.
 
 ## Upgrades
 

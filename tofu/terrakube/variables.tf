@@ -26,9 +26,3 @@ variable "github_org_admin_token" {
   type        = string
   sensitive   = true
 }
-
-variable "ci_token_days" {
-  description = "Validity window (days) for the CI team token. Rotation = re-apply after expiry."
-  type        = number
-  default     = 90
-}

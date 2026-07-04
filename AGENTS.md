@@ -21,8 +21,8 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
   [docs/runbook.md](docs/runbook.md).
 - **Zero keychain, zero passwords**: the only local secret-zero is the age key
   (`~/.config/sops/age/keys.txt`). Humans `tofu login` once per machine
-  (browser); CI presents a team token via
-  `TF_TOKEN_terrakube__api_pve_jacobpevans_com`. Credentials that providers
+  (browser). There is deliberately NO CI plan/apply and no CI token —
+  Terrakube's native CLI/UI flows are the whole story. Credentials that providers
   need at apply time (e.g. tofu-github's org-admin `GITHUB_TOKEN`) live ONLY
   as sensitive Terrakube workspace variables.
 - **Secrets never in git plaintext**: deploy-time secrets live in
@@ -39,7 +39,7 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
 | --- | --- |
 | `compose/` | The 9-service stack (Terrakube api/ui/executor/registry, dex, valkey, postgres + backup sidecar, semaphore), pinned via `compose/.env` |
 | `secrets/` | `.sops.yaml` (age recipient) + `platform.sops.env` (encrypted) |
-| `tofu/terrakube/` | Workspaces-as-code: org, admin team, CI team token, one `terrakube_workspace_cli` per consuming repo + their sensitive variables |
+| `tofu/terrakube/` | Workspaces-as-code: org, admin team, one `terrakube_workspace_cli` per consuming repo + their sensitive variables |
 | `scripts/` | `deploy.sh` (sops exec-env → docker --host ssh compose up), `smoke-test.sh` |
 | `docs/` | [bootstrap.md](docs/bootstrap.md) (first bring-up), [runbook.md](docs/runbook.md) (operations) |
 
@@ -58,7 +58,7 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
 ## Applying
 
 - `tofu/terrakube/` authenticates via `TERRAKUBE_ENDPOINT` + `TERRAKUBE_TOKEN`
-  env vars (PAT from the UI, or team token). `TF_VAR_github_org_admin_token`
+  env vars (PAT from the UI). `TF_VAR_github_org_admin_token`
   supplies the tofu-github workspace secret — via env at apply, never a file.
 - `deploy.sh` needs: age key locally, SSH to `iac.pve.jacobpevans.com`,
   pve3 powered on.
