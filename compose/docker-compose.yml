@@ -1,0 +1,271 @@
+# IaC automation platform: Terrakube (OpenTofu management plane) + Semaphore UI
+# (Ansible tier), one compose project on the iac-platform VM.
+#
+# Adapted from the upstream Terrakube reference compose with three deliberate
+# divergences:
+#   - no bundled traefik: the homelab's central Traefik fronts every service by
+#     FQDN with the wildcard ACME cert (ingress rows live in terraform-proxmox
+#     ingress.tf). This stack only publishes plain-HTTP host ports for Traefik
+#     to back onto.
+#   - no bundled minio: state/output/module storage is the existing RustFS
+#     object store, reached ONLY by FQDN (S3 ingress row) — never an IP:port.
+#   - no openldap: authentication is dex's GitHub connector (org OAuth App).
+#
+# Secrets are NOT in this file or compose/.env — they interpolate from the
+# environment at deploy time via `sops exec-env secrets/platform.sops.env`
+# (see scripts/deploy.sh). Every ${VAR} with no default here is secret-sourced.
+#
+# The executor is deliberately unpublished: only the API reaches it, on the
+# compose-internal network.
+
+x-api: &api_env
+  ApiDataSourceType: POSTGRESQL
+  DatasourceHostname: postgresql-service
+  DatasourceDatabase: ${TK_POSTGRESQL_DATABASE_NAME}
+  DatasourceUser: ${TK_POSTGRESQL_USERNAME}
+  DatasourcePassword: ${TK_POSTGRESQL_PASSWORD}
+  GroupValidationType: DEX
+  UserValidationType: DEX
+  AuthenticationValidationType: DEX
+  TerrakubeHostname: terrakube-api.${DOMAIN}
+  AzBuilderExecutorUrl: http://terrakube-executor:8090/api/v1/terraform-rs
+  PatSecret: ${PAT_SECRET}
+  InternalSecret: ${INTERNAL_SECRET}
+  DexIssuerUri: https://terrakube-dex.${DOMAIN}/dex
+  DexClientId: terrakube-app
+  # Admin group in the dex github connector's "org:team-slug" shape.
+  TERRAKUBE_ADMIN_GROUP: ${TERRAKUBE_ADMIN_GROUP}
+  StorageType: AWS
+  AwsStorageAccessKey: ${TK_OUTPUT_ACCESS_KEY}
+  AwsStorageSecretKey: ${TK_OUTPUT_SECRET_KEY}
+  AwsStorageBucketName: ${TK_OUTPUT_BUCKET_NAME}
+  AwsStorageRegion: ${TK_OUTPUT_STORAGE_REGION}
+  AwsEndpoint: ${TK_OUTPUT_ENDPOINT}
+  AwsEnablePathStyle: "true"
+  TerrakubeUiURL: https://terrakube.${DOMAIN}
+  TerrakubeToolsRepository: https://github.com/terrakube-io/terrakube-extensions.git
+  TerrakubeToolsBranch: main
+  TerrakubeRedisHostname: redis-service
+  TerrakubeRedisPort: 6379
+  TerrakubeRedisPassword: ${TK_REDIS_PASSWORD}
+  JAVA_TOOL_OPTIONS: -Xmx512m
+
+x-executor: &executor_env
+  TerrakubeEnableSecurity: "true"
+  InternalSecret: ${INTERNAL_SECRET}
+  TerraformStateType: AwsTerraformStateImpl
+  AwsTerraformStateAccessKey: ${TK_OUTPUT_ACCESS_KEY}
+  AwsTerraformStateSecretKey: ${TK_OUTPUT_SECRET_KEY}
+  AwsTerraformStateBucketName: ${TK_OUTPUT_BUCKET_NAME}
+  AwsTerraformStateRegion: ${TK_OUTPUT_BUCKET_REGION}
+  AwsEndpoint: ${TK_OUTPUT_ENDPOINT}
+  AwsEnablePathStyle: "true"
+  TerraformOutputType: AwsTerraformOutputImpl
+  AwsTerraformOutputAccessKey: ${TK_OUTPUT_ACCESS_KEY}
+  AwsTerraformOutputSecretKey: ${TK_OUTPUT_SECRET_KEY}
+  AwsTerraformOutputBucketName: ${TK_OUTPUT_BUCKET_NAME}
+  AwsTerraformOutputRegion: ${TK_OUTPUT_BUCKET_REGION}
+  AzBuilderApiUrl: https://terrakube-api.${DOMAIN}
+  ExecutorFlagBatch: "false"
+  ExecutorFlagDisableAcknowledge: "false"
+  TerrakubeToolsRepository: https://github.com/terrakube-io/terrakube-extensions.git
+  TerrakubeToolsBranch: main
+  TerrakubeRegistryDomain: terrakube-registry.${DOMAIN}
+  TerrakubeApiUrl: https://terrakube-api.${DOMAIN}
+  TerrakubeRedisHostname: redis-service
+  TerrakubeRedisPort: 6379
+  TerrakubeRedisPassword: ${TK_REDIS_PASSWORD}
+  JAVA_TOOL_OPTIONS: -Xmx512m
+
+x-registry: &registry_env
+  AzBuilderRegistry: https://terrakube-registry.${DOMAIN}
+  AzBuilderApiUrl: https://terrakube-api.${DOMAIN}
+  AuthenticationValidationTypeRegistry: DEX
+  TerrakubeEnableSecurity: "true"
+  DexIssuerUri: https://terrakube-dex.${DOMAIN}/dex
+  TerrakubeUiURL: https://terrakube.${DOMAIN}
+  PatSecret: ${PAT_SECRET}
+  InternalSecret: ${INTERNAL_SECRET}
+  RegistryStorageType: AwsStorageImpl
+  AwsStorageAccessKey: ${TK_OUTPUT_ACCESS_KEY}
+  AwsStorageSecretKey: ${TK_OUTPUT_SECRET_KEY}
+  AwsStorageBucketName: ${TK_OUTPUT_BUCKET_NAME}
+  AwsStorageRegion: ${TK_OUTPUT_STORAGE_REGION}
+  AwsEndpoint: ${TK_OUTPUT_ENDPOINT}
+  AwsEnablePathStyle: "true"
+  AppClientId: terrakube-app
+  AppIssuerUri: https://terrakube-dex.${DOMAIN}/dex
+  JAVA_TOOL_OPTIONS: -Xmx384m
+
+x-ui: &ui_env
+  REACT_APP_TERRAKUBE_API_URL: https://terrakube-api.${DOMAIN}/api/v1/
+  REACT_APP_CLIENT_ID: terrakube-app
+  REACT_APP_AUTHORITY: https://terrakube-dex.${DOMAIN}/dex
+  REACT_APP_REDIRECT_URI: https://terrakube.${DOMAIN}
+  REACT_APP_REGISTRY_URI: https://terrakube-registry.${DOMAIN}
+  REACT_APP_SCOPE: email openid profile offline_access groups
+  REACT_APP_TERRAKUBE_SEND_COOKIES: "false"
+
+services:
+  terrakube-api:
+    image: azbuilder/api-server:${TK_VERSION}
+    container_name: terrakube-api
+    environment:
+      <<: [*api_env]
+    ports:
+      - "${PORT_TERRAKUBE_API}:8080"
+    mem_limit: 768m
+    restart: unless-stopped
+    depends_on:
+      postgresql-service:
+        condition: service_healthy
+
+  terrakube-ui:
+    image: azbuilder/terrakube-ui:${TK_VERSION}
+    container_name: terrakube-ui
+    environment:
+      <<: [*ui_env]
+    # No env-config.js mount: the ui image renders it from the REACT_APP_*
+    # environment at startup, so the domain stays env-sourced (sops), never
+    # a committed file. Verify on first deploy; if the image doesn't render
+    # it, generate the file in deploy.sh from the same env.
+    ports:
+      - "${PORT_TERRAKUBE_UI}:8080"
+    mem_limit: 64m
+    restart: unless-stopped
+
+  terrakube-executor:
+    image: azbuilder/executor:${TK_VERSION}
+    container_name: terrakube-executor
+    environment:
+      <<: [*executor_env]
+    # No published ports: executor is compose-internal only (API dials
+    # http://terrakube-executor:8090). Never front this service.
+    mem_limit: 1g
+    restart: unless-stopped
+
+  terrakube-registry:
+    image: azbuilder/open-registry:${TK_VERSION}
+    container_name: terrakube-registry
+    environment:
+      <<: [*registry_env]
+    ports:
+      - "${PORT_TERRAKUBE_REGISTRY}:8075"
+    mem_limit: 512m
+    restart: unless-stopped
+
+  terrakube-dex:
+    image: ghcr.io/dexidp/dex:${TK_DEX_VERSION}
+    container_name: terrakube-dex
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    environment:
+      DOMAIN: ${DOMAIN}
+      DEX_GITHUB_CLIENT_ID: ${DEX_GITHUB_CLIENT_ID}
+      DEX_GITHUB_CLIENT_SECRET: ${DEX_GITHUB_CLIENT_SECRET}
+    volumes:
+      - ./dex/config.yaml:/etc/dex/config.yaml:ro
+    ports:
+      - "${PORT_TERRAKUBE_DEX}:5556"
+    mem_limit: 64m
+    restart: unless-stopped
+
+  redis-service:
+    image: valkey/valkey:${TK_REDIS_VERSION}
+    container_name: redis-service
+    command:
+      - valkey-server
+      - --requirepass
+      - ${TK_REDIS_PASSWORD}
+      - --rename-command
+      - FLUSHDB
+      - ""
+      - --rename-command
+      - FLUSHALL
+      - ""
+    volumes:
+      - redis_data:/data
+    mem_limit: 128m
+    restart: unless-stopped
+
+  postgresql-service:
+    image: postgres:${TK_POSTGRESQL_VERSION}
+    container_name: postgresql-service
+    environment:
+      POSTGRES_USER: ${TK_POSTGRESQL_USERNAME}
+      POSTGRES_PASSWORD: ${TK_POSTGRESQL_PASSWORD}
+      POSTGRES_DB: ${TK_POSTGRESQL_DATABASE_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # Consumed by initdb/01-semaphore.sh on first boot only.
+      SEMAPHORE_DB_USER: semaphore
+      SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASS}
+      SEMAPHORE_DB_NAME: semaphore
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+    mem_limit: 512m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TK_POSTGRESQL_USERNAME} -d ${TK_POSTGRESQL_DATABASE_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Logical-backup sidecar: pg_dumpall during the pve3 power-on window (the
+  # node is off overnight, so a classic nightly cron would never fire). The
+  # dump lands on the VM disk, which the vzdump job then captures.
+  postgres-backup:
+    image: postgres:${TK_POSTGRESQL_VERSION}
+    container_name: postgres-backup
+    environment:
+      PGHOST: postgresql-service
+      PGUSER: ${TK_POSTGRESQL_USERNAME}
+      PGPASSWORD: ${TK_POSTGRESQL_PASSWORD}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          if [ "$$(date +%H)" = "12" ] && [ ! -f /backups/.dumped-$$(date +%F) ]; then
+            pg_dumpall > /backups/pg_dumpall-$$(date +%F).sql &&
+            touch /backups/.dumped-$$(date +%F) &&
+            ls -1t /backups/pg_dumpall-*.sql | tail -n +15 | xargs -r rm -f
+          fi
+          sleep 300
+        done
+    volumes:
+      - /var/lib/platform/backups:/backups
+    mem_limit: 128m
+    restart: unless-stopped
+    depends_on:
+      postgresql-service:
+        condition: service_healthy
+
+  semaphore:
+    image: semaphoreui/semaphore:${SEMAPHORE_VERSION}
+    container_name: semaphore
+    environment:
+      SEMAPHORE_DB_DIALECT: postgres
+      SEMAPHORE_DB_HOST: postgresql-service
+      SEMAPHORE_DB_PORT: 5432
+      SEMAPHORE_DB: semaphore
+      SEMAPHORE_DB_USER: semaphore
+      SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASS}
+      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_ADMIN_NAME: Admin
+      SEMAPHORE_ADMIN_EMAIL: ${SEMAPHORE_ADMIN_EMAIL}
+      SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${SEMAPHORE_ACCESS_KEY_ENCRYPTION}
+      SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
+    volumes:
+      - semaphore_data:/var/lib/semaphore
+    ports:
+      - "${PORT_SEMAPHORE}:3000"
+    mem_limit: 512m
+    restart: unless-stopped
+    depends_on:
+      postgresql-service:
+        condition: service_healthy
+
+volumes:
+  redis_data:
+  postgresql_data:
+  semaphore_data:

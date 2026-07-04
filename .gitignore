@@ -1,0 +1,34 @@
+# Terraform / OpenTofu
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# direnv
+.direnv/
+
+# Environment files — the ONLY committed env files are compose/.env
+# (non-secrets) and secrets/*.sops.env (encrypted). Everything else stays out.
+.env
+.env.*
+!.env.example
+
+# Private keys & certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.ppk
+
+# Local scratch
+*.local
+.DS_Store
