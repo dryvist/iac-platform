@@ -5,7 +5,7 @@
 # runbook.md "RustFS compatibility" — the #1 MVP risk).
 set -euo pipefail
 
-DOMAIN="${DOMAIN:?run under sops exec-env (real domain never committed)}"
+DOMAIN="${DOMAIN:?run under openbao-exec-env (real domain never committed)}"
 BUCKET="terrakube"
 FAIL=0
 
@@ -28,8 +28,9 @@ check "dex discovery"       "https://terrakube-dex.${DOMAIN}/dex/.well-known/ope
 check "semaphore"           "https://semaphore.${DOMAIN}/api/ping"                  '^200$'
 
 echo "== RustFS S3 (state storage) — write/read/delete roundtrip =="
-# Uses the same credentials the executor uses, from the sops env; run under:
-#   sops --config secrets/.sops.yaml exec-env secrets/platform.sops.env scripts/smoke-test.sh
+# Uses the same credentials the executor uses, from OpenBao; run under:
+#   doppler run -p iac-conf-mgmt -c prd -- \
+#     scripts/openbao-exec-env.sh secret/platform/terrakube/main -- scripts/smoke-test.sh
 if [[ -n "${TK_OUTPUT_ACCESS_KEY:-}" ]]; then
   export AWS_ACCESS_KEY_ID="$TK_OUTPUT_ACCESS_KEY" AWS_SECRET_ACCESS_KEY="$TK_OUTPUT_SECRET_KEY"
   S3=(aws --endpoint-url "https://s3.${DOMAIN}" --region us-east-1 s3)
@@ -43,7 +44,7 @@ if [[ -n "${TK_OUTPUT_ACCESS_KEY:-}" ]]; then
     FAIL=1
   fi
 else
-  echo "skip S3 roundtrip (no TK_OUTPUT_* in env — run under sops exec-env)"
+  echo "skip S3 roundtrip (no TK_OUTPUT_* in env — run under openbao-exec-env)"
 fi
 
 exit $FAIL

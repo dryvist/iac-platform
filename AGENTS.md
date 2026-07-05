@@ -11,10 +11,12 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
 ## Laws and doctrine
 
 - **No real domain in committed files.** `<domain>` in these docs is the
-  internal base domain; the real value lives ONLY in `secrets/platform.sops.env`
-  (`DOMAIN`, `DEPLOY_HOST`, `TK_OUTPUT_ENDPOINT`, `SEMAPHORE_ADMIN_EMAIL`) and
-  reaches compose/dex via `sops exec-env`. Same for every consumer repo: tofu
-  cloud blocks stay empty and take `TF_CLOUD_HOSTNAME` from the environment.
+  internal base domain; the real value lives ONLY in OpenBao
+  (`secret/platform/terrakube/main` — `DOMAIN`, `DEPLOY_HOST`,
+  `TK_OUTPUT_ENDPOINT`, `SEMAPHORE_ADMIN_EMAIL`) and reaches compose/dex via
+  `scripts/openbao-exec-env.sh`. Same for every consumer repo: tofu cloud blocks
+  stay empty and take `TF_CLOUD_HOSTNAME` from the environment (also pulled from
+  that OpenBao path).
 - **FQDN LAW: never reference any system by IP:port.** Every system is reached
   via its valid-HTTPS FQDN behind the ACME wildcard cert
   (`<name>.<domain>`, Traefik ingress rows in terraform-proxmox
@@ -24,28 +26,29 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
   off nightly ~22:00). Consumers must degrade gracefully (CI reachability
   pre-check → clean skip). Never start applies near 22:00. See
   [docs/runbook.md](docs/runbook.md).
-- **Zero keychain, zero passwords**: the only local secret-zero is the age key
-  (`~/.config/sops/age/keys.txt`). Humans `tofu login` once per machine
-  (browser). There is deliberately NO CI plan/apply and no CI token —
-  Terrakube's native CLI/UI flows are the whole story. Credentials that providers
-  need at apply time (e.g. tofu-github's org-admin `GITHUB_TOKEN`) live ONLY
-  as sensitive Terrakube workspace variables.
-- **Secrets never in git plaintext**: deploy-time secrets live in
-  `secrets/platform.sops.env` (SOPS+age). `compose/.env` carries only
-  non-secrets (pins, ports, hostnames).
+- **Zero keychain, zero passwords**: the local secret-zero is the platform
+  AppRole (`BAO_ADDR` + `OPENBAO_APPROLE_TERRAFORM_ROLE_ID/_SECRET_ID`), injected
+  by Doppler (`doppler run -p iac-conf-mgmt -c prd -- …`); no macOS keychain is
+  touched. Humans `tofu login` once per machine (browser). There is deliberately
+  NO CI plan/apply and no CI token — Terrakube's native CLI/UI flows are the
+  whole story. Credentials that providers need at apply time (e.g. tofu-github's
+  org-admin `GITHUB_TOKEN`) live ONLY as sensitive Terrakube workspace variables.
+- **Secrets never in git plaintext**: deploy-time secrets live in OpenBao
+  (`secret/platform/terrakube/main`), fetched at deploy by
+  `scripts/openbao-exec-env.sh`. `compose/.env` carries only non-secrets (pins,
+  ports, hostnames).
 - **The compose layer stays imperative** (`scripts/deploy.sh`): it must be
-  rebuildable from git + age key + a vzdump restore even when Terrakube is
-  down. Only `tofu/terrakube/` (workspaces-as-code) uses tofu — and its state
-  self-hosts in Terrakube after bootstrap (see providers.tf).
+  rebuildable from git + the Doppler AppRole (→ OpenBao) + a vzdump restore even
+  when Terrakube is down. Only `tofu/terrakube/` (workspaces-as-code) uses tofu —
+  and its state self-hosts in Terrakube after bootstrap (see providers.tf).
 
 ## Layout
 
 | Path | Owns |
 | --- | --- |
 | `compose/` | The 9-service stack (Terrakube api/ui/executor/registry, dex, valkey, postgres + backup sidecar, semaphore), pinned via `compose/.env` |
-| `secrets/` | `.sops.yaml` (age recipient) + `platform.sops.env` (encrypted) |
 | `tofu/terrakube/` | Workspaces-as-code: org, admin team, one `terrakube_workspace_cli` per consuming repo + their sensitive variables |
-| `scripts/` | `deploy.sh` (sops exec-env → docker --host ssh compose up), `smoke-test.sh` |
+| `scripts/` | `openbao-exec-env.sh` (AppRole → export KV path → exec), `deploy.sh` (→ docker --host ssh compose up), `smoke-test.sh` |
 | `docs/` | [bootstrap.md](docs/bootstrap.md) (first bring-up), [runbook.md](docs/runbook.md) (operations) |
 
 ## Conventions

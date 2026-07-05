@@ -12,8 +12,9 @@
 #   - no openldap: authentication is dex's GitHub connector (org OAuth App).
 #
 # Secrets are NOT in this file or compose/.env — they interpolate from the
-# environment at deploy time via `sops exec-env secrets/platform.sops.env`
-# (see scripts/deploy.sh). Every ${VAR} with no default here is secret-sourced.
+# environment at deploy time, exported from OpenBao by
+# `scripts/openbao-exec-env.sh` (see scripts/deploy.sh). Every ${VAR} with no
+# default here is secret-sourced.
 #
 # The executor is deliberately unpublished: only the API reaches it, on the
 # compose-internal network.
@@ -126,7 +127,7 @@ services:
     environment:
       <<: [*ui_env]
     # No env-config.js mount: the ui image renders it from the REACT_APP_*
-    # environment at startup, so the domain stays env-sourced (sops), never
+    # environment at startup, so the domain stays env-sourced (OpenBao), never
     # a committed file. Verify on first deploy; if the image doesn't render
     # it, generate the file in deploy.sh from the same env.
     ports:

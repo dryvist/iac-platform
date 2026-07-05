@@ -11,15 +11,16 @@ One-time sequence from zero to a working platform. Ongoing operations live in
    SSH-reachable; `terrakube*.<domain>` / `semaphore.<domain>`
    route (502 until the stack is up — expected).
 2. **GitHub OAuth App** (dryvist org): homepage `https://terrakube.<domain>`,
-   callback `https://terrakube-dex.<domain>/dex/callback`. Put the
-   client id/secret into the sops env (`sops secrets/platform.sops.env`,
-   replacing the CHANGEME values).
+   callback `https://terrakube-dex.<domain>/dex/callback`. Write the
+   client id/secret to OpenBao (`secret/platform/terrakube/main`,
+   `DEX_GITHUB_CLIENT_ID`/`_SECRET`, replacing the CHANGEME values).
 3. **GitHub team `terrakube-admins`** in the org, with every operator as a
    member. Login is restricted to this team; its dex group claim is the
    Terrakube admin group.
 4. **RustFS bucket + access key**: create bucket `terrakube` and an access
-   key pair matching `TK_OUTPUT_ACCESS_KEY`/`TK_OUTPUT_SECRET_KEY` from the
-   sops env (RustFS console at `https://object-storage.<domain>`).
+   key pair matching `TK_OUTPUT_ACCESS_KEY`/`TK_OUTPUT_SECRET_KEY` in OpenBao
+   (`secret/platform/terrakube/main`; RustFS console at
+   `https://object-storage.<domain>`).
    Gotcha when using `aws --endpoint-url https://s3.<domain>` from
    an aws-vault-injected shell: **unset `AWS_SESSION_TOKEN` first** — RustFS
    rejects requests carrying an STS session token ("check claims failed /
@@ -27,8 +28,10 @@ One-time sequence from zero to a working platform. Ongoing operations live in
 5. **Docker engine on the VM**: Docker CE + compose plugin from the official
    Docker apt repo (Debian bookworm's own `docker-compose` is v1 — too old for
    this compose file); deploy user in the `docker` group.
-6. **Age key** present locally (`~/.config/sops/age/keys.txt`) — the only
-   secret-zero. No keychain is used anywhere in this flow.
+6. **Doppler access** to `iac-conf-mgmt/prd` (injects `BAO_ADDR` +
+   `OPENBAO_APPROLE_TERRAFORM_ROLE_ID/_SECRET_ID`) — the only secret-zero, via
+   `doppler run -p iac-conf-mgmt -c prd -- …`. No keychain is used anywhere in
+   this flow.
 
 Platform-VM facts recorded during first bring-up: the VM's CPU type must be
 `x86-64-v2` (its node's Nehalem Xeons lack AES-NI, so the terraform module's
@@ -39,8 +42,9 @@ via the Proxmox API for the one clone).
 ## Bring-up
 
 ```bash
-./scripts/deploy.sh                       # compose up on the VM (by FQDN)
-sops --config secrets/.sops.yaml exec-env secrets/platform.sops.env \
+doppler run -p iac-conf-mgmt -c prd -- ./scripts/deploy.sh   # compose up (by FQDN)
+doppler run -p iac-conf-mgmt -c prd -- \
+  ./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
   ./scripts/smoke-test.sh                 # health + S3 roundtrip
 ```
 
