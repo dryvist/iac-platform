@@ -20,9 +20,12 @@ direnv allow   # uses the committed .envrc → nix flake dev shell
 ## Usage
 
 ```bash
-./scripts/deploy.sh        # deploy/redeploy the stack (sops + docker over SSH)
-sops --config secrets/.sops.yaml exec-env secrets/platform.sops.env \
-  ./scripts/smoke-test.sh  # health + S3 state-storage roundtrip
+# Secrets come from OpenBao; the AppRole role/secret ID + BAO_ADDR are injected
+# by Doppler. Both scripts run under scripts/openbao-exec-env.sh.
+doppler run -p iac-conf-mgmt -c prd -- ./scripts/deploy.sh   # deploy/redeploy over SSH
+doppler run -p iac-conf-mgmt -c prd -- \
+  ./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
+  ./scripts/smoke-test.sh    # health + S3 state-storage roundtrip
 ```
 
 Consumer repos point their `cloud {}` block at
@@ -42,8 +45,9 @@ backups, and rotation: [docs/runbook.md](docs/runbook.md).
 
 ## Contributing
 
-Conventional commits, GPG-signed. Secrets only ever enter
-`secrets/platform.sops.env` via `sops`. Image pins live in `compose/.env`.
+Conventional commits, GPG-signed. Runtime secrets live in OpenBao
+(`secret/platform/terrakube/main`), never in the repo. Image pins live in
+`compose/.env`.
 
 ## License
 

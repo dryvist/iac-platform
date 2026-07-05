@@ -1,6 +1,6 @@
 # Dex for Terrakube: GitHub-connector-only (no local passwords, no LDAP).
 # Secrets AND the real domain arrive as env vars ($DEX_GITHUB_CLIENT_ID/
-# _SECRET, $DOMAIN) from the sops env at deploy time — dex expands $ENV in
+# _SECRET, $DOMAIN) from OpenBao at deploy time — dex expands $ENV in
 # this file itself, so no real hostname is ever committed.
 issuer: https://terrakube-dex.$DOMAIN/dex
 

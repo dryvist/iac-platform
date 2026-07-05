@@ -49,7 +49,8 @@ inconsistent, `psql < pg_dumpall-<date>.sql` → workspaces re-apply from
 
 ## Secret rotation
 
-- Everything in `secrets/platform.sops.env` rotates via `sops` edit + redeploy.
+- Everything in OpenBao `secret/platform/terrakube/main` rotates via a KV write
+  - redeploy.
 - **PAT_SECRET / INTERNAL_SECRET rotation invalidates every issued Terrakube
   token** (user PATs) — plan for re-login on every machine.
 
