@@ -67,6 +67,11 @@ x-executor: &executor_env
   AwsTerraformOutputBucketName: ${TK_OUTPUT_BUCKET_NAME}
   AwsTerraformOutputRegion: ${TK_OUTPUT_BUCKET_REGION}
   AzBuilderApiUrl: https://terrakube-api.${DOMAIN}
+  # tofuReleasesUrl derives from AzBuilderApiUrl, but terraformReleasesUrl has no
+  # default (${CustomTerraformReleasesUrl}); the executor eagerly inits the
+  # terraform downloader even for tofu-only workspaces, so an unset value NPEs
+  # every job. HashiCorp-direct: no auth, no dex dependency.
+  CustomTerraformReleasesUrl: https://releases.hashicorp.com/terraform/index.json
   ExecutorFlagBatch: "false"
   ExecutorFlagDisableAcknowledge: "false"
   TerrakubeToolsRepository: https://github.com/terrakube-io/terrakube-extensions.git
