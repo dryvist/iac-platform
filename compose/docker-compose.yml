@@ -115,7 +115,10 @@ services:
       <<: [*api_env]
     ports:
       - "${PORT_TERRAKUBE_API}:8080"
-    mem_limit: 768m
+    # Paketo's memory-calculator reserves ~824M for fixed regions (metaspace +
+    # code cache + thread stacks) before heap; a sub-824M limit crashes the JVM
+    # at launch (exit 82). Give fixed regions + the -Xmx512m heap real room.
+    mem_limit: 1536m
     restart: unless-stopped
     depends_on:
       postgresql-service:
@@ -142,7 +145,8 @@ services:
       <<: [*executor_env]
     # No published ports: executor is compose-internal only (API dials
     # http://terrakube-executor:8090). Never front this service.
-    mem_limit: 1g
+    # 1g crashed at launch (Paketo fixed regions ~824M + -Xmx512m heap > 1g).
+    mem_limit: 1536m
     restart: unless-stopped
 
   terrakube-registry:
@@ -152,7 +156,8 @@ services:
       <<: [*registry_env]
     ports:
       - "${PORT_TERRAKUBE_REGISTRY}:8075"
-    mem_limit: 512m
+    # 512m < Paketo fixed regions (~824M) + -Xmx384m heap → launch crash.
+    mem_limit: 1280m
     restart: unless-stopped
 
   terrakube-dex:
@@ -164,7 +169,11 @@ services:
       DEX_GITHUB_CLIENT_ID: ${DEX_GITHUB_CLIENT_ID}
       DEX_GITHUB_CLIENT_SECRET: ${DEX_GITHUB_CLIENT_SECRET}
     volumes:
-      - ./dex/config.yaml:/etc/dex/config.yaml:ro
+      # Absolute VM path, not ./dex: bind-mount sources resolve on the remote
+      # daemon (deploy is `docker --host ssh://`), so deploy.sh rsyncs this
+      # non-secret file to the VM before `up`. DEX_GITHUB_CLIENT_* still inject
+      # from env at container runtime — the file itself carries no secret.
+      - /var/lib/platform/compose/dex/config.yaml:/etc/dex/config.yaml:ro
     ports:
       - "${PORT_TERRAKUBE_DEX}:5556"
     mem_limit: 64m
@@ -202,7 +211,9 @@ services:
       SEMAPHORE_DB_NAME: semaphore
     volumes:
       - postgresql_data:/var/lib/postgresql/data
-      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+      # Absolute VM path (see dex note): rsynced to the VM by deploy.sh so the
+      # first-boot semaphore DB/user init script actually runs on the daemon.
+      - /var/lib/platform/compose/postgres/initdb:/docker-entrypoint-initdb.d:ro
     mem_limit: 512m
     restart: unless-stopped
     healthcheck:
