@@ -129,10 +129,13 @@ services:
     container_name: terrakube-ui
     environment:
       <<: [*ui_env]
-    # No env-config.js mount: the ui image renders it from the REACT_APP_*
-    # environment at startup, so the domain stays env-sourced (OpenBao), never
-    # a committed file. Verify on first deploy; if the image doesn't render
-    # it, generate the file in deploy.sh from the same env.
+    # The React bundle reads window._env_ from /env-config.js at runtime; this
+    # image ships none (so the SPA renders blank). deploy.sh generates it from
+    # $DOMAIN — non-secret public URLs, so nothing sensitive is committed — and
+    # ships it to the VM, mounted here. The x-ui env above documents the same
+    # values (nginx does not inject them into the prebuilt static bundle).
+    volumes:
+      - /var/lib/platform/compose/ui/env-config.js:/usr/share/nginx/html/env-config.js:ro
     ports:
       - "${PORT_TERRAKUBE_UI}:8080"
     mem_limit: 64m

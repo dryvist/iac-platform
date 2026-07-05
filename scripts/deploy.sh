@@ -45,6 +45,23 @@ if [ "${1:-}" = "--inner" ]; then
     | docker --host "$host" run -i --rm -v "$VM_CONFIG_DIR:/dest" busybox \
         sh -c 'rm -rf /dest/dex /dest/postgres && tar -C /dest -xf -'
 
+  # The UI's static bundle reads window._env_ from /env-config.js at runtime and
+  # the image ships none, so generate it from $DOMAIN (non-secret public URLs)
+  # and ship it to the same VM path the compose file mounts into the container.
+  env_js="window._env_ = {
+  REACT_APP_TERRAKUBE_API_URL: \"https://terrakube-api.${DOMAIN}/api/v1/\",
+  REACT_APP_CLIENT_ID: \"terrakube-app\",
+  REACT_APP_AUTHORITY: \"https://terrakube-dex.${DOMAIN}/dex\",
+  REACT_APP_REDIRECT_URI: \"https://terrakube.${DOMAIN}\",
+  REACT_APP_REGISTRY_URI: \"https://terrakube-registry.${DOMAIN}\",
+  REACT_APP_SCOPE: \"email openid profile offline_access groups\",
+  REACT_APP_TERRAKUBE_SEND_COOKIES: \"false\"
+}
+"
+  printf '%s' "$env_js" \
+    | docker --host "$host" run -i --rm -v "$VM_CONFIG_DIR:/dest" busybox \
+        sh -c 'mkdir -p /dest/ui && cat > /dest/ui/env-config.js'
+
   exec docker --host "$host" compose \
     --project-name iac-platform \
     --project-directory "$REPO_ROOT/compose" \
