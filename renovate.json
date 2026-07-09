@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>dryvist/.github//configs/renovate-default"],
+  "extends": ["local>dryvist/.github"],
   "docker-compose": {
     "managerFilePatterns": ["/^compose/docker-compose\\.yml$/"]
   },
