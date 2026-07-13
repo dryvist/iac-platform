@@ -38,8 +38,8 @@ uses Terrakube's native OpenBao dynamic credentials: a job exchanges its signed
 identity for a short-lived OpenBao token, and no provider secret is stored in a
 Terrakube workspace.
 
-The fleet foundation declares nine workspaces covering the platform itself,
-GitHub governance, UniFi, production AWS, RunsOn, and all four Proxmox roots.
+The fleet foundation declares eight workspaces covering the platform itself,
+GitHub governance, UniFi, production AWS, RunsOn, and three Proxmox roots.
 Declaration does not migrate or apply any live state; follow the approval-gated
 sequence in [docs/fleet-migration.md](docs/fleet-migration.md).
 

@@ -1,6 +1,6 @@
 # Fleet State Migration
 
-All nine workspace configurations are declared in `tofu/terrakube`. Code
+All eight workspace configurations are declared in `tofu/terrakube`. Code
 conversion does not authorize state or infrastructure changes.
 
 For each workspace, in an approved production window:

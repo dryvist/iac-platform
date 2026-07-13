@@ -70,15 +70,6 @@ resource "terrakube_workspace_cli" "tofu_proxmox_aws_infra" {
   iac_version     = var.tofu_version
 }
 
-resource "terrakube_workspace_cli" "tofu_proxmox_vault_secrets" {
-  organization_id = terrakube_organization.org.id
-  name            = "tofu-proxmox-vault-secrets"
-  description     = "OpenBao policies, auth configuration, and secret metadata"
-  execution_mode  = "remote"
-  iac_type        = "tofu"
-  iac_version     = var.tofu_version
-}
-
 resource "terrakube_workspace_cli" "tofu_proxmox_servarr_config" {
   organization_id = terrakube_organization.org.id
   name            = "tofu-proxmox-servarr-config"
@@ -97,7 +88,6 @@ locals {
     tofu-runs-on                = terrakube_workspace_cli.tofu_runs_on.id
     tofu-proxmox                = terrakube_workspace_cli.tofu_proxmox.id
     tofu-proxmox-aws-infra      = terrakube_workspace_cli.tofu_proxmox_aws_infra.id
-    tofu-proxmox-vault-secrets  = terrakube_workspace_cli.tofu_proxmox_vault_secrets.id
     tofu-proxmox-servarr-config = terrakube_workspace_cli.tofu_proxmox_servarr_config.id
   }
 }
