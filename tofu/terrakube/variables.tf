@@ -21,6 +21,16 @@ variable "tofu_version" {
   }
 }
 
+variable "terrakube_endpoint" {
+  description = "HTTPS URL of the Terrakube API, supplied at apply time because the real domain is not committed."
+  type        = string
+
+  validation {
+    condition     = can(regex("^https://", var.terrakube_endpoint))
+    error_message = "terrakube_endpoint must be an HTTPS URL."
+  }
+}
+
 variable "openbao_address" {
   description = "Internal HTTPS address of OpenBao, supplied at apply time because the real domain is not committed."
   type        = string

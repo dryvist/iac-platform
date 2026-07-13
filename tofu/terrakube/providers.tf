@@ -19,10 +19,10 @@ terraform {
     }
   }
 
+  # hostname and organization are intentionally omitted so no internal FQDN
+  # or org login is committed to this public repo. OpenTofu reads them from
+  # TF_CLOUD_HOSTNAME / TF_CLOUD_ORGANIZATION at run time.
   cloud {
-    hostname     = "terrakube-api.jacobpevans.com"
-    organization = "dryvist"
-
     workspaces {
       name = "iac-platform"
     }
@@ -37,6 +37,6 @@ ephemeral "vault_kv_secret_v2" "terrakube" {
 }
 
 provider "terrakube" {
-  endpoint = "https://terrakube-api.jacobpevans.com"
+  endpoint = var.terrakube_endpoint
   token    = ephemeral.vault_kv_secret_v2.terrakube.data.TERRAKUBE_TOKEN
 }
