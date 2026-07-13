@@ -25,6 +25,9 @@ check "terrakube UI"        "https://terrakube.${DOMAIN}/"                      
 check "terrakube API"       "https://terrakube-api.${DOMAIN}/actuator/health"       '^200$'
 check "terrakube registry"  "https://terrakube-registry.${DOMAIN}/actuator/health"  '^200$'
 check "dex discovery"       "https://terrakube-dex.${DOMAIN}/dex/.well-known/openid-configuration" '^200$'
+check "workload discovery"  "https://terrakube-api.${DOMAIN}/.well-known/openid-configuration" '^200$'
+check "workload JWKS"       "https://terrakube-api.${DOMAIN}/.well-known/jwks"       '^200$'
+check "OpenBao OIDC"        "${OPENBAO_OIDC_ISSUER:?missing OpenBao OIDC issuer}/.well-known/openid-configuration" '^200$'
 check "semaphore"           "https://semaphore.${DOMAIN}/api/ping"                  '^200$'
 
 echo "== RustFS S3 (state storage) — write/read/delete roundtrip =="
