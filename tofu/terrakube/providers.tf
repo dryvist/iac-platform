@@ -1,17 +1,9 @@
 # Workspaces-as-code for the Terrakube instance this repo deploys.
 #
-# Authentication: TERRAKUBE_ENDPOINT + TERRAKUBE_TOKEN environment variables
-# (a Terrakube PAT from the UI, or a team token). Nothing here reads a keychain.
-#
-# State bootstrap sequence (chicken-and-egg, by design):
-#   1. First applies run on LOCAL state (no backend block) — Terrakube can't
-#      hold its own workspace definitions before it exists.
-#   2. Once the instance is healthy and the `iac-platform` workspace exists,
-#      uncomment the cloud block and `tofu init` to migrate state in.
-#   Residual risk accepted: if Terrakube dies, workspace definitions are
-#   re-applied from git on local state after a restore.
+# The self-hosted workspace receives OpenBao workload identity from Terrakube.
+# Its API token remains at the native platform path and is read ephemerally.
 terraform {
-  required_version = ">= 1.10"
+  required_version = ">= 1.11"
 
   required_providers {
     terrakube = {
@@ -21,13 +13,30 @@ terraform {
       source  = "azbuilder/terrakube"
       version = "~> 0.24"
     }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 5.10"
+    }
   }
 
-  # cloud {
-  #   hostname     = "terrakube-api.<domain>"   # real FQDN from your env/notes
-  #   organization = "dryvist"
-  #   workspaces { name = "iac-platform" }
-  # }
+  cloud {
+    hostname     = "terrakube-api.jacobpevans.com"
+    organization = "dryvist"
+
+    workspaces {
+      name = "iac-platform"
+    }
+  }
 }
 
-provider "terrakube" {}
+provider "vault" {}
+
+ephemeral "vault_kv_secret_v2" "terrakube" {
+  mount = "secret"
+  name  = "platform/terrakube/main"
+}
+
+provider "terrakube" {
+  endpoint = "https://terrakube-api.jacobpevans.com"
+  token    = ephemeral.vault_kv_secret_v2.terrakube.data.TERRAKUBE_TOKEN
+}
