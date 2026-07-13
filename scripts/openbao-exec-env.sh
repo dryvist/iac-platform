@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-# OpenBao analogue of `sops exec-env`: read a KV v2 path, export every key at
+# Read a KV v2 path, export every key at
 # that path into the environment, then exec the given command with them set.
 #
-# Secret-zero is the platform AppRole — BAO_ADDR plus
-# OPENBAO_APPROLE_TERRAFORM_ROLE_ID / _SECRET_ID — supplied by the caller's
-# environment, never committed. The canonical caller wraps this in Doppler:
-#   doppler run -p iac-conf-mgmt -c prd -- scripts/openbao-exec-env.sh <path> -- <cmd...>
+# The caller authenticates to OpenBao with a native human or workload method
+# and supplies its short-lived BAO_TOKEN (VAULT_TOKEN is also accepted).
 # Nothing secret touches disk; the values live only in this process's env and
 # whatever it exec's.
 #
@@ -18,14 +16,9 @@ shift
 [ "${1:-}" = "--" ] && shift
 [ "$#" -gt 0 ] || { echo "openbao-exec-env.sh: no command to exec" >&2; exit 2; }
 
-: "${BAO_ADDR:?BAO_ADDR missing (run under: doppler run -p iac-conf-mgmt -c prd -- ...)}"
-: "${OPENBAO_APPROLE_TERRAFORM_ROLE_ID:?AppRole role_id missing from env}"
-: "${OPENBAO_APPROLE_TERRAFORM_SECRET_ID:?AppRole secret_id missing from env}"
-
-token="$(curl -sf --max-time 10 -X POST "${BAO_ADDR}/v1/auth/approle/login" \
-  -d "{\"role_id\":\"${OPENBAO_APPROLE_TERRAFORM_ROLE_ID}\",\"secret_id\":\"${OPENBAO_APPROLE_TERRAFORM_SECRET_ID}\"}" \
-  | jq -r '.auth.client_token // empty')"
-[ -n "$token" ] || { echo "openbao-exec-env.sh: AppRole login to ${BAO_ADDR} failed" >&2; exit 1; }
+: "${BAO_ADDR:?BAO_ADDR missing}"
+token="${BAO_TOKEN:-${VAULT_TOKEN:-}}"
+[ -n "$token" ] || { echo "openbao-exec-env.sh: authenticate to OpenBao and set BAO_TOKEN" >&2; exit 1; }
 
 # KV v2 read endpoint inserts "/data/" after the mount: the logical path
 # "secret/platform/terrakube/main" reads at "/v1/secret/data/platform/terrakube/main".

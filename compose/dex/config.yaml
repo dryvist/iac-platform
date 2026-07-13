@@ -1,11 +1,11 @@
-# Dex for Terrakube: GitHub-connector-only (no local passwords, no LDAP).
+# Dex for Terrakube: OpenBao OIDC connector only (no local passwords or LDAP).
 # Secrets AND the real domain arrive as env vars from OpenBao at deploy time,
 # so no real hostname is ever committed. Two templating passes run: the dex
 # image renders the whole file with gomplate at container start (Go-template
 # .Env lookups), then dex applies its own $VAR expansion to the connector config
-# block only. Domain refs therefore use gomplate .Env (they appear in top-level
-# fields dex does NOT expand); the GitHub client id/secret stay $VAR so dex
-# expands them post-parse, safe for any special characters. NB gomplate renders
+# block only. Domain refs therefore use gomplate .Env in top-level fields; the
+# OpenBao issuer/client values stay $VAR so Dex expands them post-parse. NB
+# gomplate renders
 # comments too, so this note avoids literal template braces.
 issuer: https://terrakube-dex.{{ .Env.DOMAIN }}/dex
 
@@ -38,18 +38,19 @@ staticClients:
       - http://localhost:10001/login
 
 connectors:
-  - type: github
-    id: github
-    name: GitHub
+  - type: oidc
+    id: openbao
+    name: OpenBao
     config:
-      clientID: $DEX_GITHUB_CLIENT_ID
-      clientSecret: $DEX_GITHUB_CLIENT_SECRET
+      issuer: $OPENBAO_OIDC_ISSUER
+      clientID: $DEX_OPENBAO_CLIENT_ID
+      clientSecret: $DEX_OPENBAO_CLIENT_SECRET
       redirectURI: https://terrakube-dex.{{ .Env.DOMAIN }}/dex/callback
-      # Only members of this org team can log in; the emitted group claim
-      # "dryvist:terrakube-admins" is Terrakube's admin group.
-      orgs:
-        - name: dryvist
-          teams:
-            - terrakube-admins
-      teamNameField: slug
-      loadAllGroups: false
+      scopes: [openid, profile, email, groups]
+      getUserInfo: true
+      # OpenBao is the authoritative internal identity provider. Its custom
+      # OIDC scopes emit email/profile/groups claims, and the client assignment
+      # limits login to approved operator entities/groups.
+      insecureSkipEmailVerified: true
+      insecureEnableGroups: true
+      allowedGroups: [terrakube-admins]

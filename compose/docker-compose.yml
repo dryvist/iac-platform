@@ -4,12 +4,13 @@
 # Adapted from the upstream Terrakube reference compose with three deliberate
 # divergences:
 #   - no bundled traefik: the homelab's central Traefik fronts every service by
-#     FQDN with the wildcard ACME cert (ingress rows live in terraform-proxmox
+#     FQDN with the wildcard ACME cert (ingress rows live in tofu-proxmox
 #     ingress.tf). This stack only publishes plain-HTTP host ports for Traefik
 #     to back onto.
 #   - no bundled minio: state/output/module storage is the existing RustFS
 #     object store, reached ONLY by FQDN (S3 ingress row) — never an IP:port.
-#   - no openldap: authentication is dex's GitHub connector (org OAuth App).
+#   - no openldap: Dex delegates human authentication to OpenBao's native OIDC
+#     provider; OpenBao identity groups are Terrakube's authorization source.
 #
 # Secrets are NOT in this file or compose/.env — they interpolate from the
 # environment at deploy time, exported from OpenBao by
@@ -34,8 +35,14 @@ x-api: &api_env
   InternalSecret: ${INTERNAL_SECRET}
   DexIssuerUri: https://terrakube-dex.${DOMAIN}/dex
   DexClientId: terrakube-app
-  # Admin group in the dex github connector's "org:team-slug" shape.
+  # Admin group forwarded from the OpenBao OIDC provider through Dex.
   TERRAKUBE_ADMIN_GROUP: ${TERRAKUBE_ADMIN_GROUP}
+  # Per-job JWTs let executors authenticate to OpenBao without a stored token.
+  # The signing key pair is sourced from OpenBao through native compose secrets.
+  DynamicCredentialId: ${TK_DYNAMIC_CREDENTIAL_KEY_ID}
+  DynamicCredentialTtl: "90"
+  DynamicCredentialPublicKeyPath: /run/secrets/terrakube_dynamic_credential_public_key
+  DynamicCredentialPrivateKeyPath: /run/secrets/terrakube_dynamic_credential_private_key
   StorageType: AWS
   AwsStorageAccessKey: ${TK_OUTPUT_ACCESS_KEY}
   AwsStorageSecretKey: ${TK_OUTPUT_SECRET_KEY}
@@ -118,6 +125,9 @@ services:
     container_name: terrakube-api
     environment:
       <<: [*api_env]
+    secrets:
+      - terrakube_dynamic_credential_public_key
+      - terrakube_dynamic_credential_private_key
     ports:
       - "${PORT_TERRAKUBE_API}:8080"
     # Paketo's memory-calculator reserves ~824M for fixed regions (metaspace +
@@ -174,13 +184,14 @@ services:
     command: ["dex", "serve", "/etc/dex/config.yaml"]
     environment:
       DOMAIN: ${DOMAIN}
-      DEX_GITHUB_CLIENT_ID: ${DEX_GITHUB_CLIENT_ID}
-      DEX_GITHUB_CLIENT_SECRET: ${DEX_GITHUB_CLIENT_SECRET}
+      OPENBAO_OIDC_ISSUER: ${OPENBAO_OIDC_ISSUER}
+      DEX_OPENBAO_CLIENT_ID: ${DEX_OPENBAO_CLIENT_ID}
+      DEX_OPENBAO_CLIENT_SECRET: ${DEX_OPENBAO_CLIENT_SECRET}
     volumes:
       # Absolute VM path, not ./dex: bind-mount sources resolve on the remote
       # daemon (deploy is `docker --host ssh://`), so deploy.sh rsyncs this
-      # non-secret file to the VM before `up`. DEX_GITHUB_CLIENT_* still inject
-      # from env at container runtime — the file itself carries no secret.
+      # non-secret file to the VM before `up`. The OpenBao OIDC client values
+      # still inject from env at container runtime; this file carries no secret.
       - /var/lib/platform/compose/dex/config.yaml:/etc/dex/config.yaml:ro
     ports:
       - "${PORT_TERRAKUBE_DEX}:5556"
@@ -289,3 +300,13 @@ volumes:
   redis_data:
   postgresql_data:
   semaphore_data:
+
+# Docker Compose materializes these environment-sourced values as read-only
+# files under /run/secrets. The values are injected from OpenBao for deploy and
+# never live in compose/.env or a repository file. The private key must be
+# unencrypted PKCS#8 as required by Terrakube's dynamic credential service.
+secrets:
+  terrakube_dynamic_credential_public_key:
+    environment: TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY
+  terrakube_dynamic_credential_private_key:
+    environment: TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY

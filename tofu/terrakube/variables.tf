@@ -5,9 +5,9 @@ variable "organization_name" {
 }
 
 variable "admin_group" {
-  description = "Dex group granted Terrakube admin, in the github connector's org:team-slug shape. Must match TERRAKUBE_ADMIN_GROUP in the compose env."
+  description = "OpenBao identity group granted Terrakube admin. Must match TERRAKUBE_ADMIN_GROUP in the compose env."
   type        = string
-  default     = "dryvist:terrakube-admins"
+  default     = "terrakube-admins"
 }
 
 variable "tofu_version" {
@@ -21,8 +21,28 @@ variable "tofu_version" {
   }
 }
 
-variable "github_org_admin_token" {
-  description = "GitHub token with admin:org for the tofu-github workspace (classic PAT for MVP; GitHub App planned). Supply via TF_VAR_github_org_admin_token at apply — no default, never committed."
+variable "terrakube_endpoint" {
+  description = "HTTPS URL of the Terrakube API, supplied at apply time because the real domain is not committed."
   type        = string
-  sensitive   = true
+
+  validation {
+    condition     = can(regex("^https://", var.terrakube_endpoint))
+    error_message = "terrakube_endpoint must be an HTTPS URL."
+  }
+}
+
+variable "openbao_address" {
+  description = "Internal HTTPS address of OpenBao, supplied at apply time because the real domain is not committed."
+  type        = string
+
+  validation {
+    condition     = can(regex("^https://", var.openbao_address))
+    error_message = "openbao_address must be an HTTPS URL."
+  }
+}
+
+variable "openbao_workload_audience" {
+  description = "Audience bound by every OpenBao JWT role for Terrakube job identity."
+  type        = string
+  default     = "openbao.workload.identity"
 }

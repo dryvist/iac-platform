@@ -12,8 +12,8 @@ running tofu/ansible is such a workload. Consequences:
 - **Never start an apply near 22:00.** A run killed by node shutdown leaves
   the workspace lock held — see "Stuck workspace lock" below. State objects
   themselves are safe: they live in RustFS on pve1 (always-on).
-- **CI degrades, never blocks**: the plan-on-PR job pre-checks reachability
-  and skips cleanly when the platform is down; re-run the job when pve3 is up.
+- **No CI plan/apply**: local CLI and UI operations wait until pve3 is back in
+  its power-on window. Static repository checks remain independent.
 - Backup jobs (vzdump for the VM; the in-stack pg_dump sidecar at ~12:00)
   are scheduled inside the power-on window.
 
@@ -60,12 +60,18 @@ Image pins live in `compose/.env` (renovate-tracked). Bump → `deploy.sh` →
 `smoke-test.sh`. Terrakube api runs Liquibase migrations on start; take a
 manual `pg_dumpall` before major-version bumps.
 
-## Phase-2 hardening backlog
+## Foundation blockers and hardening backlog
 
-- GitHub App replaces the org-admin classic PAT in the tofu-github workspace.
-- Plan-scoped CI team (today the CI token rides the admin team).
+- Provision the nine exact-claim OpenBao JWT roles and migrate each consumer to
+  ephemeral provider credentials. The workspace declarations alone do not
+  grant secret access.
+- Mirror the Terrakube extensions repository and Terraform compatibility
+  release index inside the homelab before removing
+  `TerrakubeToolsRepository` and `CustomTerraformReleasesUrl`. No internal
+  endpoint exists today, so this repository deliberately does not invent one.
+- Mirror pinned container images, OpenTofu releases, providers, and modules;
+  then prove a clean executor run with general WAN egress blocked.
 - Semaphore OIDC via the same dex (drops the local admin password) + project
   wiring for the ansible repos.
 - Prometheus scrape (Spring actuator + cAdvisor) via the existing prometheus LXC.
 - Dedicated RustFS access policy (today: dedicated key, full-access MVP).
-- OpenBao integration for runtime secrets when it lands.

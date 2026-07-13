@@ -1,111 +1,102 @@
-# Fleet migration: every OpenTofu repo onto Terrakube
+# Fleet State Migration
 
-Goal state: **all** IaC repos plan/apply through this platform; terragrunt and
-the terraform binary retired; the AWS state estate decommissioned. tofu-github
-is the pathfinder (no prior state — clean cut). Everything below has **real S3
-state** and follows the standard rollout.
+All eight workspace configurations are declared in `tofu/terrakube`. Code
+conversion does not authorize state or infrastructure changes.
 
-## Standard per-repo rollout checklist
+For each workspace, in an approved production window:
 
-1. **Workspace as code** (this repo): add a `terrakube_workspace_cli` (+ any
-   sensitive workspace variables the provider needs) to
-   `tofu/terrakube/workspaces.tf`; apply.
-2. **Snapshot state** (last AWS-era touch): `terragrunt state pull >
-   <repo>-<env>-pre-terrakube.tfstate` locally AND `aws s3 cp` to an archive
-   prefix — keep the bucket read-only until the tail (step 7).
-3. **Attach to the OLD backend explicitly first.** terragrunt *generated* the
-   `backend "s3"` block, so a fresh clone has neither the block nor a
-   `.terraform/` cache — deleting terragrunt first would leave `tofu init`
-   nothing to migrate FROM (it would attach an empty workspace and the plan
-   would propose recreating the world). On the migration branch: temporarily
-   commit the equivalent `backend "s3" {}` + run `tofu init -backend-config=`
-   with the literal bucket/key terragrunt used; verify `tofu state list`
-   matches the snapshot.
-4. **Backend swap**: delete `terragrunt.hcl` (and root includes — first diff
-   the `.terragrunt-cache/` generated files: provider blocks, default tags,
-   retry config from `generate` blocks must become committed `.tf` or they're
-   silently lost), replace the s3 block with the `cloud {}` block (hostname
-   `terrakube-api.<domain>`, its workspace name).
-5. **Migrate state**: plain `tofu init` (with old AWS creds still in env) and
-   answer **yes** to the interactive migrate prompt. NOTE (verified):
-   `tofu init -migrate-state` is REJECTED with a cloud block — the plain-init
-   interactive prompt is the only path. Verify the state version appears in
-   the Terrakube UI and `tofu state list` count matches the snapshot.
-6. **Prove no-op**: `tofu plan` (remote) must be empty. Anything else stops
-   the migration for that repo.
-7. **Docs**: rewrite the repo's Applying/State-backend docs; drop aws-vault
-   instructions. (No CI plan/apply workflow — Terrakube's native CLI/UI flows
-   only, per the simplicity directive.)
-8. **Decommission tail** (per repo, LAST, after a **30-day soak** with the
-   versioned bucket untouched): empty + delete the state bucket, DynamoDB
-   lock table, `tf-<project>` IAM role; remove the aws-vault profile from
-   nix-home `modules/home-manager/aws/tf-projects.nix`.
+1. Seed its exact-claim OpenBao JWT role and native secret paths.
+2. Confirm the private Terrakube endpoint, provider/module mirror, and RustFS
+   storage are reachable with general WAN egress blocked.
+3. Snapshot the legacy state and verify its serial, lineage, and resource list.
+4. Import the snapshot into the matching Terrakube workspace under its native
+   lock. Preserve the snapshot outside the new state store for rollback.
+5. Run a refresh-only plan. Any resource replacement or unplanned mutation is
+   a stop condition.
+6. Run the repository's complete static and contract test suites.
+7. Perform one approved full plan/apply, validate downstream inventory and
+   services, then begin the retention period.
+8. Retire legacy state objects, lock tables, IAM roles, and local credential
+   profiles only after the retention period and a restore drill.
 
-## Terragrunt retirement notes
+Never use targeted apply during migration. Never copy provider credentials
+into a workspace variable; Terrakube workload identity and OpenBao remain the
+only machine path.
 
-- `get_aws_account_id()` disappears with the S3 backend — nothing else used it.
-- `path_relative_to_include()` state keys (terraform-aws, tf-splunk-aws
-  dev/stg/prod) become **one Terrakube workspace per env/root**
-  (`tf-splunk-aws-dev`, …) — workspace-per-directory replaces key-per-directory.
-- Generated `backend.tf` files (terragrunt `remote_state.generate`) are
-  deleted; the committed `cloud {}` block replaces them.
-- Once the last repo migrates, drop terragrunt (and the terraform binary)
-  from nix-devenv shells; `tofu` only. The pre-commit-terraform hooks exec
-  the `terraform` binary by default — export `PCT_TFPATH=tofu` from the nix
-  devshell env (supported ≥ v1.86; terraform-proxmox already does this).
+## Break-glass recovery (Terrakube or the platform is down)
 
-## Migration order (dependencies first, riskiest last)
+Terrakube, its Postgres lock store, RustFS (state + `deployment.json`), and
+OpenBao all run on guests that `tofu-proxmox` itself provisions. A dead control
+plane therefore cannot be repaired through Terrakube — the tool that would fix
+it depends on the thing that is broken. Two escape hatches exist. Both are
+single-operator, gated paths, not routine operations.
 
-| # | Repo | Workspace(s) | Sensitive workspace vars | Notes |
-|---|------|--------------|--------------------------|-------|
-| 1 | tofu-github | `tofu-github` | `GITHUB_TOKEN` (admin:org) | Pathfinder; no prior state; PR open |
-| 2 | docs-starlight/infra | `docs-starlight` | `CLOUDFLARE_API_TOKEN` | Kills a macOS-keychain dep; small state |
-| 3 | tofu-unifi | `tofu-unifi` | `UNIFI_*` set | Kills the other keychain dep; WLAN SOPS layer stays in-repo |
-| 4 | tf-splunk-aws | `tf-splunk-aws-{dev,stg,prod}` | `CRIBL_*`, `SPLUNK_PASSWORD` | 3 workspaces replace path-keys |
-| 5 | terraform-aws | `terraform-aws-*` per root | — (AWS provider creds, see below) | Provider-drift cleanup first (`~>5` vs `~>6`) |
-| 6 | **terraform-proxmox** | `terraform-proxmox`, `terraform-proxmox-aws-infra` | `PROXMOX_VE_*`, OpenBao AppRole | **Bootstrap-loop caveat below** |
-| 7 | terraform-runs-on | `terraform-runs-on` | — | LAST: its GitHub-OIDC CI apply works today; migrate once the platform is proven, or keep hybrid |
+### 1. Recover the platform guests from vzdump
 
-Skip/retire without migrating: terraform-aws-bedrock (dead), 
-terraform-aws-static-website (decommissioning), tofu-aws-templates
-(template repo, no state; archive once the last consumer leaves AWS).
+`iac-platform` (Terrakube + Postgres + Dex) and the OpenBao guests are LXCs on
+the Proxmox cluster. Restore the most recent vzdump for the affected guest, then
+start it (VMID resolves from the tofu inventory by hostname; node and storage
+pool are placeholders):
 
-**AWS provider credentials after migration**: repos whose *resources* live in
-AWS (tf-splunk-aws, terraform-aws, runs-on) still need AWS provider creds at
-run time even though state no longer does. Options, in preference order:
-static creds as sensitive workspace vars (rotatable, MVP), or a Terrakube
-executor-level OIDC/role story (phase 2 investigation). The `tf-<project>`
-*state* roles still die either way.
+```bash
+# on a surviving Proxmox node (proxmox-N)
+pct restore <VMID> /var/lib/vz/dump/vzdump-lxc-<VMID>-<timestamp>.tar.zst --storage <pool>
+pct start <VMID>
+```
 
-## The terraform-proxmox bootstrap loop (accepted, mitigated)
+Terrakube's run history and workspace locks live in its Postgres, so restoring
+the Postgres volume restores the locks. Once the platform answers, resume normal
+Terrakube runs — do **not** use the direct-backend path below unless the
+platform genuinely cannot be recovered.
 
-terraform-proxmox provisions the VM/ingress this platform runs on. After its
-state migrates, fixing a dead platform via tofu requires the platform. This
-is accepted because the escape hatches are cheap and documented:
+### 2. Apply `tofu-proxmox` directly against the RustFS S3 backend
 
-- The platform restores without tofu: vzdump restore + `deploy.sh`
-  (imperative, needs only git + age key) — see runbook.md.
-- Before migrating terraform-proxmox, take a `tofu state pull > backup.tfstate`
-  snapshot; a local-backend override + that snapshot rebuilds worst-case.
-- RustFS (state objects) lives on pve1, not on the platform VM.
+When Terrakube cannot be brought back, `tofu-proxmox` can plan/apply against the
+RustFS state bucket directly. RustFS lives on a Proxmox storage node, not on the
+platform VM, so its state survives a platform loss.
 
-## AWS decommission tail (after ALL repos migrate)
+Add a temporary backend override on a throwaway break-glass branch — never
+commit it to a release branch:
 
-- S3 state buckets (one per stack, three naming schemes — enumerate at
-  teardown, don't trust docs), DynamoDB lock tables, `tf-*`/`tofu*` IAM
-  roles + the `terraform`/`tofu` operator users, the GitHub-OIDC provider
-  (unless runs-on stays hybrid), the orphaned `mfa/terraform` device.
-- Local/dotfile cleanup: aws-vault profiles, `nix-home
-  modules/home-manager/aws/` module (whole module goes when the last
-  profile dies), `~/CLAUDE.local.md` AWS sections.
+```hcl
+# backend-override.tf — DELETE after recovery
+terraform {
+  backend "s3" {
+    bucket                      = "<rustfs-state-bucket>"
+    key                         = "tofu-proxmox/terraform.tfstate"
+    endpoints                   = { s3 = "https://rustfs.${PROXMOX_DOMAIN}" }
+    region                      = "us-east-1" # RustFS ignores region; any value
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    use_path_style              = true
+  }
+}
+```
 
-## Documentation matrix (update as repos migrate)
+RustFS S3 credentials come from OpenBao `secret/platform/object-storage` when
+OpenBao is up:
 
-| Doc | Change |
-|-----|--------|
-| Each migrated repo's README/AGENTS.md | Applying + state-backend sections → Terrakube flow |
-| `${GIT_HOME}/AGENTS.md` | Token-tier + transport notes lose their aws-vault references; add Terrakube auth pattern |
-| `~/CLAUDE.local.md` | AWS state-backend section → retired; keep tier table for GitHub tokens only |
-| `${GIT_HOME}/REPOS.md` | iac-platform entry; per-repo backend notes |
-| docs-starlight | hosts page for VM 110030 (`iac`), platform service page, this migration's ADR |
-| nix-home / nix-devenv | Drop terragrunt/terraform/aws-vault from shells as the tail completes |
+```bash
+export AWS_ACCESS_KEY_ID=$(bao kv get -field=access_key secret/platform/object-storage)
+export AWS_SECRET_ACCESS_KEY=$(bao kv get -field=secret_key secret/platform/object-storage)
+```
+
+If OpenBao is also down, this is a full break-glass: read the RustFS root
+credentials from the SOPS-bootstrap material (the sanctioned OpenBao-down
+fallback), never from a machine identity. Then:
+
+```bash
+tofu init -reconfigure
+tofu state pull > tofu-proxmox-breakglass.tfstate  # snapshot BEFORE any change
+tofu plan   # full plan, never -target
+tofu apply
+```
+
+> **Single-operator rule.** The direct S3 backend cannot see Terrakube's
+> Postgres lock. Two operators — or one operator plus a recovering Terrakube —
+> writing this state concurrently will corrupt it. Before using this path:
+> confirm Terrakube is down, hold the `flow-lock --flow tofu-breakglass` lease
+> (or the documented single-operator token), and be the only writer. Remove
+> `backend-override.tf` and return to Terrakube runs the moment the platform is
+> healthy.

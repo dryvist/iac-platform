@@ -3,9 +3,8 @@
 #
 # Secrets come from OpenBao (secret/platform/terrakube/main) via
 # scripts/openbao-exec-env.sh — the fleet's single source for these live-service
-# runtime credentials. Secret-zero is the platform AppRole (BAO_ADDR + role/secret
-# ID), supplied by the caller's environment; the canonical invocation is:
-#   doppler run -p iac-conf-mgmt -c prd -- ./scripts/deploy.sh
+# runtime credentials. The caller uses a short-lived token obtained through a
+# native OpenBao human or workload authentication method.
 # openbao-exec-env exports the KV keys into this process; docker compose
 # interpolates them into container definitions on the remote engine. Nothing
 # secret is written to disk on either end, and no macOS keychain is touched.
@@ -29,12 +28,17 @@ VM_CONFIG_DIR="/var/lib/platform/compose"
 # Second entry: OpenBao KV is already exported into the environment, so the real
 # deploy runs in a normal shell — no nested sh -c quoting.
 if [ "${1:-}" = "--inner" ]; then
-  case "${DEX_GITHUB_CLIENT_ID:-}${DEX_GITHUB_CLIENT_SECRET:-}" in
+  case "${DEX_OPENBAO_CLIENT_ID:-}${DEX_OPENBAO_CLIENT_SECRET:-}" in
     *CHANGEME*)
-      echo "OpenBao $BAO_PATH still has CHANGEME dex OAuth creds." >&2
-      echo "Write the real GitHub OAuth app id/secret to that path." >&2
+      echo "OpenBao $BAO_PATH still has CHANGEME Dex OIDC credentials." >&2
+      echo "Write the OpenBao OIDC client id/secret to that path." >&2
       exit 1 ;;
   esac
+
+  for name in OPENBAO_OIDC_ISSUER DEX_OPENBAO_CLIENT_ID DEX_OPENBAO_CLIENT_SECRET \
+    TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY; do
+    [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $BAO_PATH" >&2; exit 1; }
+  done
 
   host="${DEPLOY_HOST:?DEPLOY_HOST missing from OpenBao}"
   # Ship the two non-secret config dirs into the (root-owned) VM path via a root

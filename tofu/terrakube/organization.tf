@@ -1,9 +1,9 @@
 # Organization + access model.
 #
-# The admin team's NAME equals the dex group claim ("org:team-slug" from the
-# github connector) — that string match is how Terrakube maps a logged-in
-# user's groups onto team permissions. TERRAKUBE_ADMIN_GROUP (compose env)
-# additionally grants instance-level admin to the same group.
+# The admin team's name equals the OpenBao group claim forwarded by Dex. That
+# exact string match is how Terrakube maps an authenticated identity onto team
+# permissions. TERRAKUBE_ADMIN_GROUP grants instance-level admin to the same
+# group.
 resource "terrakube_organization" "org" {
   name           = var.organization_name
   description    = "Organization governance + homelab IaC, centrally planned and applied"
