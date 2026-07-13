@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Post-deploy smoke test. Everything by FQDN behind the wildcard cert — if a
-# check fails on TLS or DNS, the terraform-proxmox ingress rows/apply are the
+# check fails on TLS or DNS, the tofu-proxmox ingress rows/apply are the
 # first suspects; if only the S3 checks fail, RustFS compatibility is (see
-# runbook.md "RustFS compatibility" — the #1 MVP risk).
+# runbook.md "RustFS compatibility" — the #1 MVP risk). OpenBao OIDC and
+# Terrakube workload-identity discovery are checked explicitly below.
 set -euo pipefail
 
 DOMAIN="${DOMAIN:?run under openbao-exec-env (real domain never committed)}"

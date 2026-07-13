@@ -1,15 +1,38 @@
 # Fleet migration: every OpenTofu repo onto Terrakube
 
-Goal state: **all** IaC repos plan/apply through this platform; terragrunt and
-the terraform binary retired; the AWS state estate decommissioned. tofu-github
-is the pathfinder (no prior state — clean cut). Everything below has **real S3
-state** and follows the standard rollout.
+Goal state: **all** IaC roots plan/apply through this platform; Terragrunt and
+the Terraform binary are retired, provider secrets come from OpenBao workload
+identity, and the AWS state estate is decommissioned. Workspace declarations
+in this repository are foundation only: they do not authorize a state
+migration or production apply.
+
+## Declared workspace ledger
+
+- `iac-platform` — `iac-platform/tofu/terrakube`; existing, self-host
+  migration pending.
+- `tofu-github` — `tofu-github`; existing pathfinder.
+- `tofu-unifi` — `tofu-unifi/live`; migration pending.
+- `tofu-aws-production` — `tofu-aws/environments/production`; migration
+  pending.
+- `tofu-runs-on` — `tofu-runs-on`; migration pending.
+- `tofu-proxmox` — `tofu-proxmox`; migration pending.
+- `tofu-proxmox-aws-infra` — `tofu-proxmox/aws-infra`; migration pending.
+- `tofu-proxmox-vault-secrets` — `tofu-proxmox/vault-secrets`; migration
+  pending.
+- `tofu-proxmox-servarr-config` — `tofu-proxmox/servarr-config`; migration
+  pending.
+
+Every workspace contains only the four non-secret Terrakube/OpenBao dynamic
+credential settings documented in [bootstrap.md](bootstrap.md). The matching
+OpenBao role is named `terrakube-<workspace>` and must bind the exact
+organization/workspace claims before the workspace is usable.
 
 ## Standard per-repo rollout checklist
 
-1. **Workspace as code** (this repo): add a `terrakube_workspace_cli` (+ any
-   sensitive workspace variables the provider needs) to
-   `tofu/terrakube/workspaces.tf`; apply.
+1. **Workspace and identity as code**: declare the
+   `terrakube_workspace_cli` here; create its exact-claim JWT role and
+   least-privilege policy in the OpenBao-owning root. Provider credentials are
+   never Terrakube workspace variables.
 2. **Snapshot state** (last AWS-era touch): `terragrunt state pull >
    <repo>-<env>-pre-terrakube.tfstate` locally AND `aws s3 cp` to an archive
    prefix — keep the bucket read-only until the tail (step 7).
@@ -44,48 +67,49 @@ state** and follows the standard rollout.
 ## Terragrunt retirement notes
 
 - `get_aws_account_id()` disappears with the S3 backend — nothing else used it.
-- `path_relative_to_include()` state keys (terraform-aws, tf-splunk-aws
-  dev/stg/prod) become **one Terrakube workspace per env/root**
-  (`tf-splunk-aws-dev`, …) — workspace-per-directory replaces key-per-directory.
+- `path_relative_to_include()` state keys become one Terrakube workspace per
+  state root; workspace-per-directory replaces key-per-directory.
 - Generated `backend.tf` files (terragrunt `remote_state.generate`) are
   deleted; the committed `cloud {}` block replaces them.
 - Once the last repo migrates, drop terragrunt (and the terraform binary)
   from nix-devenv shells; `tofu` only. The pre-commit-terraform hooks exec
   the `terraform` binary by default — export `PCT_TFPATH=tofu` from the nix
-  devshell env (supported ≥ v1.86; terraform-proxmox already does this).
+  devshell env (supported ≥ v1.86; tofu-proxmox already does this).
 
 ## Migration order (dependencies first, riskiest last)
 
-| # | Repo | Workspace(s) | Sensitive workspace vars | Notes |
-|---|------|--------------|--------------------------|-------|
-| 1 | tofu-github | `tofu-github` | `GITHUB_TOKEN` (admin:org) | Pathfinder; no prior state; PR open |
-| 2 | docs-starlight/infra | `docs-starlight` | `CLOUDFLARE_API_TOKEN` | Kills a macOS-keychain dep; small state |
-| 3 | tofu-unifi | `tofu-unifi` | `UNIFI_*` set | Kills the other keychain dep; WLAN SOPS layer stays in-repo |
-| 4 | tf-splunk-aws | `tf-splunk-aws-{dev,stg,prod}` | `CRIBL_*`, `SPLUNK_PASSWORD` | 3 workspaces replace path-keys |
-| 5 | terraform-aws | `terraform-aws-*` per root | — (AWS provider creds, see below) | Provider-drift cleanup first (`~>5` vs `~>6`) |
-| 6 | **terraform-proxmox** | `terraform-proxmox`, `terraform-proxmox-aws-infra` | `PROXMOX_VE_*`, OpenBao AppRole | **Bootstrap-loop caveat below** |
-| 7 | terraform-runs-on | `terraform-runs-on` | — | LAST: its GitHub-OIDC CI apply works today; migrate once the platform is proven, or keep hybrid |
+1. `tofu-github` → `tofu-github`: issue a short-lived GitHub credential and
+   remove the stored PAT before further migrations.
+2. `tofu-aws/environments/production` → `tofu-aws-production`: issue a
+   short-lived AWS credential, flatten `root.hcl`, and preserve stable tags.
+3. `tofu-unifi/live` → `tofu-unifi`: issue UniFi credentials. Require an exact
+   production plan and human approval.
+4. `tofu-proxmox/vault-secrets` → `tofu-proxmox-vault-secrets`: bootstrap JWT
+   auth, then self-manage policies and roles. Revoke the bootstrap credential.
+5. `tofu-proxmox/servarr-config` → `tofu-proxmox-servarr-config`: issue its
+   application API credentials and migrate the independent state root.
+6. `tofu-proxmox/aws-infra` → `tofu-proxmox-aws-infra`: issue a short-lived
+   AWS credential. Public Route53 resources retain provider API egress.
+7. `tofu-proxmox` → `tofu-proxmox`: issue Proxmox, RustFS, and SSH credentials;
+   observe the bootstrap-loop caveat below.
+8. `tofu-runs-on` → `tofu-runs-on`: issue short-lived AWS and GitHub
+   credentials. Migrate last, after Terrakube is proven.
 
-Skip/retire without migrating: terraform-aws-bedrock (dead), 
-terraform-aws-static-website (decommissioning), tofu-aws-templates
-(template repo, no state; archive once the last consumer leaves AWS).
+Provider credentials for AWS, GitHub, UniFi, Proxmox, and application APIs are
+read from OpenBao with the workspace's short-lived token. State migration does
+not remove external provider API egress for resources that intentionally live
+in AWS or GitHub; it removes external state, lock, tool, auth, and secret
+dependencies.
 
-**AWS provider credentials after migration**: repos whose *resources* live in
-AWS (tf-splunk-aws, terraform-aws, runs-on) still need AWS provider creds at
-run time even though state no longer does. Options, in preference order:
-static creds as sensitive workspace vars (rotatable, MVP), or a Terrakube
-executor-level OIDC/role story (phase 2 investigation). The `tf-<project>`
-*state* roles still die either way.
+## The tofu-proxmox bootstrap loop (accepted, mitigated)
 
-## The terraform-proxmox bootstrap loop (accepted, mitigated)
-
-terraform-proxmox provisions the VM/ingress this platform runs on. After its
+tofu-proxmox provisions the VM/ingress this platform runs on. After its
 state migrates, fixing a dead platform via tofu requires the platform. This
 is accepted because the escape hatches are cheap and documented:
 
 - The platform restores without tofu: vzdump restore + `deploy.sh`
   (imperative, needs only git + age key) — see runbook.md.
-- Before migrating terraform-proxmox, take a `tofu state pull > backup.tfstate`
+- Before migrating tofu-proxmox, take a `tofu state pull > backup.tfstate`
   snapshot; a local-backend override + that snapshot rebuilds worst-case.
 - RustFS (state objects) lives on pve1, not on the platform VM.
 
@@ -101,11 +125,11 @@ is accepted because the escape hatches are cheap and documented:
 
 ## Documentation matrix (update as repos migrate)
 
-| Doc | Change |
-|-----|--------|
-| Each migrated repo's README/AGENTS.md | Applying + state-backend sections → Terrakube flow |
-| `${GIT_HOME}/AGENTS.md` | Token-tier + transport notes lose their aws-vault references; add Terrakube auth pattern |
-| `~/CLAUDE.local.md` | AWS state-backend section → retired; keep tier table for GitHub tokens only |
-| `${GIT_HOME}/REPOS.md` | iac-platform entry; per-repo backend notes |
-| docs-starlight | hosts page for VM 110030 (`iac`), platform service page, this migration's ADR |
-| nix-home / nix-devenv | Drop terragrunt/terraform/aws-vault from shells as the tail completes |
+- Migrated repository README/AGENTS: replace applying and state-backend
+  sections with the Terrakube flow.
+- `${GIT_HOME}/AGENTS.md`: replace AWS state transport with OpenBao workload
+  identity and Terrakube.
+- `~/CLAUDE.local.md`: retire the AWS state-backend section.
+- `${GIT_HOME}/REPOS.md`: record iac-platform and per-root backend status.
+- docs-starlight: document the platform host, services, and migration ADR.
+- nix-home/nix-devenv: remove Terragrunt, Terraform, and aws-vault at the tail.

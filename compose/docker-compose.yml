@@ -4,7 +4,7 @@
 # Adapted from the upstream Terrakube reference compose with three deliberate
 # divergences:
 #   - no bundled traefik: the homelab's central Traefik fronts every service by
-#     FQDN with the wildcard ACME cert (ingress rows live in terraform-proxmox
+#     FQDN with the wildcard ACME cert (ingress rows live in tofu-proxmox
 #     ingress.tf). This stack only publishes plain-HTTP host ports for Traefik
 #     to back onto.
 #   - no bundled minio: state/output/module storage is the existing RustFS
@@ -190,8 +190,8 @@ services:
     volumes:
       # Absolute VM path, not ./dex: bind-mount sources resolve on the remote
       # daemon (deploy is `docker --host ssh://`), so deploy.sh rsyncs this
-      # non-secret file to the VM before `up`. DEX_GITHUB_CLIENT_* still inject
-      # from env at container runtime — the file itself carries no secret.
+      # non-secret file to the VM before `up`. The OpenBao OIDC client values
+      # still inject from env at container runtime; this file carries no secret.
       - /var/lib/platform/compose/dex/config.yaml:/etc/dex/config.yaml:ro
     ports:
       - "${PORT_TERRAKUBE_DEX}:5556"

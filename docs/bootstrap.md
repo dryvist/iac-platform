@@ -5,18 +5,24 @@ One-time sequence from zero to a working platform. Ongoing operations live in
 
 ## Prerequisites (manual, outside this repo)
 
-1. **VM + ingress applied** — terraform-proxmox PR with the `iac-platform` VM
+1. **VM + ingress applied** — tofu-proxmox PR with the `iac-platform` VM
    (deployment.json), the six ingress rows, and the `iac_platform_ports`
    constants is merged and applied. `<vm-fqdn>` resolves and is
    SSH-reachable; `terrakube*.<domain>` / `semaphore.<domain>`
    route (502 until the stack is up — expected).
-2. **GitHub OAuth App** (dryvist org): homepage `https://terrakube.<domain>`,
-   callback `https://terrakube-dex.<domain>/dex/callback`. Write the
-   client id/secret to OpenBao (`secret/platform/terrakube/main`,
-   `DEX_GITHUB_CLIENT_ID`/`_SECRET`, replacing the CHANGEME values).
-3. **GitHub team `terrakube-admins`** in the org, with every operator as a
-   member. Login is restricted to this team; its dex group claim is the
-   Terrakube admin group.
+2. **OpenBao OIDC provider and client**: configure the `terrakube` provider,
+   identity scopes for `profile`, `email`, and `groups`, and a confidential Dex
+   client whose redirect URI is
+   `https://terrakube-dex.<domain>/dex/callback`. Assign only the OpenBao
+   `terrakube-admins` identity group. Store the resulting issuer, client ID, and
+   client secret at `secret/platform/terrakube/main` as
+   `OPENBAO_OIDC_ISSUER`, `DEX_OPENBAO_CLIENT_ID`, and
+   `DEX_OPENBAO_CLIENT_SECRET`.
+3. **Terrakube workload signing key**: create an RSA key pair for Terrakube's
+   per-job JWTs. Store the public PEM and unencrypted PKCS#8 private PEM at the
+   same OpenBao path as `TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY` and
+   `TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY`. The compose deployment mounts them as
+   environment-sourced Docker secrets; neither key is committed.
 4. **RustFS bucket + access key**: create bucket `terrakube` and an access
    key pair matching `TK_OUTPUT_ACCESS_KEY`/`TK_OUTPUT_SECRET_KEY` in OpenBao
    (`secret/platform/terrakube/main`; RustFS console at
@@ -24,7 +30,7 @@ One-time sequence from zero to a working platform. Ongoing operations live in
    Gotcha when using `aws --endpoint-url https://s3.<domain>` from
    an aws-vault-injected shell: **unset `AWS_SESSION_TOKEN` first** — RustFS
    rejects requests carrying an STS session token ("check claims failed /
-   invalid token2"), exactly why terragrunt's fetch pattern unsets it.
+   invalid token2").
 5. **Docker engine on the VM**: Docker CE + compose plugin from the official
    Docker apt repo (Debian bookworm's own `docker-compose` is v1 — too old for
    this compose file); deploy user in the `docker` group.
@@ -48,8 +54,9 @@ doppler run -p iac-conf-mgmt -c prd -- \
   ./scripts/smoke-test.sh                 # health + S3 roundtrip
 ```
 
-Browser: `https://terrakube.<domain>` → Login with GitHub → confirm
-the Organizations page offers admin actions (admin group mapped).
+Browser: `https://terrakube.<domain>` → Login with OpenBao → authenticate with
+an enabled OpenBao human auth method → confirm the Organizations page offers
+admin actions through the `terrakube-admins` group mapping.
 
 ## Workspaces-as-code (local state first)
 
@@ -57,7 +64,7 @@ the Organizations page offers admin actions (admin group mapped).
 cd tofu/terrakube
 export TERRAKUBE_ENDPOINT=https://terrakube-api.<domain>
 export TERRAKUBE_TOKEN=<PAT from UI: user settings → API tokens>
-export TF_VAR_github_org_admin_token=<classic PAT with admin:org>
+export TF_VAR_openbao_address=https://openbao.<domain>
 tofu init && tofu apply
 ```
 
@@ -66,11 +73,23 @@ uncomment the `cloud {}` block in `providers.tf`, run `tofu login
 terrakube-api.<domain>` once, then `tofu init` and approve the
 state migration.
 
-## First consumer
+## OpenBao workload roles
 
-Follow tofu-github's AGENTS.md "Applying" section: its cloud block points at
-the `tofu-github` workspace created here; the org-admin `GITHUB_TOKEN` is
-already a sensitive workspace variable — dev machines and CI never hold it.
+Before a workspace can plan, the OpenBao-owning root must enable JWT auth
+against Terrakube's internal discovery endpoint and create one role named
+`terrakube-<workspace-name>`. Each role binds the configured audience and the
+exact Terrakube organization/workspace claims, then grants only that root's
+secret paths. The workspace receives only these non-secret environment values:
+
+- `ENABLE_DYNAMIC_CREDENTIALS_VAULT=1`
+- `WORKLOAD_IDENTITY_VAULT_AUDIENCE=openbao.workload.identity`
+- `VAULT_ADDR=https://openbao.<domain>`
+- `WORKLOAD_IDENTITY_VAULT_ROLE=terrakube-<workspace-name>`
+
+`VAULT_ADDR` is the variable name required by Terrakube's native integration;
+the endpoint and implementation are OpenBao. Validate the unauthenticated
+Terrakube `/.well-known/openid-configuration` and `/.well-known/jwks` endpoints,
+then prove cross-workspace denial before migrating state.
 
 ## Per-machine login (any machine, zero keychain)
 
