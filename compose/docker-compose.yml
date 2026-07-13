@@ -40,7 +40,7 @@ x-api: &api_env
   # Per-job JWTs let executors authenticate to OpenBao without a stored token.
   # The signing key pair is sourced from OpenBao through native compose secrets.
   DynamicCredentialId: ${TK_DYNAMIC_CREDENTIAL_KEY_ID}
-  DynamicCredentialTtl: "20"
+  DynamicCredentialTtl: "90"
   DynamicCredentialPublicKeyPath: /run/secrets/terrakube_dynamic_credential_public_key
   DynamicCredentialPrivateKeyPath: /run/secrets/terrakube_dynamic_credential_private_key
   StorageType: AWS
