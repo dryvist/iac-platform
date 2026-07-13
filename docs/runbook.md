@@ -65,9 +65,6 @@ manual `pg_dumpall` before major-version bumps.
 - Provision the nine exact-claim OpenBao JWT roles and migrate each consumer to
   ephemeral provider credentials. The workspace declarations alone do not
   grant secret access.
-- Replace the deploy-time Doppler AppRole transport with a homelab-native
-  OpenBao Agent/bootstrap path. Until that exists, the compose deployment is
-  not WAN-independent even though its runtime secrets live in OpenBao.
 - Mirror the Terrakube extensions repository and Terraform compatibility
   release index inside the homelab before removing
   `TerrakubeToolsRepository` and `CustomTerraformReleasesUrl`. No internal

@@ -27,17 +27,16 @@ One-time sequence from zero to a working platform. Ongoing operations live in
    key pair matching `TK_OUTPUT_ACCESS_KEY`/`TK_OUTPUT_SECRET_KEY` in OpenBao
    (`secret/platform/terrakube/main`; RustFS console at
    `https://object-storage.<domain>`).
-   Gotcha when using `aws --endpoint-url https://s3.<domain>` from
-   an aws-vault-injected shell: **unset `AWS_SESSION_TOKEN` first** — RustFS
+   When using `aws --endpoint-url https://s3.<domain>`, ensure an unrelated
+   `AWS_SESSION_TOKEN` is unset — RustFS
    rejects requests carrying an STS session token ("check claims failed /
    invalid token2").
 5. **Docker engine on the VM**: Docker CE + compose plugin from the official
    Docker apt repo (Debian bookworm's own `docker-compose` is v1 — too old for
    this compose file); deploy user in the `docker` group.
-6. **Doppler access** to `iac-conf-mgmt/prd` (injects `BAO_ADDR` +
-   `OPENBAO_APPROLE_TERRAFORM_ROLE_ID/_SECRET_ID`) — the only secret-zero, via
-   `doppler run -p iac-conf-mgmt -c prd -- …`. No keychain is used anywhere in
-   this flow.
+6. **Native OpenBao access**: authenticate with an enabled human or workload
+   method and export `BAO_ADDR` plus its short-lived `BAO_TOKEN`. No cloud
+   secret store or keychain participates in this flow.
 
 Platform-VM facts recorded during first bring-up: the VM's CPU type must be
 `x86-64-v2` (its node's Nehalem Xeons lack AES-NI, so the terraform module's
@@ -48,9 +47,8 @@ via the Proxmox API for the one clone).
 ## Bring-up
 
 ```bash
-doppler run -p iac-conf-mgmt -c prd -- ./scripts/deploy.sh   # compose up (by FQDN)
-doppler run -p iac-conf-mgmt -c prd -- \
-  ./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
+./scripts/deploy.sh   # compose up (by FQDN)
+./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
   ./scripts/smoke-test.sh                 # health + S3 roundtrip
 ```
 

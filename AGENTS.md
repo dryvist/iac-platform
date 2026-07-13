@@ -6,7 +6,7 @@ The homelab's central IaC management tier: **Terrakube** (OpenTofu management
 plane — remote plan/apply, state + locking, workspaces-as-code) and
 **Semaphore UI** (Ansible tier), one pinned docker-compose stack on the
 `iac-platform` VM (pve3, mgmt VLAN). Every OpenTofu repo migrates its backend
-here; terragrunt and the terraform binary are being retired fleet-wide.
+here; all fleet roots use native OpenTofu through Terrakube.
 
 ## Laws and doctrine
 
@@ -37,7 +37,7 @@ here; terragrunt and the terraform binary are being retired fleet-wide.
   `scripts/openbao-exec-env.sh`. `compose/.env` carries only non-secrets (pins,
   ports, hostnames).
 - **The compose layer stays imperative** (`scripts/deploy.sh`): it must be
-  rebuildable from git + the Doppler AppRole (→ OpenBao) + a vzdump restore even
+  rebuildable from git + native OpenBao authentication + a vzdump restore even
   when Terrakube is down. Only `tofu/terrakube/` (workspaces-as-code) uses
   tofu —
   and its state self-hosts in Terrakube after bootstrap (see providers.tf).

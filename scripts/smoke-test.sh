@@ -33,7 +33,7 @@ check "semaphore"           "https://semaphore.${DOMAIN}/api/ping"              
 
 echo "== RustFS S3 (state storage) — write/read/delete roundtrip =="
 # Uses the same credentials the executor uses, from OpenBao; run under:
-#   doppler run -p iac-conf-mgmt -c prd -- \
+#   \
 #     scripts/openbao-exec-env.sh secret/platform/terrakube/main -- scripts/smoke-test.sh
 if [[ -n "${TK_OUTPUT_ACCESS_KEY:-}" ]]; then
   export AWS_ACCESS_KEY_ID="$TK_OUTPUT_ACCESS_KEY" AWS_SECRET_ACCESS_KEY="$TK_OUTPUT_SECRET_KEY"

@@ -3,9 +3,8 @@
 #
 # Secrets come from OpenBao (secret/platform/terrakube/main) via
 # scripts/openbao-exec-env.sh — the fleet's single source for these live-service
-# runtime credentials. Secret-zero is the platform AppRole (BAO_ADDR + role/secret
-# ID), supplied by the caller's environment; the canonical invocation is:
-#   doppler run -p iac-conf-mgmt -c prd -- ./scripts/deploy.sh
+# runtime credentials. The caller uses a short-lived token obtained through a
+# native OpenBao human or workload authentication method.
 # openbao-exec-env exports the KV keys into this process; docker compose
 # interpolates them into container definitions on the remote engine. Nothing
 # secret is written to disk on either end, and no macOS keychain is touched.

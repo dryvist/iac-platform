@@ -11,7 +11,7 @@ valid-TLS FQDNs.
 First-time bring-up (VM, OAuth App, RustFS bucket, deploy, smoke test):
 [docs/bootstrap.md](docs/bootstrap.md).
 
-Dev shell (opentofu, sops, age, awscli):
+Dev shell (OpenTofu, OpenBao, AWS CLI):
 
 ```bash
 direnv allow   # uses the committed .envrc → nix flake dev shell
@@ -20,12 +20,9 @@ direnv allow   # uses the committed .envrc → nix flake dev shell
 ## Usage
 
 ```bash
-# Secrets come from OpenBao; the AppRole role/secret ID + BAO_ADDR are injected
-# by Doppler. Both scripts run under scripts/openbao-exec-env.sh.
-doppler run -p iac-conf-mgmt -c prd -- \
-  ./scripts/deploy.sh   # deploy/redeploy over SSH
-doppler run -p iac-conf-mgmt -c prd -- \
-  ./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
+# Authenticate with a native OpenBao human/workload method first, then:
+./scripts/deploy.sh
+./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
   ./scripts/smoke-test.sh    # health + S3 state-storage roundtrip
 ```
 
