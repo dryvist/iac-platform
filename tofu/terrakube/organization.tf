@@ -11,9 +11,24 @@ resource "terrakube_organization" "org" {
 }
 
 resource "terrakube_team" "admins" {
-  name            = var.admin_group
+  # Org-qualified team name (org:team-slug), matching the group shape Dex's
+  # GitHub connector forwards and TERRAKUBE_ADMIN_GROUP in the compose env.
+  # The org prefix lives here (not in var.admin_group's default) because tofu
+  # variable defaults cannot interpolate other variables.
+  name            = "${var.organization_name}:${var.admin_group}"
   organization_id = terrakube_organization.org.id
-  role            = "admin"
+
+  # "role" is not available on the pinned provider release (see providers.tf) —
+  # grant every manage_* permission explicitly instead, which is what "admin"
+  # expands to.
+  manage_state      = true
+  manage_workspace  = true
+  manage_module     = true
+  manage_provider   = true
+  manage_vcs        = true
+  manage_template   = true
+  manage_job        = true
+  manage_collection = true
 }
 
 # Deliberately NO team token / CI credentials: consumers use Terrakube's

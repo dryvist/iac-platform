@@ -10,8 +10,15 @@ terraform {
       # OpenTofu registry serves this provider under the project's legacy
       # namespace (azbuilder), tracking the same releases as
       # terrakube-io/terrakube on the Terraform registry.
+      #
+      # Pinned below the RBAC-v2 releases (0.23+): those client versions
+      # unconditionally send planJob/approveJob/role team attributes that
+      # the deployed Terrakube server does not yet accept (server-side RBAC
+      # v2 support lags the client). 0.22.x is the newest release whose team
+      # resource still speaks the attribute set the deployed server expects.
+      # Bump once the server accepts the newer attributes.
       source  = "azbuilder/terrakube"
-      version = "~> 0.24"
+      version = "~> 0.22.0"
     }
     vault = {
       source  = "hashicorp/vault"
