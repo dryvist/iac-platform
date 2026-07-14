@@ -36,7 +36,9 @@ terraform {
   }
 }
 
-provider "vault" {}
+provider "vault" {
+  skip_child_token = true
+}
 
 ephemeral "vault_kv_secret_v2" "terrakube" {
   mount = "secret"
