@@ -13,7 +13,18 @@ resource "terrakube_organization" "org" {
 resource "terrakube_team" "admins" {
   name            = var.admin_group
   organization_id = terrakube_organization.org.id
-  role            = "admin"
+
+  # "role" is not available on the pinned provider release (see providers.tf) —
+  # grant every manage_* permission explicitly instead, which is what "admin"
+  # expands to.
+  manage_state      = true
+  manage_workspace  = true
+  manage_module     = true
+  manage_provider   = true
+  manage_vcs        = true
+  manage_template   = true
+  manage_job        = true
+  manage_collection = true
 }
 
 # Deliberately NO team token / CI credentials: consumers use Terrakube's
