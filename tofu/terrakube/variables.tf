@@ -5,7 +5,7 @@ variable "organization_name" {
 }
 
 variable "admin_group" {
-  description = "OpenBao identity group granted Terrakube admin. Must match TERRAKUBE_ADMIN_GROUP in the compose env."
+  description = "Bare admin team slug. Prefixed with the org name at the resource to form the org-qualified team name (org:slug) that matches TERRAKUBE_ADMIN_GROUP in the compose env."
   type        = string
   default     = "terrakube-admins"
 }
