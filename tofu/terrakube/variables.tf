@@ -46,3 +46,9 @@ variable "openbao_workload_audience" {
   type        = string
   default     = "openbao.workload.identity"
 }
+
+variable "openbao_workload_auth_path" {
+  description = "OpenBao JWT auth mount path Terrakube logs into (auth/<path>/login). The method is mounted at 'terrakube', not the Terrakube default 'jwt'."
+  type        = string
+  default     = "terrakube"
+}

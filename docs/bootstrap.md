@@ -18,11 +18,16 @@ One-time sequence from zero to a working platform. Ongoing operations live in
    client secret at `secret/platform/terrakube/main` as
    `OPENBAO_OIDC_ISSUER`, `DEX_OPENBAO_CLIENT_ID`, and
    `DEX_OPENBAO_CLIENT_SECRET`.
-3. **Terrakube workload signing key**: create an RSA key pair for Terrakube's
-   per-job JWTs. Store the public PEM and unencrypted PKCS#8 private PEM at the
-   same OpenBao path as `TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY` and
-   `TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY`. The compose deployment mounts them as
-   environment-sourced Docker secrets; neither key is committed.
+3. **Terrakube workload signing key**: `./scripts/provision-signing-key.sh`
+   (under `BAO_ADDR` + a native `BAO_TOKEN`) mints the RSA keypair for
+   Terrakube's per-job JWTs and writes the public PEM and unencrypted PKCS#8
+   private PEM to `secret/platform/terrakube/main` as
+   `TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY` and `TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY`.
+   It is generate-if-absent (a no-op once the keypair exists), so it is safe to
+   run before every deploy. The compose deployment mounts the pair as
+   environment-sourced Docker secrets; neither key is committed. Without them
+   the API's `/.well-known/jwks` returns `{"keys":null}` and no run can sign a
+   workload-identity JWT.
 4. **RustFS bucket + access key**: create bucket `terrakube` and an access
    key pair matching `TK_OUTPUT_ACCESS_KEY`/`TK_OUTPUT_SECRET_KEY` in OpenBao
    (`secret/platform/terrakube/main`; RustFS console at
@@ -81,8 +86,13 @@ secret paths. The workspace receives only these non-secret environment values:
 
 - `ENABLE_DYNAMIC_CREDENTIALS_VAULT=1`
 - `WORKLOAD_IDENTITY_VAULT_AUDIENCE=openbao.workload.identity`
+- `WORKLOAD_IDENTITY_VAULT_AUTH_PATH=terrakube` (the JWT method's mount path;
+  Terrakube otherwise defaults the login to `auth/jwt/login`)
 - `VAULT_ADDR=https://openbao.<domain>`
 - `WORKLOAD_IDENTITY_VAULT_ROLE=terrakube-<workspace-name>`
+
+These four `WORKLOAD_IDENTITY_*` / `ENABLE_*` values are set on every workspace
+by `tofu/terrakube/workspaces.tf`, not by hand.
 
 `VAULT_ADDR` is the variable name required by Terrakube's native integration;
 the endpoint and implementation are OpenBao. Validate the unauthenticated
