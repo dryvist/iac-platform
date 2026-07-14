@@ -148,3 +148,19 @@ resource "terrakube_workspace_variable" "openbao_role" {
   sensitive       = false
   hcl             = false
 }
+
+# Terrakube defaults the login mount to auth/jwt/login; the OpenBao JWT method
+# is mounted at 'terrakube', so every workspace must override the path or the
+# token exchange 404s and the run gets no VAULT_TOKEN.
+resource "terrakube_workspace_variable" "openbao_auth_path" {
+  for_each = local.workspace_ids
+
+  organization_id = terrakube_organization.org.id
+  workspace_id    = each.value
+  key             = "WORKLOAD_IDENTITY_VAULT_AUTH_PATH"
+  value           = var.openbao_workload_auth_path
+  description     = "OpenBao JWT auth mount path this workspace logs into"
+  category        = "ENV"
+  sensitive       = false
+  hcl             = false
+}
