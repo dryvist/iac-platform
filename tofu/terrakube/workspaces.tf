@@ -3,6 +3,19 @@
 # execute remotely on the executor; state lives in Terrakube (RustFS bucket).
 # VCS-driven workspaces are deliberately not used: Terrakube is internal-only
 # (no inbound webhooks) — GitHub Actions on self-hosted runners trigger runs.
+#
+# Fully-declarative note (drift audit): terrakube_workspace_cli exposes exactly
+# four settable attributes — description, execution_mode, iac_type, iac_version
+# — and all four are declared below for every workspace. branch, folder,
+# default_template and allow_remote_apply live ONLY on terrakube_workspace_vcs
+# (the intentionally-unused VCS resource), so for CLI workspaces they are
+# Terrakube-managed values, not configuration: every workspace reports the
+# fixed `remote-content` branch sentinel and empty folder/template. There is
+# therefore no git-branch setting to pin here — a CLI workspace plans against
+# whatever content its own repo's CI uploads, not a tracked branch. Any per-
+# workspace remote-apply flag is likewise set through the VCS resource only and
+# cannot be codified while the CLI model (and the ~> 0.22 provider pin in
+# providers.tf) is in force; revisit if a workspace migrates to VCS-driven.
 
 # Existing consumer: dryvist/tofu-github (org governance as code).
 resource "terrakube_workspace_cli" "tofu_github" {
