@@ -18,7 +18,7 @@ terraform {
       # resource still speaks the attribute set the deployed server expects.
       # Bump once the server accepts the newer attributes.
       source  = "azbuilder/terrakube"
-      version = "~> 0.22.0"
+      version = "~> 0.24.0"
     }
     vault = {
       source  = "hashicorp/vault"
