@@ -21,6 +21,16 @@
 # compose-internal network.
 
 x-api: &api_env
+  # Tofu releases list served from a pinned static file in THIS repo (raw URL),
+  # not api.github.com: GitHub started 400-ing the API's anonymous Java/Netty
+  # fetch (2026-07-19, Zammad #17087 / issue #25), which NPEs the executor and
+  # kills every plan at init. The file is GitHub releases-array shaped (the only
+  # format the executor's parser accepts) and trimmed to recent stable releases.
+  # STALENESS CONTRACT: when a workspace's tofu version pin moves past the
+  # newest entry, regenerate compose/tofu-releases.json (see the file's PR /
+  # issue #25 for the one-liner). Durable fix tracked in issue #25
+  # (authenticated fetch via CustomReleaseGithubToken).
+  CustomTofuReleasesUrl: https://raw.githubusercontent.com/dryvist/iac-platform/main/compose/tofu-releases.json
   ApiDataSourceType: POSTGRESQL
   DatasourceHostname: postgresql-service
   DatasourceDatabase: ${TK_POSTGRESQL_DATABASE_NAME}

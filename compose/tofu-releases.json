@@ -1,0 +1,2442 @@
+[
+  {
+    "name": "v1.12.4",
+    "assets": [
+      {
+        "name": "tofu_1.12.4_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.4_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.4_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.4_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.4_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.4_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.12.4_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.4_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.4_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.4_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.4_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.4_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.4_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.12.4_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.12",
+    "assets": [
+      {
+        "name": "tofu_1.11.12_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.12_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.12_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.12_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.12_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.12_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.12_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.12_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.12_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.12_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.12_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.12_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.12_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.12_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.12/tofu_1.11.12_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.11",
+    "assets": [
+      {
+        "name": "tofu_1.11.11_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.11_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.11_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.11_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.11_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.11_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.11_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.11_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.11_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.11_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.11_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.11_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.11_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.11_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.11/tofu_1.11.11_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.12.3",
+    "assets": [
+      {
+        "name": "tofu_1.12.3_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.3_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.3_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.3_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.3_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.3_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.12.3_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.3_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.3_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.3_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.3_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.3_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.3_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.12.3_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.10",
+    "assets": [
+      {
+        "name": "tofu_1.11.10_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.10_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.10_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.10_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.10_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.10_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.10_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.10_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.10_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.10_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.10_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.10_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.10_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.10_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.10/tofu_1.11.10_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.12.2",
+    "assets": [
+      {
+        "name": "tofu_1.12.2_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.2_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.2_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.2_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.2_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.2_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.12.2_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.2_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.2_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.2_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.2_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.2_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.2_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.12.2_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.2/tofu_1.12.2_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.9",
+    "assets": [
+      {
+        "name": "tofu_1.11.9_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.9_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.9_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.9_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.9_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.9_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.9_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.9_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.9_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.9_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.9_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.9_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.9_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.9_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.9/tofu_1.11.9_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.12.1",
+    "assets": [
+      {
+        "name": "tofu_1.12.1_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.1_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.1_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.1_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.1_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.1_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.12.1_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.1_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.1_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.1_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.1_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.1_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.1_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.12.1_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.12.0",
+    "assets": [
+      {
+        "name": "tofu_1.12.0_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.0_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.0_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.0_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.0_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.0_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.12.0_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.0_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.12.0_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.12.0_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.12.0_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.0_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.12.0_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.12.0_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.8",
+    "assets": [
+      {
+        "name": "tofu_1.11.8_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.8_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.8_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.8_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.8_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.8_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.8_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.8_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.8_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.8_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.8_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.8_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.8_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.8_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.8/tofu_1.11.8_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.7",
+    "assets": [
+      {
+        "name": "tofu_1.11.7_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.7_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.7_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.7_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.7_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.7_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.7_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.7_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.7_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.7_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.7_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.7_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.7_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.7_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.7/tofu_1.11.7_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.10",
+    "assets": [
+      {
+        "name": "tofu_1.10.10_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.10_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.10_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.10_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.10_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.10_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.10_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.10_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.10_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.10_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.10_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.10_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.10_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.10_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.10/tofu_1.10.10_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.6",
+    "assets": [
+      {
+        "name": "tofu_1.11.6_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.6_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.6_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.6_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.6_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.6_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.6_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.6_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.6_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.6_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.6_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.6_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.6_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.6_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.6/tofu_1.11.6_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.5",
+    "assets": [
+      {
+        "name": "tofu_1.11.5_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.5_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.5_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.5_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.5_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.5_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.5_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.5_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.5_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.5_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.5_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.5_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.5_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.5_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.5/tofu_1.11.5_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.9",
+    "assets": [
+      {
+        "name": "tofu_1.10.9_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.9_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.9_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.9_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.9_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.9_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.9_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.9_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.9_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.9_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.9_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.9_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.9_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.9_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.9/tofu_1.10.9_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.4",
+    "assets": [
+      {
+        "name": "tofu_1.11.4_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.4_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.4_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.4_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.4_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.4_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.4_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.4_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.4_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.4_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.4_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.4_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.4_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.4_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.4/tofu_1.11.4_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.3",
+    "assets": [
+      {
+        "name": "tofu_1.11.3_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.3_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.3_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.3_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.3_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.3_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.3_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.3_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.3_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.3_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.3_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.3_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.3_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.3_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.3/tofu_1.11.3_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.2",
+    "assets": [
+      {
+        "name": "tofu_1.11.2_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.2_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.2_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.2_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.2_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.2_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.2_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.2_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.2_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.2_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.2_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.2_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.2_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.2_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.2/tofu_1.11.2_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.1",
+    "assets": [
+      {
+        "name": "tofu_1.11.1_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.1_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.1_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.1_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.1_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.1_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.1_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.1_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.1_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.1_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.1_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.1_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.1_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.1_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.1/tofu_1.11.1_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.11.0",
+    "assets": [
+      {
+        "name": "tofu_1.11.0_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.0_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.0_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.0_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.0_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.0_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.11.0_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.0_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.11.0_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.11.0_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.11.0_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.0_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.11.0_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.11.0_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.11.0/tofu_1.11.0_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.8",
+    "assets": [
+      {
+        "name": "tofu_1.10.8_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.8_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.8_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.8_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.8_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.8_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.8_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.8_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.8_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.8_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.8_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.8_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.8_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.8_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.8/tofu_1.10.8_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.7",
+    "assets": [
+      {
+        "name": "tofu_1.10.7_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.7_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.7_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.7_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.7_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.7_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.7_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.7_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.7_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.7_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.7_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.7_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.7_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.7_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.7/tofu_1.10.7_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.6",
+    "assets": [
+      {
+        "name": "tofu_1.10.6_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.6_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.6_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.6_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.6_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.6_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.6_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.6_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.6_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.6_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.6_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.6_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.6_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.6_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.6/tofu_1.10.6_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.9.4",
+    "assets": [
+      {
+        "name": "tofu_1.9.4_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.4_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.4_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.4_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.4_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.4_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.9.4_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.4_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.4_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.4_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.4_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.4_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.4_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.9.4_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.4/tofu_1.9.4_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.5",
+    "assets": [
+      {
+        "name": "tofu_1.10.5_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.5_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.5_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.5_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.5_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.5_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.5_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.5_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.5_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.5_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.5_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.5_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.5_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.5_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.5/tofu_1.10.5_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.4",
+    "assets": [
+      {
+        "name": "tofu_1.10.4_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.4_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.4_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.4_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.4_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.4_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.4_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.4_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.4_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.4_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.4_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.4_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.4_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.4_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.4/tofu_1.10.4_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.9.3",
+    "assets": [
+      {
+        "name": "tofu_1.9.3_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.3_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.3_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.3_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.3_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.3_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.9.3_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.3_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.3_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.3_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.3_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.3_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.3_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.9.3_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.3/tofu_1.9.3_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.8.11",
+    "assets": [
+      {
+        "name": "tofu_1.8.11_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.11_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.8.11_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.8.11_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.11_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.8.11_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.8.11_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.11_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.8.11_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.8.11_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.8.11_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.11_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.11_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.8.11_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.11/tofu_1.8.11_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.7.10",
+    "assets": [
+      {
+        "name": "tofu_1.7.10_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.10_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.7.10_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.7.10_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.10_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.7.10_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.7.10_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.10_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.7.10_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.7.10_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.7.10_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.10_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.10_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.7.10_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.10/tofu_1.7.10_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.3",
+    "assets": [
+      {
+        "name": "tofu_1.10.3_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.3_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.3_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.3_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.3_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.3_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.3_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.3_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.3_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.3_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.3_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.3_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.3_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.3_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.3/tofu_1.10.3_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.9.2",
+    "assets": [
+      {
+        "name": "tofu_1.9.2_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.2_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.2_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.2_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.2_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.2_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.9.2_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.2_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.2_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.2_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.2_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.2_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.2_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.9.2_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.2/tofu_1.9.2_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.8.10",
+    "assets": [
+      {
+        "name": "tofu_1.8.10_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.10_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.8.10_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.8.10_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.10_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.8.10_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.8.10_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.10_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.8.10_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.8.10_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.8.10_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.10_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.10_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.8.10_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.10/tofu_1.8.10_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.7.9",
+    "assets": [
+      {
+        "name": "tofu_1.7.9_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.9_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.7.9_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.7.9_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.9_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.7.9_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.7.9_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.9_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.7.9_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.7.9_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.7.9_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.9_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.9_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.7.9_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.9/tofu_1.7.9_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.2",
+    "assets": [
+      {
+        "name": "tofu_1.10.2_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.2_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.2_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.2_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.2_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.2_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.2_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.2_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.2_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.2_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.2_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.2_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.2_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.2_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.2/tofu_1.10.2_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.1",
+    "assets": [
+      {
+        "name": "tofu_1.10.1_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.1_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.1_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.1_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.1_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.1_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.1_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.1_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.1_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.1_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.1_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.1_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.1_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.1_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.1/tofu_1.10.1_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.10.0",
+    "assets": [
+      {
+        "name": "tofu_1.10.0_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.0_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.0_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.0_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.0_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.0_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.10.0_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.0_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.10.0_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.10.0_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.10.0_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.0_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.10.0_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.10.0_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.10.0/tofu_1.10.0_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.9.1",
+    "assets": [
+      {
+        "name": "tofu_1.9.1_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.1_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.1_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.1_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.1_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.1_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.9.1_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.1_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.1_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.1_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.1_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.1_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.1_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.9.1_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.1/tofu_1.9.1_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.8.9",
+    "assets": [
+      {
+        "name": "tofu_1.8.9_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.9_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.8.9_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.8.9_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.9_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.8.9_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.8.9_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.9_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.8.9_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.8.9_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.8.9_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.9_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.8.9_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.8.9_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.8.9/tofu_1.8.9_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.7.8",
+    "assets": [
+      {
+        "name": "tofu_1.7.8_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.8_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.7.8_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.7.8_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.8_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.7.8_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.7.8_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.8_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.7.8_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.7.8_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.7.8_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.8_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.7.8_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.7.8_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.7.8/tofu_1.7.8_windows_amd64.zip"
+      }
+    ]
+  },
+  {
+    "name": "v1.9.0",
+    "assets": [
+      {
+        "name": "tofu_1.9.0_darwin_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_darwin_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.0_darwin_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_darwin_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.0_freebsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_freebsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.0_freebsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_freebsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.0_freebsd_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_freebsd_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.0_linux_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_linux_386.zip"
+      },
+      {
+        "name": "tofu_1.9.0_linux_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_linux_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.0_linux_arm.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_linux_arm.zip"
+      },
+      {
+        "name": "tofu_1.9.0_linux_arm64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_linux_arm64.zip"
+      },
+      {
+        "name": "tofu_1.9.0_openbsd_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_openbsd_386.zip"
+      },
+      {
+        "name": "tofu_1.9.0_openbsd_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_openbsd_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.0_solaris_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_solaris_amd64.zip"
+      },
+      {
+        "name": "tofu_1.9.0_windows_386.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_windows_386.zip"
+      },
+      {
+        "name": "tofu_1.9.0_windows_amd64.zip",
+        "browser_download_url": "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_windows_amd64.zip"
+      }
+    ]
+  }
+]
