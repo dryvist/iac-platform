@@ -1,21 +1,17 @@
 # Runbook
 
-## The pve3 doctrine (deliberate non-24/7)
+## Availability
 
-The platform VM lives on pve3, which **powers off nightly (~22:00)**. This is
-policy, not an accident: pve3 only hosts workloads that don't need 24/7, and
-running tofu/ansible is such a workload. Consequences:
+The platform VM lives on pve3, which now runs 24/7 — the node's former nightly
+power-off (~22:00) was removed (ansible-proxmox#354). Notes that still apply:
 
-- **No plan/apply fleet-wide while pve3 is off.** Off-hours work: power pve3
-  on first, wait for the VM + stack (~2 min after node boot; everything is
-  `restart: unless-stopped`).
-- **Never start an apply near 22:00.** A run killed by node shutdown leaves
-  the workspace lock held — see "Stuck workspace lock" below. State objects
-  themselves are safe: they live in RustFS on pve1 (always-on).
-- **No CI plan/apply**: local CLI and UI operations wait until pve3 is back in
-  its power-on window. Static repository checks remain independent.
-- Backup jobs (vzdump for the VM; the in-stack pg_dump sidecar at ~12:00)
-  are scheduled inside the power-on window.
+- **State is off-node.** State objects live in RustFS on pve1, independent of
+  the platform VM. A run killed mid-flight leaves the workspace lock held — see
+  "Stuck workspace lock" below.
+- **No CI plan/apply**: plan/apply run from a local CLI or the UI, never CI —
+  this is the security model, not a power constraint. Static repository checks
+  remain independent.
+- Backup jobs: vzdump for the VM; the in-stack pg_dump sidecar runs ~12:00.
 
 ## Stuck workspace lock (run killed mid-flight)
 

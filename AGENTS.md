@@ -22,9 +22,10 @@ here; all fleet roots use native OpenTofu through Terrakube.
   (`<name>.<domain>`, Traefik ingress rows in tofu-proxmox
   `ingress.tf`). This applies to configs, scripts, docs, and conversation. If
   something lacks an FQDN, add the ingress row — don't use the IP.
-- **pve3 doctrine**: the platform is deliberately **not 24/7** (pve3 powers
-  off nightly ~22:00). Consumers must degrade gracefully (CI reachability
-  pre-check → clean skip). Never start applies near 22:00. See
+- **Availability**: the platform runs **24/7** — pve3's former nightly
+  power-off (~22:00) was removed (ansible-proxmox#354). Consumers should still
+  degrade gracefully when the platform is unreachable (maintenance, redeploy)
+  via a reachability pre-check → clean skip. See
   [docs/runbook.md](docs/runbook.md).
 - **OpenBao owns Terrakube identity and secrets**: Dex delegates human login to
   OpenBao OIDC. Terrakube jobs exchange their signed workspace identity for a
@@ -69,5 +70,4 @@ here; all fleet roots use native OpenTofu through Terrakube.
   env vars (PAT from the UI). `TF_VAR_openbao_address` supplies the non-secret
   internal OpenBao HTTPS endpoint; provider credentials never pass through this
   configuration.
-- `deploy.sh` needs: age key locally, SSH to `<vm-fqdn>`,
-  pve3 powered on.
+- `deploy.sh` needs: age key locally, SSH to `<vm-fqdn>`.
