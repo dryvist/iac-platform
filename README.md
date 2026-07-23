@@ -43,11 +43,11 @@ GitHub governance, UniFi, production AWS, RunsOn, and three Proxmox roots.
 Declaration does not migrate or apply any live state; follow the approval-gated
 sequence in [docs/fleet-migration.md](docs/fleet-migration.md).
 
-## Availability window
+## Availability
 
-The platform runs on a homelab node that powers off nightly — by design (the
-IaC control plane is not a 24/7 workload). Operations guidance, lock recovery,
-backups, and rotation: [docs/runbook.md](docs/runbook.md).
+The platform runs on a homelab node that stays powered on 24/7; its former
+nightly power-off was removed (ansible-proxmox#354). Operations guidance, lock
+recovery, backups, and rotation: [docs/runbook.md](docs/runbook.md).
 
 ## Contributing
 
