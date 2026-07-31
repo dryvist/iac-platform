@@ -10,14 +10,23 @@ One-time sequence from zero to a working platform. Ongoing operations live in
    constants is merged and applied. `<vm-fqdn>` resolves and is
    SSH-reachable; `terrakube*.<domain>` / `semaphore.<domain>`
    route (502 until the stack is up — expected).
-2. **OpenBao OIDC provider and client**: configure the `terrakube` provider,
-   identity scopes for `profile`, `email`, and `groups`, and a confidential Dex
-   client whose redirect URI is
-   `https://terrakube-dex.<domain>/dex/callback`. Assign only the OpenBao
-   `terrakube-admins` identity group. Store the resulting issuer, client ID, and
-   client secret at `secret/platform/terrakube/main` as
-   `OPENBAO_OIDC_ISSUER`, `DEX_OPENBAO_CLIENT_ID`, and
-   `DEX_OPENBAO_CLIENT_SECRET`.
+2. **GitHub OAuth app for Dex**: create an OAuth app whose authorization
+   callback URL is `https://terrakube-dex.<domain>/dex/callback`. Store its
+   client ID and secret at `secret/platform/terrakube/main` as
+   `DEX_GITHUB_CLIENT_ID` and `DEX_GITHUB_CLIENT_SECRET`, alongside
+   `DEX_GITHUB_ORG` and `DEX_GITHUB_TEAM` (the team **slug**, since the
+   connector sets `teamNameField: slug`).
+
+   Those last two are the only place admin membership is written. The Dex
+   connector grants exactly that team, docker-compose composes
+   `TERRAKUBE_ADMIN_GROUP` as `${DEX_GITHUB_ORG}:${DEX_GITHUB_TEAM}`, and the
+   `terrakube_team` resource in `tofu/terrakube` builds the same org-qualified
+   name. All three must agree or login succeeds while granting nothing — so
+   they are derived, never written out separately.
+
+   A GitHub connector emits an org-qualified group; an OIDC connector emits a
+   bare one. Moving off GitHub therefore means changing the team name shape
+   too, not just the connector block.
 3. **Terrakube workload signing key**: `./scripts/provision-signing-key.sh`
    (under `BAO_ADDR` + a native `BAO_TOKEN`) mints the RSA keypair for
    Terrakube's per-job JWTs and writes the public PEM and unencrypted PKCS#8

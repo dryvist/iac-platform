@@ -1,10 +1,10 @@
-# Dex for Terrakube: OpenBao OIDC connector only (no local passwords or LDAP).
+# Dex for Terrakube: GitHub connector only (no local passwords or LDAP).
 # Secrets AND the real domain arrive as env vars from OpenBao at deploy time,
 # so no real hostname is ever committed. Two templating passes run: the dex
 # image renders the whole file with gomplate at container start (Go-template
 # .Env lookups), then dex applies its own $VAR expansion to the connector config
 # block only. Domain refs therefore use gomplate .Env in top-level fields; the
-# OpenBao issuer/client values stay $VAR so Dex expands them post-parse. NB
+# connector's secret values stay $VAR so Dex expands them post-parse. NB
 # gomplate renders
 # comments too, so this note avoids literal template braces.
 issuer: https://terrakube-dex.{{ .Env.DOMAIN }}/dex
@@ -38,19 +38,29 @@ staticClients:
       - http://localhost:10001/login
 
 connectors:
-  - type: oidc
-    id: openbao
-    name: OpenBao
+  # GitHub, because the group claim it emits is the one the rest of the stack
+  # is built around: TERRAKUBE_ADMIN_GROUP in the compose env and the
+  # terrakube_team resource in tofu/terrakube are both the org-qualified
+  # "org:team-slug" that this connector forwards. An OIDC connector emits a
+  # bare group instead, so swapping connectors alone silently breaks admin
+  # membership while login itself still appears to work.
+  #
+  # Org and team are NOT written here. They come from the same two variables
+  # the compose file composes TERRAKUBE_ADMIN_GROUP from, so the group this
+  # connector grants and the group Terrakube honours cannot drift apart.
+  # gomplate renders this file at container start, so .Env works anywhere;
+  # only the secrets stay $VAR for dex to expand after parsing, keeping them
+  # out of the rendered file.
+  - type: github
+    id: github
+    name: GitHub
     config:
-      issuer: $OPENBAO_OIDC_ISSUER
-      clientID: $DEX_OPENBAO_CLIENT_ID
-      clientSecret: $DEX_OPENBAO_CLIENT_SECRET
+      clientID: $DEX_GITHUB_CLIENT_ID
+      clientSecret: $DEX_GITHUB_CLIENT_SECRET
       redirectURI: https://terrakube-dex.{{ .Env.DOMAIN }}/dex/callback
-      scopes: [openid, profile, email, groups]
-      getUserInfo: true
-      # OpenBao is the authoritative internal identity provider. Its custom
-      # OIDC scopes emit email/profile/groups claims, and the client assignment
-      # limits login to approved operator entities/groups.
-      insecureSkipEmailVerified: true
-      insecureEnableGroups: true
-      allowedGroups: [terrakube-admins]
+      orgs:
+        - name: {{ .Env.DEX_GITHUB_ORG }}
+          teams:
+            - {{ .Env.DEX_GITHUB_TEAM }}
+      teamNameField: slug
+      loadAllGroups: false
