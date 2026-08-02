@@ -46,7 +46,12 @@ x-api: &api_env
   DexIssuerUri: https://terrakube-dex.${DOMAIN}/dex
   DexClientId: terrakube-app
   # Admin group forwarded from the OpenBao OIDC provider through Dex.
-  TERRAKUBE_ADMIN_GROUP: ${TERRAKUBE_ADMIN_GROUP}
+  # Composed, never written out: this must equal the group claim Dex's GitHub
+  # connector emits (org-qualified "org:team-slug") and the terrakube_team
+  # resource in tofu/terrakube. Deriving it from the same two variables the
+  # connector uses is what keeps those three in step — a hand-written copy is
+  # how they drifted before.
+  TERRAKUBE_ADMIN_GROUP: ${DEX_GITHUB_ORG}:${DEX_GITHUB_TEAM}
   # Per-job JWTs let executors authenticate to OpenBao without a stored token.
   # The signing key pair is sourced from OpenBao through native compose secrets.
   DynamicCredentialId: ${TK_DYNAMIC_CREDENTIAL_KEY_ID}
@@ -194,9 +199,13 @@ services:
     command: ["dex", "serve", "/etc/dex/config.yaml"]
     environment:
       DOMAIN: ${DOMAIN}
-      OPENBAO_OIDC_ISSUER: ${OPENBAO_OIDC_ISSUER}
-      DEX_OPENBAO_CLIENT_ID: ${DEX_OPENBAO_CLIENT_ID}
-      DEX_OPENBAO_CLIENT_SECRET: ${DEX_OPENBAO_CLIENT_SECRET}
+      # Org and team are the single source for admin membership: the connector
+      # template reads them, and TERRAKUBE_ADMIN_GROUP below is composed from
+      # the same two values rather than repeating the org:team string.
+      DEX_GITHUB_ORG: ${DEX_GITHUB_ORG}
+      DEX_GITHUB_TEAM: ${DEX_GITHUB_TEAM}
+      DEX_GITHUB_CLIENT_ID: ${DEX_GITHUB_CLIENT_ID}
+      DEX_GITHUB_CLIENT_SECRET: ${DEX_GITHUB_CLIENT_SECRET}
     volumes:
       # Absolute VM path, not ./dex: bind-mount sources resolve on the remote
       # daemon (deploy is `docker --host ssh://`), so deploy.sh rsyncs this

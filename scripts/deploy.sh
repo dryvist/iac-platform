@@ -28,14 +28,20 @@ VM_CONFIG_DIR="/var/lib/platform/compose"
 # Second entry: OpenBao KV is already exported into the environment, so the real
 # deploy runs in a normal shell — no nested sh -c quoting.
 if [ "${1:-}" = "--inner" ]; then
-  case "${DEX_OPENBAO_CLIENT_ID:-}${DEX_OPENBAO_CLIENT_SECRET:-}" in
+  case "${DEX_GITHUB_CLIENT_ID:-}${DEX_GITHUB_CLIENT_SECRET:-}" in
     *CHANGEME*)
-      echo "OpenBao $BAO_PATH still has CHANGEME Dex OIDC credentials." >&2
-      echo "Write the OpenBao OIDC client id/secret to that path." >&2
+      echo "OpenBao $BAO_PATH still has CHANGEME Dex GitHub credentials." >&2
+      echo "Write the GitHub OAuth app client id/secret to that path." >&2
       exit 1 ;;
   esac
 
-  for name in OPENBAO_OIDC_ISSUER DEX_OPENBAO_CLIENT_ID DEX_OPENBAO_CLIENT_SECRET \
+  # DEX_GITHUB_ORG/TEAM are required because docker-compose composes
+  # TERRAKUBE_ADMIN_GROUP from them. Unset, compose interpolates empty strings
+  # and Terrakube's admin group silently becomes ":" — every login authenticates
+  # and then has no admin rights, which reads as a broken UI rather than a
+  # config error.
+  for name in DEX_GITHUB_CLIENT_ID DEX_GITHUB_CLIENT_SECRET \
+    DEX_GITHUB_ORG DEX_GITHUB_TEAM \
     TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY; do
     [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $BAO_PATH" >&2; exit 1; }
   done
