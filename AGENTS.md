@@ -5,7 +5,7 @@
 The homelab's central IaC management tier: **Terrakube** (OpenTofu management
 plane — remote plan/apply, state + locking, workspaces-as-code) and
 **Semaphore UI** (Ansible tier), one pinned docker-compose stack on the
-`iac-platform` VM (pve3, mgmt VLAN). Every OpenTofu repo migrates its backend
+`iac-platform` VM (mgmt VLAN). Every OpenTofu repo migrates its backend
 here; all fleet roots use native OpenTofu through Terrakube.
 
 ## Laws and doctrine
@@ -22,7 +22,7 @@ here; all fleet roots use native OpenTofu through Terrakube.
   (`<name>.<domain>`, Traefik ingress rows in tofu-proxmox
   `ingress.tf`). This applies to configs, scripts, docs, and conversation. If
   something lacks an FQDN, add the ingress row — don't use the IP.
-- **Availability**: the platform runs **24/7** — pve3's former nightly
+- **Availability**: the platform runs **24/7** — its node's former nightly
   power-off (~22:00) was removed (ansible-proxmox#354). Consumers should still
   degrade gracefully when the platform is unreachable (maintenance, redeploy)
   via a reachability pre-check → clean skip. See

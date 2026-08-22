@@ -260,7 +260,7 @@ services:
       timeout: 3s
       retries: 12
 
-  # Logical-backup sidecar: pg_dumpall during the pve3 power-on window (the
+  # Logical-backup sidecar: pg_dumpall during the node's power-on window (the
   # node is off overnight, so a classic nightly cron would never fire). The
   # dump lands on the VM disk, which the vzdump job then captures.
   postgres-backup:

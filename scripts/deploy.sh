@@ -84,5 +84,5 @@ fi
 for bin in curl jq tar docker; do
   command -v "$bin" >/dev/null || { echo "$bin required (enter the dev shell)" >&2; exit 1; }
 done
-# pve3 powers off nightly — if this can't connect, check the node is powered on.
+# The platform node may be powered off — if this can't connect, check it is on.
 exec "$EXEC_ENV" "$BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner
