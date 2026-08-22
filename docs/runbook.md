@@ -2,10 +2,10 @@
 
 ## Availability
 
-The platform VM lives on pve3, which now runs 24/7 — the node's former nightly
+The platform VM's node now runs 24/7 — its former nightly
 power-off (~22:00) was removed (ansible-proxmox#354). Notes that still apply:
 
-- **State is off-node.** State objects live in RustFS on pve1, independent of
+- **State is off-node.** State objects live in RustFS on a different node, independent of
   the platform VM. A run killed mid-flight leaves the workspace lock held — see
   "Stuck workspace lock" below.
 - **No CI plan/apply**: plan/apply run from a local CLI or the UI, never CI —
@@ -34,8 +34,8 @@ and the RustFS `terrakube` bucket (tfstate/outputs). Layers:
 
 1. `postgres-backup` sidecar: daily `pg_dumpall` ~12:00 into
    `/var/lib/platform/backups` on the VM disk (keeps ~14).
-2. vzdump of the whole VM (schedule inside the pve3 on-window).
-3. RustFS LXC is on pve1 under the existing snapshot/replication layers.
+2. vzdump of the whole VM (schedule inside the node's on-window).
+3. The RustFS LXC is on another node under the existing snapshot/replication layers.
 4. Everything else is rebuildable from **git + the age key alone**:
    `deploy.sh` is deliberately imperative and never depends on Terrakube.
 
