@@ -66,15 +66,20 @@ connectors:
       loadAllGroups: false
   # Second, additive login path: the operator chose to keep GitHub AND gain
   # Authelia rather than swap, so a mis-cut Authelia connector can never lock
-  # anyone out. NOT a drop-in replacement for the GitHub connector above: the
-  # GitHub connector forwards an org-qualified "org:team-slug" group, which is
-  # what TERRAKUBE_ADMIN_GROUP (compose) and the terrakube_team resource
-  # (tofu/terrakube) both expect. An OIDC connector forwards a bare group
-  # instead (see the #30 fix that reverted an earlier OpenBao-connector swap
-  # for exactly this mismatch) — so a user authenticating only via Authelia
-  # will log in but will not match TERRAKUBE_ADMIN_GROUP unless Authelia is
-  # configured to emit that same org-qualified group name. Fixing that shape
-  # mismatch is out of scope here; this connector only adds the login path.
+  # anyone out.
+  #
+  # allowedGroups must name the SAME string Authelia emits, because it filters
+  # the group list down to the intersection before dex forwards it — a bare
+  # entry here would strip the org-qualified group and Terrakube would see
+  # none. Re-shaping the group inside dex instead (groupsPrefix) was the
+  # natural alternative, but that option
+  # (claimModifications.modifyGroupNames) exists only on dex master and in no
+  # released version — an unknown key is ignored rather than rejected, so
+  # configuring it here would have read as applied and done nothing. Authelia
+  # therefore emits the org-qualified name itself and this list matches it.
+  #
+  # Composed from the same two atoms as TERRAKUBE_ADMIN_GROUP above, so the
+  # group dex admits and the group Terrakube honours cannot drift apart.
   - type: oidc
     id: authelia
     name: Authelia
@@ -87,4 +92,4 @@ connectors:
       getUserInfo: true
       insecureSkipEmailVerified: true
       insecureEnableGroups: true
-      allowedGroups: [terrakube-admins]
+      allowedGroups: ['{{ .Env.DEX_GITHUB_ORG }}:{{ .Env.DEX_GITHUB_TEAM }}']
