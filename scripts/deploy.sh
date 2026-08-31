@@ -38,22 +38,49 @@ if [ "${1:-}" = "--inner" ]; then
       exit 1 ;;
   esac
 
+  # Layer compose/.env in the same precedence order docker compose itself uses:
+  # the shell environment wins over --env-file. Without this the guards below
+  # read only the OpenBao-exported half of the config and reject a correct
+  # setup, because the non-secret identifiers (DEX_GITHUB_ORG/TEAM,
+  # DEX_AUTHELIA_CLIENT_ID) deliberately live in compose/.env — see
+  # compose/.env.example — and never in OpenBao. Guarding a value against a
+  # source it was never meant to come from is a guard that can only ever fail.
+  if [ -f "$REPO_ROOT/compose/.env" ]; then
+    # `|| [ -n "$k" ]` so a final line with no trailing newline is not dropped.
+    while IFS='=' read -r k v || [ -n "$k" ]; do
+      case "$k" in '' | \#*) continue ;; esac
+      [ -n "${!k:-}" ] || export "$k=$v"
+    done <"$REPO_ROOT/compose/.env"
+  fi
+
   # DEX_GITHUB_ORG/TEAM are required because docker-compose composes
   # TERRAKUBE_ADMIN_GROUP from them. Unset, compose interpolates empty strings
   # and Terrakube's admin group silently becomes ":" — every login authenticates
   # and then has no admin rights, which reads as a broken UI rather than a
   # config error.
   for name in DEX_GITHUB_CLIENT_ID DEX_GITHUB_CLIENT_SECRET \
-    DEX_GITHUB_ORG DEX_GITHUB_TEAM \
     TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY; do
     [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $BAO_PATH" >&2; exit 1; }
   done
+  for name in DEX_GITHUB_ORG DEX_GITHUB_TEAM DEX_AUTHELIA_CLIENT_ID; do
+    [ -n "${!name:-}" ] || { echo "$name missing from $REPO_ROOT/compose/.env" >&2; exit 1; }
+  done
+
+  # The Authelia path stores these under the Ansible role's own per-client
+  # variable names (roles/authelia in ansible-proxmox-apps declares them in
+  # openbao_generated_app_secrets.authelia, and openbao-exec-env.sh exports
+  # every key VERBATIM). Map them onto the names compose interpolates rather
+  # than renaming the store: the Authelia role reads those keys by that name
+  # too, so renaming there to suit this consumer would break the producer.
+  : "${SEMAPHORE_OIDC_CLIENT_SECRET:=${authelia_oidc_semaphore_client_secret:-}}"
+  : "${DEX_AUTHELIA_CLIENT_SECRET:=${authelia_oidc_terrakube_dex_client_secret:-}}"
+  export SEMAPHORE_OIDC_CLIENT_SECRET DEX_AUTHELIA_CLIENT_SECRET
 
   # Same fail-loud guard as above, for the Authelia-sourced values: an unset
-  # SEMAPHORE_OIDC_CLIENT_SECRET or DEX_AUTHELIA_CLIENT_* would compose-interpolate
-  # to an empty string, rendering an OIDC login button that always fails
-  # instead of refusing to deploy.
-  for name in SEMAPHORE_OIDC_CLIENT_SECRET DEX_AUTHELIA_CLIENT_ID DEX_AUTHELIA_CLIENT_SECRET; do
+  # SEMAPHORE_OIDC_CLIENT_SECRET or DEX_AUTHELIA_CLIENT_SECRET would
+  # compose-interpolate to an empty string, rendering an OIDC login button that
+  # always fails instead of refusing to deploy.
+  for name in SEMAPHORE_OIDC_CLIENT_SECRET DEX_AUTHELIA_CLIENT_SECRET; do
     [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $AUTHELIA_BAO_PATH" >&2; exit 1; }
   done
 
@@ -115,6 +142,12 @@ if [ "${1:-}" = "--inner" ]; then
       echo "Semaphore user '$SEMAPHORE_SSO_ADMIN_LOGIN' not found yet (no SSO login yet, or container still starting) — skipping admin promotion."
     fi
   fi
+
+  # The --inner branch is the whole deploy; without this the script falls
+  # through to the re-exec below and deploys again, forever. The loop is
+  # bounded only by the OpenBao token's TTL, so it presents as a deploy that
+  # "hangs" and then fails on an expired-token read, long after it succeeded.
+  exit 0
 fi
 
 # First entry: verify local tooling, then re-exec self under OpenBao so the KV
