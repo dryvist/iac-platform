@@ -142,6 +142,12 @@ if [ "${1:-}" = "--inner" ]; then
       echo "Semaphore user '$SEMAPHORE_SSO_ADMIN_LOGIN' not found yet (no SSO login yet, or container still starting) — skipping admin promotion."
     fi
   fi
+
+  # The --inner branch is the whole deploy; without this the script falls
+  # through to the re-exec below and deploys again, forever. The loop is
+  # bounded only by the OpenBao token's TTL, so it presents as a deploy that
+  # "hangs" and then fails on an expired-token read, long after it succeeded.
+  exit 0
 fi
 
 # First entry: verify local tooling, then re-exec self under OpenBao so the KV
