@@ -143,6 +143,35 @@ if [ "${1:-}" = "--inner" ]; then
     fi
   fi
 
+  # Mint the API token tofu/semaphore/ authenticates with. Generate-if-absent,
+  # so this is a no-op on every deploy after the first. It runs here rather than
+  # before `up` because the token can only be minted against a server that is
+  # already migrated and serving.
+  DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh"
+
+  # Report — loudly, without failing the deploy — when the credentials a
+  # Semaphore-driven Ansible run needs are absent from this environment. They
+  # are passed into the container (see compose/docker-compose.yml) and inherited
+  # by every task process; they are deliberately not stored as Semaphore
+  # Environment secrets, because that provider persists secret values in state.
+  #
+  # Warn rather than fail: the stack itself is healthy without them, and a
+  # deploy that refuses over a credential the templates have not run against yet
+  # would block the very deploy that installs those templates. Silence, though,
+  # would leave the templates present and failing at connect time — which reads
+  # as an SSH fault rather than as a missing credential.
+  missing_run_creds=""
+  for _v in BAO_ADDR OPENBAO_APPROLE_ANSIBLE_ROLE_ID OPENBAO_APPROLE_ANSIBLE_SECRET_ID; do
+    [ -n "${!_v:-}" ] || missing_run_creds="$missing_run_creds $_v"
+  done
+  if [ -n "$missing_run_creds" ]; then
+    echo "WARNING: Semaphore run credentials absent:${missing_run_creds}"
+    echo "         Ansible templates are declared, but a run cannot mint its SSH certificate and will fail at connect time."
+  fi
+  for _v in SPLUNK_HEC_TOKEN NAUTOBOT_URL NAUTOBOT_TOKEN; do
+    [ -n "${!_v:-}" ] || echo "WARNING: $_v absent — the Semaphore integration that depends on it is inert."
+  done
+
   # The --inner branch is the whole deploy; without this the script falls
   # through to the re-exec below and deploys again, forever. The loop is
   # bounded only by the OpenBao token's TTL, so it presents as a deploy that

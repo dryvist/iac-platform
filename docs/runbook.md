@@ -5,9 +5,9 @@
 The platform VM's node now runs 24/7 — its former nightly
 power-off (~22:00) was removed (ansible-proxmox#354). Notes that still apply:
 
-- **State is off-node.** State objects live in RustFS on a different node, independent of
-  the platform VM. A run killed mid-flight leaves the workspace lock held — see
-  "Stuck workspace lock" below.
+- **State is off-node.** State objects live in RustFS on a different node,
+  independent of the platform VM. A run killed mid-flight leaves the workspace
+  lock held — see "Stuck workspace lock" below.
 - **No CI plan/apply**: plan/apply run from a local CLI or the UI, never CI —
   this is the security model, not a power constraint. Static repository checks
   remain independent.
@@ -92,42 +92,65 @@ signs it via the OpenBao SSH CA, never touches disk, revokes its OpenBao token
 on exit). `compose/semaphore/Dockerfile` adds the tools that script needs
 (curl, jq, ssh, git) on top of the pinned upstream image.
 
-**One-time objects to create in the Semaphore UI:**
+**Nothing is created in the Semaphore UI.** The project, repositories,
+inventories, environment, templates and schedules are declared in
+`tofu/semaphore/` and applied as a Terrakube job, the same way `tofu/terrakube/`
+declares Terrakube's own organization and workspaces. Creating any of these by
+hand produces an object OpenTofu does not manage and will not reconcile.
 
-- Project `homelab`.
-- One Repository per Ansible repo Semaphore should run — ansible-proxmox,
-  ansible-proxmox-apps, ansible-proxmox-ai, ansible-splunk — all public, so
-  clone over SSH (no deploy key secret needed for read).
-- One secret Environment holding `BAO_ADDR`, the ansible-converge AppRole
-  `OPENBAO_APPROLE_ANSIBLE_ROLE_ID`/`OPENBAO_APPROLE_ANSIBLE_SECRET_ID`, and the
-  tofu-inventory variables `run-ansible.sh` and the inventory loader expect.
-- An Inventory sourced from the published tofu `ansible_inventory.json`
-  artifact — never a second copy of it.
-- Bash-type Templates, one per playbook, each invoking:
+Two things that are *not* in that root, each for a stated reason:
 
-  ```bash
-  scripts/semaphore-run-ansible.sh ./scripts/run-ansible.sh <playbook> \
-    --limit <hosts>,localhost --diff
-  ```
+- **The API token it authenticates with.** Minted by
+  `scripts/provision-semaphore-token.sh` against the local break-glass admin and
+  merge-patched into the platform KV path. Generate-if-absent, called from
+  `deploy.sh`, so it is a no-op on every deploy after the first. A token cannot
+  be a compose variable because it can only be minted against a server that is
+  already up and migrated.
+- **The run credentials.** `BAO_ADDR`, the ansible-converge AppRole pair, the
+  Splunk HEC token and the Nautobot read-only token are passed into the
+  container by `compose/docker-compose.yml` and inherited by every task process.
+  They are deliberately *not* Semaphore Environment secrets: that provider
+  persists a secret's value in OpenTofu state, and this estate mints credentials
+  rather than copying them. `deploy.sh` warns by name when one is absent.
 
-  Two non-negotiable details, both burned this estate before:
+Two inventories are declared, and the second is a gate rather than a duplicate:
+`homelab-tofu` points at `inventory/hosts.yml`, whose hosts are added by the
+`load_tofu` play at run time, and `homelab-nautobot` points at the existing
+opt-in Nautobot GraphQL inventory. Neither stores a copy of any host. A
+scheduled, read-only drift report compares the two, which is the evidence a
+future cutover to Nautobot-sourced inventory should rest on.
 
-  - `--limit` must always include `localhost`, or the tofu-inventory load
-    silently no-ops and the play does nothing at rc 0.
-  - `--diff` only — never add a `--check` dry-run step.
+Schedules exist only for templates marked non-mutating. The gate is derived from
+that mark, not maintained by hand, and a precondition fails the plan if a cron
+is declared for a mutating template or a non-mutating one silently loses its
+schedule.
 
-  A third failure mode, just observed: `run-ansible.sh` can exit 0 on a run
-  interrupted mid-play with no PLAY RECAP, reading as a no-op success on what
-  was actually a half-finished converge (tracked upstream as Vikunja 1843;
-  the ansible-proxmox* repos likely carry the same copy of that script and
-  are covered by 1843, not by this wrapper). `scripts/semaphore-run-ansible.sh`
-  (baked into the Semaphore image by the Dockerfile above) wraps the call
-  instead of papering over it here: no recap at all means the run state is
-  UNKNOWN and is treated as a failure, a recap with any failed/unreachable
-  host is a failure, and a recap covering only `localhost` (the real target
-  host never ran) is also a failure — evaluated only once a recap actually
-  exists, never inferred from its absence. Every template should call it
-  instead of `run-ansible.sh` directly.
+Every Ansible template invokes the recap wrapper, which is on `PATH` in the
+image:
+
+```bash
+semaphore-run-ansible.sh ./scripts/run-ansible.sh <playbook> \
+  --limit <hosts>,localhost --diff
+```
+
+Two non-negotiable details, both burned this estate before:
+
+- `--limit` must always include `localhost`, or the tofu-inventory load
+  silently no-ops and the play does nothing at rc 0.
+- `--diff` only — never add a `--check` dry-run step.
+
+A third failure mode, just observed: `run-ansible.sh` can exit 0 on a run
+interrupted mid-play with no PLAY RECAP, reading as a no-op success on what
+was actually a half-finished converge (tracked upstream as Vikunja 1843;
+the ansible-proxmox* repos likely carry the same copy of that script and
+are covered by 1843, not by this wrapper). `semaphore-run-ansible.sh`
+(baked into the Semaphore image by the Dockerfile above, on `PATH`) wraps the call
+instead of papering over it here: no recap at all means the run state is
+UNKNOWN and is treated as a failure, a recap with any failed/unreachable
+host is a failure, and a recap covering only `localhost` (the real target
+host never ran) is also a failure — evaluated only once a recap actually
+exists, never inferred from its absence. Every template should call it
+instead of `run-ansible.sh` directly.
 
 ## Foundation blockers and hardening backlog
 
