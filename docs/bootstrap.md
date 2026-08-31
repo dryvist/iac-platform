@@ -13,11 +13,14 @@ One-time sequence from zero to a working platform. Ongoing operations live in
 2. **GitHub OAuth app for Dex**: create an OAuth app whose authorization
    callback URL is `https://terrakube-dex.<domain>/dex/callback`. Store its
    client ID and secret at `secret/platform/terrakube/main` as
-   `DEX_GITHUB_CLIENT_ID` and `DEX_GITHUB_CLIENT_SECRET`, alongside
-   `DEX_GITHUB_ORG` and `DEX_GITHUB_TEAM` (the team **slug**, since the
-   connector sets `teamNameField: slug`).
+   `DEX_GITHUB_CLIENT_ID` and `DEX_GITHUB_CLIENT_SECRET`.
 
-   Those last two are the only place admin membership is written. The Dex
+   Set `DEX_GITHUB_ORG` and `DEX_GITHUB_TEAM` (the team **slug**, since the
+   connector sets `teamNameField: slug`) in `compose/.env`, not in the secret
+   store — they are configuration, not credentials, and `compose/.env.example`
+   is where they are documented.
+
+   Those two are the only place admin membership is written. The Dex
    connector grants exactly that team, docker-compose composes
    `TERRAKUBE_ADMIN_GROUP` as `${DEX_GITHUB_ORG}:${DEX_GITHUB_TEAM}`, and the
    `terrakube_team` resource in `tofu/terrakube` builds the same org-qualified
