@@ -118,10 +118,16 @@ on exit). `compose/semaphore/Dockerfile` adds the tools that script needs
 
   A third failure mode, just observed: `run-ansible.sh` can exit 0 on a run
   interrupted mid-play with no PLAY RECAP, reading as a no-op success on what
-  was actually a half-finished converge. `scripts/semaphore-run-ansible.sh`
-  (baked into the Semaphore image by the Dockerfile above) wraps the call, tees
-  its output, and fails the template unless a PLAY RECAP line actually landed —
-  every template should call it instead of `run-ansible.sh` directly.
+  was actually a half-finished converge (tracked upstream as Vikunja 1843;
+  the ansible-proxmox* repos likely carry the same copy of that script and
+  are covered by 1843, not by this wrapper). `scripts/semaphore-run-ansible.sh`
+  (baked into the Semaphore image by the Dockerfile above) wraps the call
+  instead of papering over it here: no recap at all means the run state is
+  UNKNOWN and is treated as a failure, a recap with any failed/unreachable
+  host is a failure, and a recap covering only `localhost` (the real target
+  host never ran) is also a failure — evaluated only once a recap actually
+  exists, never inferred from its absence. Every template should call it
+  instead of `run-ansible.sh` directly.
 
 ## Foundation blockers and hardening backlog
 
