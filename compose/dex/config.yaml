@@ -1,4 +1,4 @@
-# Dex for Terrakube: GitHub connector only (no local passwords or LDAP).
+# Dex for Terrakube: GitHub + Authelia connectors (no local passwords or LDAP).
 # Secrets AND the real domain arrive as env vars from OpenBao at deploy time,
 # so no real hostname is ever committed. Two templating passes run: the dex
 # image renders the whole file with gomplate at container start (Go-template
@@ -64,3 +64,27 @@ connectors:
             - {{ .Env.DEX_GITHUB_TEAM }}
       teamNameField: slug
       loadAllGroups: false
+  # Second, additive login path: the operator chose to keep GitHub AND gain
+  # Authelia rather than swap, so a mis-cut Authelia connector can never lock
+  # anyone out. NOT a drop-in replacement for the GitHub connector above: the
+  # GitHub connector forwards an org-qualified "org:team-slug" group, which is
+  # what TERRAKUBE_ADMIN_GROUP (compose) and the terrakube_team resource
+  # (tofu/terrakube) both expect. An OIDC connector forwards a bare group
+  # instead (see the #30 fix that reverted an earlier OpenBao-connector swap
+  # for exactly this mismatch) — so a user authenticating only via Authelia
+  # will log in but will not match TERRAKUBE_ADMIN_GROUP unless Authelia is
+  # configured to emit that same org-qualified group name. Fixing that shape
+  # mismatch is out of scope here; this connector only adds the login path.
+  - type: oidc
+    id: authelia
+    name: Authelia
+    config:
+      issuer: https://authelia.{{ .Env.DOMAIN }}
+      clientID: $DEX_AUTHELIA_CLIENT_ID
+      clientSecret: $DEX_AUTHELIA_CLIENT_SECRET
+      redirectURI: https://terrakube-dex.{{ .Env.DOMAIN }}/dex/callback
+      scopes: [openid, profile, email, groups]
+      getUserInfo: true
+      insecureSkipEmailVerified: true
+      insecureEnableGroups: true
+      allowedGroups: [terrakube-admins]

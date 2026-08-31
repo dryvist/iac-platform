@@ -21,6 +21,9 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BAO_PATH="secret/platform/terrakube/main"
+# Authelia OIDC client secrets (semaphore + terrakube-dex) live in the shared
+# Authelia secrets path, not this stack's own OpenBao path.
+AUTHELIA_BAO_PATH="secret/apps/authelia"
 EXEC_ENV="$REPO_ROOT/scripts/openbao-exec-env.sh"
 # Stable VM path the compose file mounts the two non-secret config dirs from.
 VM_CONFIG_DIR="/var/lib/platform/compose"
@@ -44,6 +47,14 @@ if [ "${1:-}" = "--inner" ]; then
     DEX_GITHUB_ORG DEX_GITHUB_TEAM \
     TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY; do
     [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $BAO_PATH" >&2; exit 1; }
+  done
+
+  # Same fail-loud guard as above, for the Authelia-sourced values: an unset
+  # SEMAPHORE_OIDC_CLIENT_SECRET or DEX_AUTHELIA_CLIENT_* would compose-interpolate
+  # to an empty string, rendering an OIDC login button that always fails
+  # instead of refusing to deploy.
+  for name in SEMAPHORE_OIDC_CLIENT_SECRET DEX_AUTHELIA_CLIENT_ID DEX_AUTHELIA_CLIENT_SECRET; do
+    [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $AUTHELIA_BAO_PATH" >&2; exit 1; }
   done
 
   host="${DEPLOY_HOST:?DEPLOY_HOST missing from OpenBao}"
@@ -72,11 +83,38 @@ if [ "${1:-}" = "--inner" ]; then
     | docker --host "$host" run -i --rm -v "$VM_CONFIG_DIR:/dest" busybox \
         sh -c 'mkdir -p /dest/ui && cat > /dest/ui/env-config.js'
 
-  exec docker --host "$host" compose \
+  # --build: semaphore is the only service built from a local Dockerfile
+  # (compose/semaphore/Dockerfile); without this flag compose only builds it
+  # the first time and a later Dockerfile edit would deploy stale image content.
+  docker --host "$host" compose \
     --project-name iac-platform \
     --project-directory "$REPO_ROOT/compose" \
     --env-file "$REPO_ROOT/compose/.env" \
-    up -d --remove-orphans
+    up -d --remove-orphans --build
+
+  # Idempotent post-deploy: promote the operator's OIDC-created Semaphore user
+  # to admin once they've completed their first SSO login. The login is never
+  # hardcoded — it comes from OpenBao like every other identity value here.
+  # A no-op if already admin (change-by-login only sets fields you pass); a
+  # clean skip, not a failure, when the login isn't configured yet or the user
+  # hasn't logged in via SSO yet (true on every first bring-up).
+  if [ -n "${SEMAPHORE_SSO_ADMIN_LOGIN:-}" ]; then
+    found=false
+    for _ in 1 2 3 4 5; do
+      if docker --host "$host" exec semaphore semaphore user get --login "$SEMAPHORE_SSO_ADMIN_LOGIN" >/dev/null 2>&1; then
+        found=true
+        break
+      fi
+      sleep 2
+    done
+    if [ "$found" = true ]; then
+      docker --host "$host" exec semaphore semaphore user change-by-login \
+        --login "$SEMAPHORE_SSO_ADMIN_LOGIN" --admin
+      echo "Promoted Semaphore user '$SEMAPHORE_SSO_ADMIN_LOGIN' to admin (idempotent)."
+    else
+      echo "Semaphore user '$SEMAPHORE_SSO_ADMIN_LOGIN' not found yet (no SSO login yet, or container still starting) — skipping admin promotion."
+    fi
+  fi
 fi
 
 # First entry: verify local tooling, then re-exec self under OpenBao so the KV
@@ -85,4 +123,7 @@ for bin in curl jq tar docker; do
   command -v "$bin" >/dev/null || { echo "$bin required (enter the dev shell)" >&2; exit 1; }
 done
 # The platform node may be powered off — if this can't connect, check it is on.
-exec "$EXEC_ENV" "$BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner
+# Chained reads: openbao-exec-env.sh execs its command after exporting one
+# path, so nesting a second call layers in the Authelia path's keys too —
+# both are exported into the same process before --inner runs.
+exec "$EXEC_ENV" "$BAO_PATH" -- "$EXEC_ENV" "$AUTHELIA_BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner

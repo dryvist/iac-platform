@@ -56,6 +56,73 @@ Image pins live in `compose/.env` (renovate-tracked). Bump → `deploy.sh` →
 `smoke-test.sh`. Terrakube api runs Liquibase migrations on start; take a
 manual `pg_dumpall` before major-version bumps.
 
+## Semaphore SSO
+
+Semaphore keeps its own local admin (`SEMAPHORE_ADMIN` / `SEMAPHORE_ADMIN_PASSWORD`)
+as break-glass and additionally offers "Sign in with Authelia" via
+`SEMAPHORE_OIDC_PROVIDERS` (compose/docker-compose.yml), sourced from an OIDC
+client registered in Authelia (client id `semaphore`, redirect
+`https://semaphore.<domain>/api/auth/oidc/authelia/redirect`). Dex gains the
+same second login path for Terrakube itself (compose/dex/config.yaml, connector
+id `authelia`) — see the caveat comment on that connector: an Authelia login to
+Terrakube authenticates but does not currently carry the org-qualified group
+the GitHub connector does, so it will not grant Terrakube admin rights until
+Authelia's group claim is reshaped to match.
+
+**Verify SSO end to end:**
+
+1. Open `https://semaphore.<domain>`, choose "Sign in with Authelia", complete
+   the Authelia login, and confirm Semaphore lands you on its dashboard as
+   that user.
+2. Open `https://terrakube.<domain>`, choose Authelia at the Dex login screen,
+   and confirm it also authenticates (admin-group caveat above still applies).
+3. If Authelia is unreachable (maintenance, misconfiguration): both apps still
+   offer their original login — Semaphore's local admin, Terrakube's GitHub
+   connector — so a broken Authelia integration never locks anyone out.
+
+**Fallback to local admin:** log in to Semaphore as `SEMAPHORE_ADMIN` with
+`SEMAPHORE_ADMIN_PASSWORD` (from OpenBao); it is never removed by adding SSO.
+
+## Semaphore as the Ansible run platform
+
+Semaphore is UI, scheduling, and audit only — the run mechanism is the same
+certificate-signed SSH path a workstation converge uses
+(ansible-proxmox's `scripts/run-ansible.sh`: mints an ephemeral ed25519 key,
+signs it via the OpenBao SSH CA, never touches disk, revokes its OpenBao token
+on exit). `compose/semaphore/Dockerfile` adds the tools that script needs
+(curl, jq, ssh, git) on top of the pinned upstream image.
+
+**One-time objects to create in the Semaphore UI:**
+
+- Project `homelab`.
+- One Repository per Ansible repo Semaphore should run — ansible-proxmox,
+  ansible-proxmox-apps, ansible-proxmox-ai, ansible-splunk — all public, so
+  clone over SSH (no deploy key secret needed for read).
+- One secret Environment holding `BAO_ADDR`, the ansible-converge AppRole
+  `OPENBAO_APPROLE_ANSIBLE_ROLE_ID`/`OPENBAO_APPROLE_ANSIBLE_SECRET_ID`, and the
+  tofu-inventory variables `run-ansible.sh` and the inventory loader expect.
+- An Inventory sourced from the published tofu `ansible_inventory.json`
+  artifact — never a second copy of it.
+- Bash-type Templates, one per playbook, each invoking:
+
+  ```bash
+  scripts/semaphore-run-ansible.sh ./scripts/run-ansible.sh <playbook> \
+    --limit <hosts>,localhost --diff
+  ```
+
+  Two non-negotiable details, both burned this estate before:
+
+  - `--limit` must always include `localhost`, or the tofu-inventory load
+    silently no-ops and the play does nothing at rc 0.
+  - `--diff` only — never add a `--check` dry-run step.
+
+  A third failure mode, just observed: `run-ansible.sh` can exit 0 on a run
+  interrupted mid-play with no PLAY RECAP, reading as a no-op success on what
+  was actually a half-finished converge. `scripts/semaphore-run-ansible.sh`
+  (baked into the Semaphore image by the Dockerfile above) wraps the call, tees
+  its output, and fails the template unless a PLAY RECAP line actually landed —
+  every template should call it instead of `run-ansible.sh` directly.
+
 ## Foundation blockers and hardening backlog
 
 - Provision the nine exact-claim OpenBao JWT roles and migrate each consumer to
@@ -67,7 +134,12 @@ manual `pg_dumpall` before major-version bumps.
   endpoint exists today, so this repository deliberately does not invent one.
 - Mirror pinned container images, OpenTofu releases, providers, and modules;
   then prove a clean executor run with general WAN egress blocked.
-- Semaphore OIDC via the same dex (drops the local admin password) + project
-  wiring for the ansible repos.
+- Done: Semaphore Authelia OIDC (local admin kept as break-glass, not dropped)
+  and Semaphore-as-Ansible-run-platform wiring — see "Semaphore SSO" and
+  "Semaphore as the Ansible run platform" above. Remaining gap: the Dex
+  `authelia` connector authenticates but does not yet carry an org-qualified
+  group Terrakube's admin check accepts (see the connector's own comment) —
+  reshaping Authelia's group claim, or accepting a bare-group admin check
+  change in tofu/terrakube, is still open.
 - Prometheus scrape (Spring actuator + cAdvisor) via the existing prometheus LXC.
 - Dedicated RustFS access policy (today: dedicated key, full-access MVP).
