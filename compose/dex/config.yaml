@@ -1,4 +1,4 @@
-# Dex for Terrakube: GitHub connector only (no local passwords or LDAP).
+# Dex for Terrakube: GitHub + Authelia connectors (no local passwords or LDAP).
 # Secrets AND the real domain arrive as env vars from OpenBao at deploy time,
 # so no real hostname is ever committed. Two templating passes run: the dex
 # image renders the whole file with gomplate at container start (Go-template
@@ -64,3 +64,32 @@ connectors:
             - {{ .Env.DEX_GITHUB_TEAM }}
       teamNameField: slug
       loadAllGroups: false
+  # Second, additive login path: the operator chose to keep GitHub AND gain
+  # Authelia rather than swap, so a mis-cut Authelia connector can never lock
+  # anyone out.
+  #
+  # allowedGroups must name the SAME string Authelia emits, because it filters
+  # the group list down to the intersection before dex forwards it — a bare
+  # entry here would strip the org-qualified group and Terrakube would see
+  # none. Re-shaping the group inside dex instead (groupsPrefix) was the
+  # natural alternative, but that option
+  # (claimModifications.modifyGroupNames) exists only on dex master and in no
+  # released version — an unknown key is ignored rather than rejected, so
+  # configuring it here would have read as applied and done nothing. Authelia
+  # therefore emits the org-qualified name itself and this list matches it.
+  #
+  # Composed from the same two atoms as TERRAKUBE_ADMIN_GROUP above, so the
+  # group dex admits and the group Terrakube honours cannot drift apart.
+  - type: oidc
+    id: authelia
+    name: Authelia
+    config:
+      issuer: https://authelia.{{ .Env.DOMAIN }}
+      clientID: $DEX_AUTHELIA_CLIENT_ID
+      clientSecret: $DEX_AUTHELIA_CLIENT_SECRET
+      redirectURI: https://terrakube-dex.{{ .Env.DOMAIN }}/dex/callback
+      scopes: [openid, profile, email, groups]
+      getUserInfo: true
+      insecureSkipEmailVerified: true
+      insecureEnableGroups: true
+      allowedGroups: ['{{ .Env.DEX_GITHUB_ORG }}:{{ .Env.DEX_GITHUB_TEAM }}']

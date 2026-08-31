@@ -291,6 +291,15 @@ services:
 
   semaphore:
     image: semaphoreui/semaphore:${SEMAPHORE_VERSION}
+    # Built on top of the pinned upstream image (build.args feeds it the same
+    # SEMAPHORE_VERSION this compose file already pins, so a deploy never
+    # tracks two versions) to add the tools scripts/run-ansible.sh needs
+    # (curl, jq, ssh, git) — see compose/semaphore/Dockerfile.
+    build:
+      context: ..
+      dockerfile: compose/semaphore/Dockerfile
+      args:
+        SEMAPHORE_VERSION: ${SEMAPHORE_VERSION}
     container_name: semaphore
     environment:
       SEMAPHORE_DB_DIALECT: postgres
@@ -299,12 +308,17 @@ services:
       SEMAPHORE_DB: semaphore
       SEMAPHORE_DB_USER: semaphore
       SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASS}
+      # Local admin stays as break-glass; SSO is the intended day-to-day login.
       SEMAPHORE_ADMIN: admin
       SEMAPHORE_ADMIN_NAME: Admin
       SEMAPHORE_ADMIN_EMAIL: ${SEMAPHORE_ADMIN_EMAIL}
       SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
       SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${SEMAPHORE_ACCESS_KEY_ENCRYPTION}
       SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
+      # Authelia OIDC login (Semaphore's own JSON-string provider config).
+      # DOMAIN is already a plain env var here like every other hostname in
+      # this file, so the provider_url needs no extra indirection.
+      SEMAPHORE_OIDC_PROVIDERS: '{"authelia":{"display_name":"Sign in with Authelia","provider_url":"https://authelia.${DOMAIN}","client_id":"semaphore","client_secret":"${SEMAPHORE_OIDC_CLIENT_SECRET}","redirect_url":"https://semaphore.${DOMAIN}/api/auth/oidc/authelia/redirect","scopes":["openid","profile","email"],"username_claim":"preferred_username","name_claim":"name","email_claim":"email"}}'
     volumes:
       - semaphore_data:/var/lib/semaphore
     ports:
