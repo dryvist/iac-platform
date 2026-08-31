@@ -38,6 +38,20 @@ resource "terrakube_workspace_cli" "iac_platform" {
   iac_version     = var.tofu_version
 }
 
+# Semaphore's own object graph (tofu/semaphore/). Separate from the
+# iac-platform workspace above because the two have different blast radii and
+# different credentials: this one holds only Semaphore's project, repositories,
+# inventories, templates and schedules, and authenticates to Semaphore's API
+# rather than to Terrakube's.
+resource "terrakube_workspace_cli" "iac_platform_semaphore" {
+  organization_id = terrakube_organization.org.id
+  name            = "iac-platform-semaphore"
+  description     = "Semaphore project, repositories, inventories, templates and schedules"
+  execution_mode  = "remote"
+  iac_type        = "tofu"
+  iac_version     = var.tofu_version
+}
+
 resource "terrakube_workspace_cli" "tofu_unifi" {
   organization_id = terrakube_organization.org.id
   name            = "tofu-unifi"
@@ -95,6 +109,7 @@ resource "terrakube_workspace_cli" "tofu_proxmox_servarr_config" {
 locals {
   workspace_ids = {
     iac-platform                = terrakube_workspace_cli.iac_platform.id
+    iac-platform-semaphore      = terrakube_workspace_cli.iac_platform_semaphore.id
     tofu-github                 = terrakube_workspace_cli.tofu_github.id
     tofu-unifi                  = terrakube_workspace_cli.tofu_unifi.id
     tofu-aws-production         = terrakube_workspace_cli.tofu_aws_production.id
