@@ -18,9 +18,21 @@
 #     environment by scripts/deploy.sh after apply, from the OpenBao env it
 #     already holds, using Semaphore's API.
 #
-# Both halves are version-controlled. Neither is a manual step. If the provider
-# ever gains a write-only variant for `secrets`, move that half here and delete
-# the deploy.sh block — that is a strict improvement, not a redesign.
+# Both halves are version-controlled. Neither is a manual step.
+#
+# There is a second, independent reason not to put them in `secrets`, and it is
+# specific to how this project's templates are shaped. For a shell-type template
+# Semaphore builds the command as
+#
+#   bash <playbook> <environment secrets as name=value> <template arguments...>
+#
+# — the secrets are appended as POSITIONAL ARGUMENTS, between the script name
+# and the declared arguments (upstream v2.18.18, services/tasks/LocalJob.go).
+# Every template here is a bash template wrapping run-ansible.sh, so a secret
+# added to this environment would be spliced into the middle of that command
+# line and passed to the wrapper as if it were a run-ansible.sh argument. Even
+# if the provider gained a write-only variant, secrets would still not belong
+# here while the templates are shell-shaped.
 #
 # Declarative-drift audit (semaphoreui_project_environment): the settable
 # attributes are name, project_id, environment, variables and secrets.
