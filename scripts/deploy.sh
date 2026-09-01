@@ -143,6 +143,57 @@ if [ "${1:-}" = "--inner" ]; then
     fi
   fi
 
+  # Mint the API token tofu/semaphore/ authenticates with. Generate-if-absent,
+  # so this is a no-op on every deploy after the first. It runs here rather than
+  # before `up` because the token can only be minted against a server that is
+  # already migrated and serving.
+  DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh"
+
+  # Report — loudly, without failing the deploy — when the credentials a
+  # Semaphore-driven Ansible run needs are absent from this environment. They
+  # are passed into the container (see compose/docker-compose.yml) and inherited
+  # by every task process; they are deliberately not stored as Semaphore
+  # Environment secrets, because that provider persists secret values in state.
+  #
+  # Warn rather than fail: the stack itself is healthy without them, and a
+  # deploy that refuses over a credential the templates have not run against yet
+  # would block the very deploy that installs those templates. Silence, though,
+  # would leave the templates present and failing at connect time — which reads
+  # as an SSH fault rather than as a missing credential.
+  missing_run_creds=""
+  for _v in BAO_ADDR OPENBAO_APPROLE_ANSIBLE_ROLE_ID OPENBAO_APPROLE_ANSIBLE_SECRET_ID; do
+    [ -n "${!_v:-}" ] || missing_run_creds="$missing_run_creds $_v"
+  done
+  if [ -n "$missing_run_creds" ]; then
+    echo "WARNING: Semaphore run credentials absent:${missing_run_creds}"
+    echo "         Ansible templates are declared, but a run cannot mint its SSH certificate and will fail at connect time."
+  fi
+  # Nautobot's inventory credentials are NOT ambient secret-zero: the nautobot
+  # role mints a read-only API token and publishes it, with the API URL, to
+  # secret/apps/nautobot (roles/nautobot/tasks/readonly_token.yml). Read them
+  # from there rather than expecting them in the environment — the superuser
+  # creds at the same path are deliberately not what the inventory uses.
+  for _pair in "NAUTOBOT_URL:inventory_url" "NAUTOBOT_TOKEN:inventory_ro_token"; do
+    _var="${_pair%%:*}"
+    [ -n "${!_var:-}" ] && continue
+    _field="${_pair#*:}"
+    _val="$(curl -sf --max-time 10 -H "X-Vault-Token: ${BAO_TOKEN:-${VAULT_TOKEN:-}}" \
+      "${BAO_ADDR}/v1/secret/data/apps/nautobot" \
+      | jq -r --arg f "$_field" '.data.data[$f] // ""')" || _val=""
+    if [ -n "$_val" ]; then
+      export "$_var=$_val"
+    else
+      echo "WARNING: $_var absent — secret/apps/nautobot has no $_field yet."
+      echo "         Converge the nautobot role with nautobot_token_publish_openbao enabled to mint it."
+    fi
+  done
+
+  # Unlike the two above, this one IS ambient secret-zero by design: the shared
+  # HEC token lives in Doppler tier-0 and is never stored in OpenBao, so there is
+  # nothing to fetch — only to report when the environment does not carry it.
+  [ -n "${SPLUNK_HEC_TOKEN:-}" ] \
+    || echo "WARNING: SPLUNK_HEC_TOKEN absent — converge telemetry will not reach Splunk."
+
   # The --inner branch is the whole deploy; without this the script falls
   # through to the re-exec below and deploys again, forever. The loop is
   # bounded only by the OpenBao token's TTL, so it presents as a deploy that

@@ -20,6 +20,18 @@
 # The executor is deliberately unpublished: only the API reaches it, on the
 # compose-internal network.
 
+x-logging: &logging
+  # journald, not the default json-file, for every service in this stack.
+  #
+  # Two reasons, and the first one is a live exposure: json-file has no size
+  # bound by default, so a chatty or crash-looping container grows without
+  # limit until it fills the boot disk. The second is that this is how run
+  # output leaves the box — rsyslog reads the journal, so a journald-driven
+  # container is collected by the existing syslog forwarder with no per-service
+  # shipper. The estate's syslog role documents this driver as its assumption;
+  # this is the file that makes the assumption true.
+  driver: journald
+
 x-api: &api_env
   # Tofu releases list served from a pinned static file in THIS repo (raw URL),
   # not api.github.com: GitHub started 400-ing the API's anonymous Java/Netty
@@ -136,6 +148,7 @@ x-ui: &ui_env
 
 services:
   terrakube-api:
+    logging: *logging
     image: azbuilder/api-server:${TK_VERSION}
     container_name: terrakube-api
     environment:
@@ -155,6 +168,7 @@ services:
         condition: service_healthy
 
   terrakube-ui:
+    logging: *logging
     image: azbuilder/terrakube-ui:${TK_VERSION}
     container_name: terrakube-ui
     environment:
@@ -172,6 +186,7 @@ services:
     restart: unless-stopped
 
   terrakube-executor:
+    logging: *logging
     image: azbuilder/executor:${TK_VERSION}
     container_name: terrakube-executor
     environment:
@@ -183,6 +198,7 @@ services:
     restart: unless-stopped
 
   terrakube-registry:
+    logging: *logging
     image: azbuilder/open-registry:${TK_VERSION}
     container_name: terrakube-registry
     environment:
@@ -194,6 +210,7 @@ services:
     restart: unless-stopped
 
   terrakube-dex:
+    logging: *logging
     image: ghcr.io/dexidp/dex:${TK_DEX_VERSION}
     container_name: terrakube-dex
     command: ["dex", "serve", "/etc/dex/config.yaml"]
@@ -218,6 +235,7 @@ services:
     restart: unless-stopped
 
   redis-service:
+    logging: *logging
     image: valkey/valkey:${TK_REDIS_VERSION}
     container_name: redis-service
     command:
@@ -236,6 +254,7 @@ services:
     restart: unless-stopped
 
   postgresql-service:
+    logging: *logging
     image: postgres:${TK_POSTGRESQL_VERSION}
     container_name: postgresql-service
     environment:
@@ -264,6 +283,7 @@ services:
   # node is off overnight, so a classic nightly cron would never fire). The
   # dump lands on the VM disk, which the vzdump job then captures.
   postgres-backup:
+    logging: *logging
     image: postgres:${TK_POSTGRESQL_VERSION}
     container_name: postgres-backup
     environment:
@@ -290,6 +310,7 @@ services:
         condition: service_healthy
 
   semaphore:
+    logging: *logging
     image: semaphoreui/semaphore:${SEMAPHORE_VERSION}
     # Built on top of the pinned upstream image (build.args feeds it the same
     # SEMAPHORE_VERSION this compose file already pins, so a deploy never
@@ -319,6 +340,28 @@ services:
       # DOMAIN is already a plain env var here like every other hostname in
       # this file, so the provider_url needs no extra indirection.
       SEMAPHORE_OIDC_PROVIDERS: '{"authelia":{"display_name":"Sign in with Authelia","provider_url":"https://authelia.${DOMAIN}","client_id":"semaphore","client_secret":"${SEMAPHORE_OIDC_CLIENT_SECRET}","redirect_url":"https://semaphore.${DOMAIN}/api/auth/oidc/authelia/redirect","scopes":["openid","profile","email"],"username_claim":"preferred_username","name_claim":"name","email_claim":"email"}}'
+      # Run credentials, inherited by every task process Semaphore spawns.
+      #
+      # These are deliberately NOT declared as Semaphore Environment secrets in
+      # tofu/semaphore/: that provider persists a secret's value in state, and
+      # this estate mints credentials rather than copying them. Passing them
+      # through the container environment keeps them in exactly one place — the
+      # secret store deploy.sh already reads — and out of both OpenTofu state
+      # and Semaphore's own database.
+      #
+      # BAO_ADDR plus the AppRole pair are what run-ansible.sh exchanges for an
+      # ephemeral signed SSH certificate. Empty defaults so the stack still
+      # starts before they are wired; deploy.sh reports the gap explicitly
+      # rather than letting runs fail later with an SSH error.
+      BAO_ADDR: ${BAO_ADDR:-}
+      OPENBAO_APPROLE_ANSIBLE_ROLE_ID: ${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}
+      OPENBAO_APPROLE_ANSIBLE_SECRET_ID: ${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}
+      # Read by the converge-telemetry Ansible callback, which publishes each
+      # run's per-host outcome to the logging pipeline.
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+      # Resolve the Nautobot-sourced parallel inventory and the drift report.
+      NAUTOBOT_URL: ${NAUTOBOT_URL:-}
+      NAUTOBOT_TOKEN: ${NAUTOBOT_TOKEN:-}
     volumes:
       - semaphore_data:/var/lib/semaphore
     ports:
