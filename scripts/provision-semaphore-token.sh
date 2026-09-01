@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Generate-if-absent: mint Semaphore's automation API token into OpenBao
-# (secret/platform/terrakube/main, field SEMAPHORE_API_TOKEN).
+# (secret/apps/semaphore, field semaphore_api_token).
 #
 # tofu/semaphore/ declares Semaphore's object graph — project, repositories,
 # inventories, environments, templates, schedules — through Semaphore's REST
@@ -19,8 +19,16 @@
 # exists only in this process's env and the OpenBao write body, and its value is
 # never echoed.
 #
-# The write is a KV v2 merge-patch so the other fields at that path (Dex OIDC,
-# S3, DB creds, Terrakube signing keys) are left untouched.
+# Lives under secret/apps/ because it is an application credential, not part of
+# the IaC kernel. That is also what makes it writable at all: the OpenBao access
+# model grants a write leaf per entry in openbao_ai_domains ([ai, apps]), while
+# `platform` is listed in openbao_ai_readonly_extra_subtrees and has no write
+# leaf by design. Writing an app token there would have meant widening the
+# access model to fit one field.
+#
+# Read-merge-write rather than a blind put, so a field this script does not know
+# about (anything a role later publishes to the same path) survives. The path
+# need not already exist: an absent secret reads as an empty map.
 #
 # Usage (under a native OpenBao token, same as deploy.sh):
 #   export BAO_ADDR=https://openbao.<domain>
@@ -29,8 +37,8 @@
 #   ./scripts/provision-semaphore-token.sh
 set -euo pipefail
 
-PATH_KV="secret/platform/terrakube/main"
-FIELD="SEMAPHORE_API_TOKEN"
+PATH_KV="secret/apps/semaphore"
+FIELD="semaphore_api_token"
 TOKEN_NAME="iac-platform-tofu"
 CONTAINER="semaphore"
 
@@ -48,13 +56,23 @@ token="${BAO_TOKEN:-${VAULT_TOKEN:-}}"
 [ -n "$token" ] || { echo "provision-semaphore-token: authenticate to OpenBao and set BAO_TOKEN" >&2; exit 1; }
 
 # KV v2 read/write insert "/data/" after the mount (logical
-# secret/platform/terrakube/main -> /v1/secret/data/platform/terrakube/main).
+# secret/apps/semaphore -> /v1/secret/data/apps/semaphore).
 mount="${PATH_KV%%/*}"
 subpath="${PATH_KV#*/}"
 data_url="${BAO_ADDR}/v1/${mount}/data/${subpath}"
 
-current="$(curl -sf --max-time 10 -H "X-Vault-Token: $token" "$data_url")" \
-  || { echo "provision-semaphore-token: read of $PATH_KV failed" >&2; exit 1; }
+# 404 means the path does not exist yet, which is the first-run case and not an
+# error. Anything else is: separate the two on the status code rather than on
+# curl's exit alone, so a 403 can never be mistaken for "absent, go create it".
+read_body="$(curl -s --max-time 10 -o - -w '\n%{http_code}' \
+  -H "X-Vault-Token: $token" "$data_url")"
+read_code="${read_body##*$'\n'}"
+current="${read_body%$'\n'*}"
+case "$read_code" in
+  200) ;;
+  404) current='{"data":{"data":{}}}' ;;
+  *)   echo "provision-semaphore-token: read of $PATH_KV returned HTTP $read_code" >&2; exit 1 ;;
+esac
 
 have="$(printf '%s' "$current" | jq -r --arg f "$FIELD" '.data.data[$f] // "" | length')"
 if [ "$have" -gt 0 ]; then
@@ -78,12 +96,13 @@ if [ -z "$api_token" ] || [ "${#api_token}" -lt 16 ] \
   exit 1
 fi
 
-patch_body="$(jq -n --arg t "$api_token" --arg f "$FIELD" '{data: {($f): $t}}')"
+write_body="$(printf '%s' "$current" \
+  | jq --arg t "$api_token" --arg f "$FIELD" '{data: (.data.data + {($f): $t})}')"
 
-curl -sf --max-time 10 -X PATCH \
+curl -sf --max-time 10 -X POST \
   -H "X-Vault-Token: $token" \
-  -H "Content-Type: application/merge-patch+json" \
-  -d "$patch_body" "$data_url" >/dev/null \
-  || { echo "provision-semaphore-token: merge-patch write to $PATH_KV failed (need the 'patch' capability on the path)" >&2; exit 1; }
+  -H "Content-Type: application/json" \
+  -d "$write_body" "$data_url" >/dev/null \
+  || { echo "provision-semaphore-token: write to $PATH_KV failed" >&2; exit 1; }
 
 echo "ok   wrote $FIELD to $PATH_KV (tofu/semaphore/ reads it ephemerally)"

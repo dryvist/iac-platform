@@ -45,14 +45,18 @@ provider "vault" {
 }
 
 # The API token is minted by scripts/provision-semaphore-token.sh against the
-# local break-glass admin and merge-patched into the platform path. Read
-# ephemerally: it is never written to state.
-ephemeral "vault_kv_secret_v2" "platform" {
+# local break-glass admin. Read ephemerally: it is never written to state.
+#
+# secret/apps/<app>, not the platform subtree: this is an application
+# credential, and `apps` is the tier the OpenBao access model actually grants a
+# write leaf on. Storing it under `platform` would have required widening that
+# model to write one field into a subtree deliberately kept read-only.
+ephemeral "vault_kv_secret_v2" "semaphore" {
   mount = "secret"
-  name  = "platform/terrakube/main"
+  name  = "apps/semaphore"
 }
 
 provider "semaphoreui" {
   api_base_url = var.semaphore_api_base_url
-  api_token    = ephemeral.vault_kv_secret_v2.platform.data.SEMAPHORE_API_TOKEN
+  api_token    = ephemeral.vault_kv_secret_v2.semaphore.data.semaphore_api_token
 }
