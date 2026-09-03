@@ -194,6 +194,42 @@ if [ "${1:-}" = "--inner" ]; then
   [ -n "${SPLUNK_HEC_TOKEN:-}" ] \
     || echo "WARNING: SPLUNK_HEC_TOKEN absent — converge telemetry will not reach Splunk."
 
+  # Inject runtime credentials into Semaphore Project 1 Environment 1 so task
+  # worker processes inherit them (Semaphore LocalJob does not inherit container
+  # os.Environ unless mapped in the project environment template).
+  sem_token="$(docker --host "$host" exec semaphore semaphore users token create --login "${SEMAPHORE_ADMIN:-admin}" --name deploy-env-sync 2>&1 | tail -n 1 | tr -d '\r\n')" || true
+  if [ -n "$sem_token" ]; then
+    payload="$(jq -nc \
+      --arg role "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" \
+      --arg secret "${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}" \
+      --arg bao "${BAO_ADDR:-}" \
+      --arg hec "${SPLUNK_HEC_TOKEN:-}" \
+      --arg hec_ns "${HEC_NAMESPACE:-}" \
+      --arg nurl "${NAUTOBOT_URL:-}" \
+      --arg ntoken "${NAUTOBOT_TOKEN:-}" \
+      '{
+        id: 1,
+        project_id: 1,
+        name: "homelab",
+        env: ({
+          BAO_ADDR: $bao,
+          OPENBAO_APPROLE_ANSIBLE_ROLE_ID: $role,
+          OPENBAO_APPROLE_ANSIBLE_SECRET_ID: $secret,
+          SPLUNK_HEC_TOKEN: $hec,
+          HEC_NAMESPACE: $hec_ns,
+          NAUTOBOT_URL: $nurl,
+          NAUTOBOT_TOKEN: $ntoken
+        } | tojson),
+        json: "{}"
+      }')"
+    docker --host "$host" exec -i semaphore curl -sf -X PUT \
+      -H "Authorization: Bearer $sem_token" \
+      -H "Content-Type: application/json" \
+      -d "$payload" \
+      http://127.0.0.1:3000/api/project/1/environment/1 >/dev/null 2>&1 || true
+    echo "Synced runtime credentials to Semaphore project environment (idempotent)."
+  fi
+
   # The --inner branch is the whole deploy; without this the script falls
   # through to the re-exec below and deploys again, forever. The loop is
   # bounded only by the OpenBao token's TTL, so it presents as a deploy that

@@ -65,6 +65,7 @@ resource "semaphoreui_project_environment" "homelab" {
   lifecycle {
     # `secrets` is written by deploy.sh, not by this root (see the header). Left
     # unignored, every plan would propose deleting values it cannot see.
-    ignore_changes = [secrets]
+    # `environment` holds runtime credentials injected at deploy time.
+    ignore_changes = [secrets, environment]
   }
 }
