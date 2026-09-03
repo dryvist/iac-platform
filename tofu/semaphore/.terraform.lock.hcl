@@ -5,7 +5,21 @@ provider "registry.opentofu.org/hashicorp/vault" {
   version     = "5.11.0"
   constraints = "~> 5.10"
   hashes = [
+    "h1:/VnM9sVlqgehjBJfOxJM7KgwnYcHE5uTpKEbXut1dgg=",
+    "h1:9QuQbNWiyrvaAmTjeeTVIqySFz7hxTwXTH9Dd2B0Ujk=",
+    "h1:CE7sUKPs8tOYRSRKyWuacjN+V3eoNoT+56iqfHsrjD8=",
+    "h1:EwuMC38ibwQk49mUF+apjTzb0wWRVPQGZwYge5wA6ps=",
+    "h1:G2ObnEUOmG+q9BSMDSjGVxxAMwC3ezTNLk6CgctaqI0=",
+    "h1:P556Emgu4nsQg9wuf1UIcLiTDLIWzbV9qFE1Bzv8/rQ=",
+    "h1:POYjTf9eQspC5ysGLVJayOpA7n5Vys98LP1J75d2mko=",
+    "h1:Q92dy8O1cS+kD21Ao4KIBS0ui8Ver9jjbjKYxF6qByg=",
+    "h1:RQL9Vem/l4jijfgFZ4ehNyRwe4QeeKi7AjLMmOUEa7s=",
+    "h1:Z6gV6b9CnqE7Z9sFVsB6Ub+1AyBJdRqjxlgJpq5989E=",
+    "h1:kS0Z7uzQqZXmuKBWUykLzGCT3qMMVFuHHswJ3T5L+Ho=",
+    "h1:tc0pVZxI8kgQXMOX0IeN2Cfg8vlnPamyqsXFoB6lZdI=",
     "h1:vUO2H6ji35jcTfd/zF0B5ZUP9Nq4xQL+65sZ68inBwc=",
+    "h1:wVCx0ojzj+iRA5/NGdmYZjevW3azkbnLRV1z/5NPLIE=",
+    "h1:xG8fsL7fQq0cdvKwMLX+vzbKs1rBRZs3l6r8SqYxKlg=",
     "zh:0024bfedb1aedda197ae55a8178bbeaac24e91dc632c0d4cdb8b29966bbb4228",
     "zh:2e0f9d6a9ef2c580ec10c57eabff8022374d7833c6619c0b1f176095fa4edbaf",
     "zh:3f89756c2c644513be55cbe7881be17baa0d89cd10d7a73209d15ec870be2f93",
@@ -28,7 +42,19 @@ provider "registry.opentofu.org/semaphoreui/semaphore" {
   version     = "0.3.9"
   constraints = "~> 0.3.9"
   hashes = [
+    "h1:AijABxCbV22zvTjvzPlT/Svdr12QIe41O1COJLxrhOM=",
     "h1:FO6rYOUzAE3KTlmqlbpFa+zhVpK3Hf45gk5cSuXAwP4=",
+    "h1:FthPaMoWmUKJzMKQxyhzZcaKIlI2z+ZJehV7asLqCy8=",
+    "h1:JczE+D7nj4O4YiV/b6SMpo90OrAWDpx8SiKKrPlZ6YQ=",
+    "h1:Mv7cpNA6M09gFt9uAw+x0t72oUma/hVz+sxKcwMVZ2w=",
+    "h1:Vo/p7xbD5WWlWPXMD+H7QPit7LmQAd3C2ib2ocNySRE=",
+    "h1:bZcfbplzrGQ4Fc8oWI+L9dWWDDX/bX2Yeg6547I0ujo=",
+    "h1:fEZ6yzSuJ4xZB7uiH8xXwIfDLn8ziSR07vk43vuhw2E=",
+    "h1:hRFPt0mLA4GIIgRVtuLV43OXTFieppJZ9osb4PNf8AY=",
+    "h1:oH8djcp4oh5ZUVh3S53MXUduFPmjXzYLr2jRuAsnjIM=",
+    "h1:uF+2gmCJhHp0aXE8RJYBfTJ+duYBnDof7mI64pEG/gc=",
+    "h1:xH7NQvv4zliCi2itIzhOMGNAoQGElm7yTW+niFUGKPc=",
+    "h1:y2ytlpv+KB4f9APVPNKnk9ismfmdDORIhZQ6Xqk0C90=",
     "zh:1aff4f3418b7ec7dc925b187f8361d482e74280e8e507f10b7837523dbc79629",
     "zh:27a24307773251f4b19e67a9b0c19355d9a910f3e25b88e9c91b574044cb0658",
     "zh:311286ac8fdc7c7cce3c1bb06a6d912c92cc47a9ffcc344d30e060dc077aed00",

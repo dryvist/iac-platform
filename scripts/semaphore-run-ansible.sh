@@ -25,6 +25,12 @@ set -euo pipefail
 
 [ "$#" -ge 1 ] || { echo "usage: semaphore-run-ansible.sh <run-ansible.sh> [args...]" >&2; exit 2; }
 
+if [ -f requirements.yml ]; then
+  echo "Installing Ansible requirements..."
+  ansible-galaxy install -r requirements.yml --roles-path roles || true
+  ansible-galaxy collection install -r requirements.yml || true
+fi
+
 log="$(mktemp)"
 trap 'rm -f "$log"' EXIT
 

@@ -103,6 +103,22 @@ locals {
       mutating    = false
       description = "Read-only verification of the Splunk deployment."
     }
+
+    ai-site = {
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/site.yml"
+      limit       = "all"
+      mutating    = true
+      description = "Full AI/LLM stack converge (Ollama, LiteLLM, Qdrant, Hermes, Langfuse, etc.)."
+    }
+
+    ai-llm-serving = {
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/llm-serving.yml"
+      limit       = "all"
+      mutating    = true
+      description = "GPU inference serving stack converge (llama.cpp, LiteLLM proxy, Redis spend store)."
+    }
   }
 }
 

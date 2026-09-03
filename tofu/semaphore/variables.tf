@@ -48,6 +48,10 @@ variable "ansible_repositories" {
       url    = "https://github.com/dryvist/ansible-proxmox-apps.git"
       branch = "main"
     }
+    ansible-proxmox-ai = {
+      url    = "https://github.com/dryvist/ansible-proxmox-ai.git"
+      branch = "main"
+    }
     ansible-splunk = {
       url    = "https://github.com/dryvist/ansible-splunk.git"
       branch = "main"
