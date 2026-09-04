@@ -342,24 +342,53 @@ services:
       SEMAPHORE_OIDC_PROVIDERS: '{"authelia":{"display_name":"Sign in with Authelia","provider_url":"https://authelia.${DOMAIN}","client_id":"semaphore","client_secret":"${SEMAPHORE_OIDC_CLIENT_SECRET}","redirect_url":"https://semaphore.${DOMAIN}/api/auth/oidc/authelia/redirect","scopes":["openid","profile","email"],"username_claim":"preferred_username","name_claim":"name","email_claim":"email"}}'
       # Run credentials, inherited by every task process Semaphore spawns.
       #
-      # These are deliberately NOT declared as Semaphore Environment secrets in
-      # tofu/semaphore/: that provider persists a secret's value in state, and
-      # this estate mints credentials rather than copying them. Passing them
-      # through the container environment keeps them in exactly one place — the
-      # secret store deploy.sh already reads — and out of both OpenTofu state
-      # and Semaphore's own database.
+      # WHAT BELONGS HERE, AND WHY THE LIST IS SHRINKING.
+      # A bootstrap credential has to live somewhere the runner can read before
+      # it can read anything else; everything reachable WITH that bootstrap
+      # should be fetched at run time instead of parked here. The playbooks now
+      # read their own Splunk, Splunkbase and object-storage credentials from
+      # OpenBao (community.hashi_vault, using the token run-ansible.sh already
+      # mints), so those four are gone from this file and from the project
+      # environment deploy.sh writes.
       #
-      # BAO_ADDR plus the AppRole pair are what run-ansible.sh exchanges for an
-      # ephemeral signed SSH certificate. Empty defaults so the stack still
-      # starts before they are wired; deploy.sh reports the gap explicitly
-      # rather than letting runs fail later with an SSH error.
+      # They are also deliberately NOT Semaphore Environment secrets. Two
+      # independent reasons, and the second is the one that bites: the provider
+      # persists a secret's value in OpenTofu state, AND for a bash-type
+      # template Semaphore splices `secrets[]` in as POSITIONAL ARGUMENTS
+      # between the script name and the declared arguments (v2.18.18,
+      # services/tasks/LocalJob.go). Every template here is bash-shaped, so a
+      # secret moved there would be passed to run-ansible.sh as an argument.
+      #
+      # BAO_ADDR plus an AppRole pair are what run-ansible.sh exchanges for an
+      # ephemeral signed SSH certificate and for the run's OpenBao token. Empty
+      # defaults so the stack still starts before they are wired; deploy.sh
+      # reports the gap explicitly rather than letting runs fail later with an
+      # SSH error.
       BAO_ADDR: ${BAO_ADDR:-}
+      # The execution plane's own identity: its own policy, and certificates
+      # signed under principal `semaphore` rather than `ansible`, so a host's
+      # sshd log distinguishes an unattended run from a human's laptop run.
+      OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: ${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}
+      OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: ${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}
+      # STAGED ROLLOUT, not redundancy. run-ansible.sh prefers the SEMAPHORE
+      # pair and falls back to this one; only ansible-splunk's copy of that
+      # wrapper knows the new pair so far. The other three repos still select
+      # this one, and removing it now would drop every one of their templates
+      # to the static break-glass key. Delete it once all four wrappers match.
       OPENBAO_APPROLE_ANSIBLE_ROLE_ID: ${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}
       OPENBAO_APPROLE_ANSIBLE_SECRET_ID: ${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}
-      # Read by the converge-telemetry Ansible callback, which publishes each
-      # run's per-host outcome to the logging pipeline.
+      # STILL HERE BECAUSE ITS CONSUMER IS NOT A PLAYBOOK. Read by the
+      # converge-telemetry Ansible CALLBACK, which publishes each run's
+      # per-host outcome to the logging pipeline. A callback plugin has no
+      # access to the lookup machinery the playbooks use, so moving this to
+      # OpenBao means teaching a Python plugin to authenticate — bespoke
+      # credential code, which is the thing this whole change is removing.
       SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
-      # Resolve the Nautobot-sourced parallel inventory and the drift report.
+      # Same reason. NAUTOBOT_URL is not a secret; NAUTOBOT_TOKEN is, and its
+      # consumers are the Nautobot inventory PLUGIN and the drift report, which
+      # runs as a `python` template and never touches Ansible at all. The
+      # native fix is to make that report a playbook like every other template,
+      # not to give the script its own OpenBao client.
       NAUTOBOT_URL: ${NAUTOBOT_URL:-}
       NAUTOBOT_TOKEN: ${NAUTOBOT_TOKEN:-}
     volumes:
