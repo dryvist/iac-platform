@@ -161,9 +161,14 @@ if [ "${1:-}" = "--inner" ]; then
   # would leave the templates present and failing at connect time — which reads
   # as an SSH fault rather than as a missing credential.
   missing_run_creds=""
-  for _v in BAO_ADDR OPENBAO_APPROLE_ANSIBLE_ROLE_ID OPENBAO_APPROLE_ANSIBLE_SECRET_ID; do
-    [ -n "${!_v:-}" ] || missing_run_creds="$missing_run_creds $_v"
-  done
+  [ -n "${BAO_ADDR:-}" ] || missing_run_creds=" BAO_ADDR"
+  # Either identity satisfies the runner: it prefers the SEMAPHORE pair and
+  # falls back to the ANSIBLE one. Requiring a specific pair here would report
+  # a healthy deploy as broken during the staged cutover.
+  if [ -z "${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}" ] \
+    && [ -z "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" ]; then
+    missing_run_creds="$missing_run_creds OPENBAO_APPROLE_{SEMAPHORE,ANSIBLE}_ROLE_ID"
+  fi
   if [ -n "$missing_run_creds" ]; then
     echo "WARNING: Semaphore run credentials absent:${missing_run_creds}"
     echo "         Ansible templates are declared, but a run cannot mint its SSH certificate and will fail at connect time."
@@ -199,12 +204,18 @@ if [ "${1:-}" = "--inner" ]; then
   # os.Environ unless mapped in the project environment template).
   sem_token="$(docker --host "$host" exec semaphore semaphore users token create --login "${SEMAPHORE_ADMIN:-admin}" --name deploy-env-sync 2>&1 | tail -n 1 | tr -d '\r\n')" || true
   if [ -n "$sem_token" ]; then
+    # HEC_NAMESPACE and the Splunkbase/object-storage credentials are gone from
+    # this payload: the playbooks read them from OpenBao at run time now. What
+    # remains is the bootstrap (address + an AppRole pair), the telemetry
+    # callback's token, and the Nautobot pair — the two whose consumers are not
+    # playbooks. See compose/docker-compose.yml for why each one is still here.
     payload="$(jq -nc \
+      --arg sem_role "${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}" \
+      --arg sem_secret "${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}" \
       --arg role "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" \
       --arg secret "${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}" \
       --arg bao "${BAO_ADDR:-}" \
       --arg hec "${SPLUNK_HEC_TOKEN:-}" \
-      --arg hec_ns "${HEC_NAMESPACE:-}" \
       --arg nurl "${NAUTOBOT_URL:-}" \
       --arg ntoken "${NAUTOBOT_TOKEN:-}" \
       '{
@@ -213,10 +224,11 @@ if [ "${1:-}" = "--inner" ]; then
         name: "homelab",
         env: ({
           BAO_ADDR: $bao,
+          OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: $sem_role,
+          OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret,
           OPENBAO_APPROLE_ANSIBLE_ROLE_ID: $role,
           OPENBAO_APPROLE_ANSIBLE_SECRET_ID: $secret,
           SPLUNK_HEC_TOKEN: $hec,
-          HEC_NAMESPACE: $hec_ns,
           NAUTOBOT_URL: $nurl,
           NAUTOBOT_TOKEN: $ntoken
         } | tojson),
@@ -228,6 +240,15 @@ if [ "${1:-}" = "--inner" ]; then
       -d "$payload" \
       http://127.0.0.1:3000/api/project/1/environment/1 >/dev/null 2>&1 || true
     echo "Synced runtime credentials to Semaphore project environment (idempotent)."
+    # This block mints a fresh API token on every deploy, so it revokes the one
+    # it minted. A Semaphore API token does not expire on its own and is not
+    # scoped below its owner, which makes an unrevoked one a standing
+    # credential rather than a deploy-time detail. Revoke through the same
+    # in-container API call the PUT above uses — such a token is its own id.
+    docker --host "$host" exec semaphore curl -sf -X DELETE \
+      -H "Authorization: Bearer $sem_token" \
+      "http://127.0.0.1:3000/api/user/tokens/$sem_token" >/dev/null 2>&1 \
+      || echo "WARNING: could not revoke the deploy-env-sync API token; revoke it by hand."
   fi
 
   # The --inner branch is the whole deploy; without this the script falls
