@@ -1,3 +1,6 @@
+---
+skill-groups: [core, git, homelab]
+---
 # AI Agents Configuration
 
 ## Repo Purpose
