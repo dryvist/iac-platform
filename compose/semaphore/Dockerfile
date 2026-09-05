@@ -18,7 +18,10 @@ RUN apk add --no-cache curl jq openssh-client git bash py3-pip py3-requests \
 # The PLAY RECAP assertion wrapper every Ansible template invokes instead of
 # calling run-ansible.sh directly — see the script for why.
 COPY scripts/semaphore-run-ansible.sh /usr/local/bin/semaphore-run-ansible.sh
-RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh
+# The KV-to-environment exporter the wrapper re-execs through to load the run
+# environment before the playbook starts.
+COPY scripts/openbao-exec-env.sh /usr/local/bin/openbao-exec-env.sh
+RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh /usr/local/bin/openbao-exec-env.sh
 
 # Drop back to the image's own unprivileged user for runtime.
 USER semaphore

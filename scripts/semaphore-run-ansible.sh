@@ -25,6 +25,20 @@ set -euo pipefail
 
 [ "$#" -ge 1 ] || { echo "usage: semaphore-run-ansible.sh <run-ansible.sh> [args...]" >&2; exit 2; }
 
+# The run environment. The playbooks read plain environment variables and know
+# nothing about where they came from; this is the one place that fills them in.
+# Three KV documents, one per mount, so every value lives on exactly one tier:
+# topology in config/, internal-only secrets on the internal mount, anything
+# reachable from the public internet in secrets-external/. Re-exec through the
+# exporter once; the marker stops the second entry from doing it again.
+if [ -z "${SEMAPHORE_RUN_ENV_LOADED:-}" ] && [ -n "${BAO_ADDR:-}" ]; then
+  export SEMAPHORE_RUN_ENV_LOADED=1
+  exec openbao-exec-env.sh config/platform/ansible/env -- \
+    openbao-exec-env.sh secret/platform/ansible/env -- \
+    openbao-exec-env.sh secrets-external/platform/ansible/env -- \
+    bash "$0" "$@"
+fi
+
 if [ -f requirements.yml ]; then
   echo "Installing Ansible requirements..."
   ansible-galaxy install -r requirements.yml --roles-path roles || true
