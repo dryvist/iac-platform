@@ -9,11 +9,33 @@
 ARG SEMAPHORE_VERSION=v2.18.18
 FROM semaphoreui/semaphore:${SEMAPHORE_VERSION}
 
+# The OpenBao CLI scripts/run-ansible.sh uses to log in and mint the SSH cert.
+# Alpine 3.21 community ships openbao 2.1.0 and edge ships 2.6.1, neither of
+# which is the version the fleet runs, so the pinned official release archive
+# is installed instead and verified against the release's checksums file.
+# renovate: datasource=github-releases depName=openbao/openbao extractVersion=^v(?<version>.*)$
+ARG BAO_VERSION=2.5.5
+
 USER root
 RUN apk add --no-cache curl jq openssh-client git bash py3-pip py3-requests \
     && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac || true; done \
     && mkdir -p /usr/lib/python3.12/site-packages \
     && echo "/opt/semaphore/apps/ansible/13.5.0/venv/lib/python3.12/site-packages" > /usr/lib/python3.12/site-packages/venv.pth
+
+RUN set -eu \
+    && case "$(apk --print-arch)" in \
+         aarch64) BAO_ARCH=arm64 ;; \
+         x86_64)  BAO_ARCH=x86_64 ;; \
+         *) echo "unsupported arch: $(apk --print-arch)" >&2; exit 1 ;; \
+       esac \
+    && cd /tmp \
+    && curl -fsSLO "https://github.com/openbao/openbao/releases/download/v${BAO_VERSION}/bao_${BAO_VERSION}_Linux_${BAO_ARCH}.tar.gz" \
+    && curl -fsSLO "https://github.com/openbao/openbao/releases/download/v${BAO_VERSION}/checksums-linux.txt" \
+    && grep " bao_${BAO_VERSION}_Linux_${BAO_ARCH}.tar.gz$" checksums-linux.txt | sha256sum -c - \
+    && tar -xzf "bao_${BAO_VERSION}_Linux_${BAO_ARCH}.tar.gz" bao \
+    && install -m 0755 bao /usr/local/bin/bao \
+    && rm -f "bao_${BAO_VERSION}_Linux_${BAO_ARCH}.tar.gz" checksums-linux.txt bao \
+    && bao version
 
 # The PLAY RECAP assertion wrapper every Ansible template invokes instead of
 # calling run-ansible.sh directly — see the script for why.

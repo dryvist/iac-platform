@@ -90,7 +90,7 @@ certificate-signed SSH path a workstation converge uses
 (ansible-proxmox's `scripts/run-ansible.sh`: mints an ephemeral ed25519 key,
 signs it via the OpenBao SSH CA, never touches disk, revokes its OpenBao token
 on exit). `compose/semaphore/Dockerfile` adds the tools that script needs
-(curl, jq, ssh, git) on top of the pinned upstream image.
+(curl, jq, ssh, git, and the OpenBao CLI) on top of the pinned upstream image.
 
 **Nothing is created in the Semaphore UI.** The project, repositories,
 inventories, environment, templates and schedules are declared in
