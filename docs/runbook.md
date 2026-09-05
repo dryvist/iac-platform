@@ -133,6 +133,24 @@ semaphore-run-ansible.sh ./scripts/run-ansible.sh <playbook> \
   --limit <hosts>,localhost --diff
 ```
 
+The wrapper also loads the run environment before the playbook starts. The
+playbooks read plain environment variables and are indifferent to the secrets
+manager behind them; the wrapper re-execs itself through
+`openbao-exec-env.sh` over three KV documents, one per mount, so every value
+lives on exactly one tier:
+
+| Document | Holds |
+| --- | --- |
+| `config/platform/ansible/env` | topology: addresses, names, identifiers |
+| `secret/platform/ansible/env` | internal-only secrets |
+| `secrets-external/platform/ansible/env` | secrets reachable from the public internet |
+
+The ansible-converge AppRole reads all three. A converge of the OpenBao nodes
+themselves is the one run that does not go through Semaphore: its inputs are
+the seal key and the provisioning identities, which cannot be served by the
+store they unseal, so that play runs from a workstation under the run wrapper
+for secret zero.
+
 Two non-negotiable details, both burned this estate before:
 
 - `--limit` must always include `localhost`, or the tofu-inventory load
