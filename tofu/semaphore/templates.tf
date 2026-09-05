@@ -42,19 +42,23 @@ locals {
   # whole file and is asserted on below.
   ansible_templates = {
     apps-site = {
-      repository  = "ansible-proxmox-apps"
-      playbook    = "playbooks/site.yml"
-      limit       = "all"
-      mutating    = true
-      description = "Full application-layer converge."
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Full application-layer converge."
     }
 
     apps-verify-grafana-dashboards = {
-      repository  = "ansible-proxmox-apps"
-      playbook    = "playbooks/verify-grafana-dashboards.yml"
-      limit       = "grafana_group"
-      mutating    = false
-      description = "Read-only check that provisioned dashboards are loaded."
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/verify-grafana-dashboards.yml"
+      limit            = "grafana_group"
+      mutating         = false
+      schedule_enabled = true
+      extra_args       = []
+      description      = "Read-only check that provisioned dashboards are loaded."
     }
 
     apps-validate-pipeline = {
@@ -65,16 +69,20 @@ locals {
       # can be run on demand, but marked mutating because "every imported play
       # is read-only" has not been established for all of them, and an unproven
       # read-only claim is not a basis for running something unattended.
-      mutating    = true
-      description = "Log-pipeline validation across HAProxy, Cribl Edge and Cribl Stream."
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Log-pipeline validation across HAProxy, Cribl Edge and Cribl Stream."
     }
 
     proxmox-site = {
-      repository  = "ansible-proxmox"
-      playbook    = "playbooks/site.yml"
-      limit       = "all"
-      mutating    = true
-      description = "Full hypervisor-layer converge."
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/site.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Full hypervisor-layer converge."
     }
 
     proxmox-validate-nas = {
@@ -84,24 +92,40 @@ locals {
       # Asserts and reads, but reaches the hosts through ansible.builtin.command
       # whose effect is not verifiable from the module list alone. On demand
       # only until it is.
-      mutating    = true
-      description = "Validation of the hypervisor SMB shares."
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Validation of the hypervisor SMB shares."
     }
 
     splunk-site = {
-      repository  = "ansible-splunk"
-      playbook    = "playbooks/site.yml"
-      limit       = "all"
-      mutating    = true
-      description = "Full Splunk converge."
+      repository       = "ansible-splunk"
+      playbook         = "playbooks/site.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Full Splunk converge."
+    }
+
+    splunk-weekly-update = {
+      repository       = "ansible-splunk"
+      playbook         = "playbooks/site.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = true
+      extra_args       = ["--extra-vars", "splunkbase_sync_fail_open=false"]
+      description      = "Thursday full Splunk converge with a fail-closed app update."
     }
 
     splunk-validate = {
-      repository  = "ansible-splunk"
-      playbook    = "playbooks/validate.yml"
-      limit       = "splunk"
-      mutating    = false
-      description = "Read-only verification of the Splunk deployment."
+      repository       = "ansible-splunk"
+      playbook         = "playbooks/validate.yml"
+      limit            = "splunk"
+      mutating         = false
+      schedule_enabled = true
+      extra_args       = []
+      description      = "Read-only verification of the Splunk deployment."
     }
 
     ai-site = {
@@ -150,12 +174,12 @@ resource "semaphoreui_project_template" "ansible" {
 
   app      = "bash"
   playbook = "semaphore-run-ansible.sh"
-  arguments = [
+  arguments = concat([
     "./scripts/run-ansible.sh",
     each.value.playbook,
     "--limit", "${each.value.limit},localhost",
     "--diff",
-  ]
+  ], each.value.extra_args)
 
   # The argument list is the contract. Letting a task edit it at launch would
   # allow --check, a dropped localhost, or a different playbook entirely —

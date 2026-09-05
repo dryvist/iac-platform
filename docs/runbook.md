@@ -120,10 +120,11 @@ opt-in Nautobot GraphQL inventory. Neither stores a copy of any host. A
 scheduled, read-only drift report compares the two, which is the evidence a
 future cutover to Nautobot-sourced inventory should rest on.
 
-Schedules exist only for templates marked non-mutating. The gate is derived from
-that mark, not maintained by hand, and a precondition fails the plan if a cron
-is declared for a mutating template or a non-mutating one silently loses its
-schedule.
+Schedules require an explicit template opt-in. Two read-only checks run daily;
+`splunk-weekly-update` is the one declared mutating exception and runs at 22:17
+UTC every Thursday with `splunkbase_sync_fail_open=false`. A precondition fails
+the plan if a cron and template opt-in drift apart or another mutating template
+is marked scheduled.
 
 Every Ansible template invokes the recap wrapper, which is on `PATH` in the
 image:
