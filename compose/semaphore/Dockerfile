@@ -43,7 +43,20 @@ COPY scripts/semaphore-run-ansible.sh /usr/local/bin/semaphore-run-ansible.sh
 # The KV-to-environment exporter the wrapper re-execs through to load the run
 # environment before the playbook starts.
 COPY scripts/openbao-exec-env.sh /usr/local/bin/openbao-exec-env.sh
-RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh /usr/local/bin/openbao-exec-env.sh
+# The git credential helper. Installed WITHOUT the .sh suffix because git
+# resolves `credential.helper openbao` to `git-credential-openbao` on PATH.
+COPY scripts/git-credential-openbao.sh /usr/local/bin/git-credential-openbao
+RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh /usr/local/bin/openbao-exec-env.sh \
+      /usr/local/bin/git-credential-openbao
+
+# Every github.com clone — repositories and their submodules alike — gets an
+# ephemeral installation token minted per request instead of a stored
+# credential. System scope so it applies to every git process in the
+# container, whichever user runs it; scoped to github.com so no other host
+# consults it. The username is the App-token convention; the helper emits it
+# too, so a partial read still authenticates.
+RUN git config --system credential.https://github.com.helper openbao \
+    && git config --system credential.https://github.com.username x-access-token
 
 # Drop back to the image's own unprivileged user for runtime.
 USER semaphore

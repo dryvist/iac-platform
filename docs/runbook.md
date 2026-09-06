@@ -92,6 +92,16 @@ signs it via the OpenBao SSH CA, never touches disk, revokes its OpenBao token
 on exit). `compose/semaphore/Dockerfile` adds the tools that script needs
 (curl, jq, ssh, git, and the OpenBao CLI) on top of the pinned upstream image.
 
+**Repository checkouts hold no stored git credential.** The image installs
+`scripts/git-credential-openbao.sh` as a git credential helper, scoped to
+github.com in system git config, so every clone and submodule update mints an
+ephemeral GitHub App installation token from OpenBao's GitHub secrets engine
+under the execution plane's own AppRole. Nothing is written to disk, and the
+token comes from the all-repo read permission set, so a checkout can read a
+private repository and can never write one. That AppRole's policy has to grant
+the read permission-set token path or every clone fails authenticating.
+`tests/git-credential-openbao.test.sh` covers the helper's offline behaviour.
+
 **Nothing is created in the Semaphore UI.** The project, repositories,
 inventories, environment, templates and schedules are declared in
 `tofu/semaphore/` and applied as a Terrakube job, the same way `tofu/terrakube/`
@@ -143,7 +153,7 @@ lives on exactly one tier:
 | --- | --- |
 | `config/platform/ansible/env` | topology: addresses, names, identifiers |
 | `secret/platform/ansible/env` | internal-only secrets |
-| `secrets-external/platform/ansible/env` | secrets reachable from the public internet |
+| `secrets-external/platform/ansible/env` | publicly reachable secrets |
 
 The ansible-converge AppRole reads all three. A converge of the OpenBao nodes
 themselves is the one run that does not go through Semaphore: its inputs are
