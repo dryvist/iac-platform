@@ -24,6 +24,12 @@ BAO_PATH="secret/platform/terrakube/main"
 # Authelia OIDC client secrets (semaphore + terrakube-dex) live in the shared
 # Authelia secrets path, not this stack's own OpenBao path.
 AUTHELIA_BAO_PATH="secret/apps/authelia"
+# The run-environment documents the execution plane's Ansible runs read, one per
+# mount so every value lives on exactly one tier: config/ topology, secret/
+# internal-only, secrets-external/ anything reachable from the public internet.
+# Same document set and same order scripts/semaphore-run-ansible.sh loads.
+RUN_ENV_PATH="platform/ansible/env"
+RUN_ENV_MOUNTS=(config secret secrets-external)
 EXEC_ENV="$REPO_ROOT/scripts/openbao-exec-env.sh"
 # Stable VM path the compose file mounts the two non-secret config dirs from.
 VM_CONFIG_DIR="/var/lib/platform/compose"
@@ -83,6 +89,17 @@ if [ "${1:-}" = "--inner" ]; then
   for name in SEMAPHORE_OIDC_CLIENT_SECRET DEX_AUTHELIA_CLIENT_SECRET; do
     [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $AUTHELIA_BAO_PATH" >&2; exit 1; }
   done
+
+  # Values the run-environment documents own. They reach this process through
+  # the same exporter the rest of the stack's config does (see the re-exec at
+  # the foot of this script), so an empty one here means the name is absent from
+  # every document — not that the caller forgot to export it. Refuse rather than
+  # carry an empty string into compose and the project environment: a deploy
+  # that exits 0 having exported nothing is the failure this guard exists for.
+  [ -n "${SPLUNK_HEC_TOKEN:-}" ] || {
+    echo "SPLUNK_HEC_TOKEN absent from $RUN_ENV_PATH on every mount (${RUN_ENV_MOUNTS[*]})" >&2
+    exit 1
+  }
 
   host="${DEPLOY_HOST:?DEPLOY_HOST missing from OpenBao}"
   # Ship the two non-secret config dirs into the (root-owned) VM path via a root
@@ -193,12 +210,6 @@ if [ "${1:-}" = "--inner" ]; then
     fi
   done
 
-  # Unlike the two above, this one IS ambient secret-zero by design: the shared
-  # HEC token lives in Doppler tier-0 and is never stored in OpenBao, so there is
-  # nothing to fetch — only to report when the environment does not carry it.
-  [ -n "${SPLUNK_HEC_TOKEN:-}" ] \
-    || echo "WARNING: SPLUNK_HEC_TOKEN absent — converge telemetry will not reach Splunk."
-
   # Inject runtime credentials into Semaphore Project 1 Environment 1 so task
   # worker processes inherit them (Semaphore LocalJob does not inherit container
   # os.Environ unless mapped in the project environment template).
@@ -267,4 +278,11 @@ done
 # Chained reads: openbao-exec-env.sh execs its command after exporting one
 # path, so nesting a second call layers in the Authelia path's keys too —
 # both are exported into the same process before --inner runs.
-exec "$EXEC_ENV" "$BAO_PATH" -- "$EXEC_ENV" "$AUTHELIA_BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner
+# The run-environment documents are read first and the stack's own two paths
+# last, so a name this stack owns keeps winning if one is ever added to both.
+run_env_chain=()
+for _mount in "${RUN_ENV_MOUNTS[@]}"; do
+  run_env_chain+=("$EXEC_ENV" "$_mount/$RUN_ENV_PATH" --)
+done
+exec "${run_env_chain[@]}" \
+  "$EXEC_ENV" "$BAO_PATH" -- "$EXEC_ENV" "$AUTHELIA_BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner
