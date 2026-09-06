@@ -370,6 +370,22 @@ services:
       # sshd log distinguishes an unattended run from a human's laptop run.
       OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: ${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}
       OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: ${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}
+      # Repository checkouts run with a CURATED environment, not this one.
+      # Semaphore builds every subprocess environment from PATH plus exactly
+      # the names listed here (v2.18.18, db_lib/LocalApp.go getEnvironmentVars,
+      # used by db_lib/CmdGitClient.go for clone, pull and checkout), so the
+      # git credential helper sees none of the three variables above unless
+      # they are named. Task processes get them from the Semaphore project
+      # environment instead, which is why playbooks worked while clones did
+      # not. Forwarding changes no trust boundary: the same three values are
+      # already in this file and already reach every task.
+      #
+      # JSON array, and only a JSON array: the config loader json.Unmarshals
+      # this value and PANICS at startup on anything else
+      # (util/config.go setConfigValue).
+      SEMAPHORE_FORWARDED_ENV_VARS: >-
+        ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
       # STAGED ROLLOUT, not redundancy. run-ansible.sh prefers the SEMAPHORE
       # pair and falls back to this one; only ansible-splunk's copy of that
       # wrapper knows the new pair so far. The other three repos still select

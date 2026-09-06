@@ -102,6 +102,14 @@ private repository and can never write one. That AppRole's policy has to grant
 the read permission-set token path or every clone fails authenticating.
 `tests/git-credential-openbao.test.sh` covers the helper's offline behaviour.
 
+The helper reads its address and AppRole pair from the environment, and a
+checkout subprocess does not inherit the container's: Semaphore builds that
+environment from `PATH` plus the names in `SEMAPHORE_FORWARDED_ENV_VARS`
+alone. Those three names are listed there in `compose/docker-compose.yml`. A
+clone failing with the helper reporting an unset address means that list, not
+the credential. The value must be a JSON array — Semaphore panics at startup
+on anything else.
+
 **Nothing is created in the Semaphore UI.** The project, repositories,
 inventories, environment, templates and schedules are declared in
 `tofu/semaphore/` and applied as a Terrakube job, the same way `tofu/terrakube/`
