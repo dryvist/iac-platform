@@ -411,7 +411,25 @@ services:
       - semaphore_data:/var/lib/semaphore
     ports:
       - "${PORT_SEMAPHORE}:3000"
-    mem_limit: 512m
+    # This container is not just a web UI: every task forks an Ansible
+    # controller inside it, and each worker process measured ~110 MiB resident
+    # against the fleet. At 512m the cgroup killed workers instead of the run
+    # finishing — 249 OOM kills in one hour, all `ansible-playbook`, which
+    # Ansible then reported as "a worker was found in a dead state" and, one
+    # layer further out, as unreachable hosts. Nothing in either message names
+    # memory.
+    #
+    # Worse, it was self-amplifying: a worker killed mid-handshake drops an SSH
+    # connection before authenticating, which is exactly the pattern OpenSSH
+    # penalises per source address, so the kills also broke connections for
+    # hosts that were fine.
+    #
+    # THIS VALUE AND `forks` IN THE ANSIBLE REPOSITORIES ARE ONE BUDGET. The
+    # ceiling is roughly (this limit - 250 MiB of parent and interpreter) / 110
+    # MiB per worker. Raising forks without raising this trades a slow converge
+    # for a crashed one. 2 GiB supports about sixteen workers, which is clear of
+    # the fan-out those repositories declare.
+    mem_limit: 2048m
     restart: unless-stopped
     depends_on:
       postgresql-service:
