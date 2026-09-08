@@ -39,6 +39,30 @@ if [ -z "${SEMAPHORE_RUN_ENV_LOADED:-}" ] && [ -n "${BAO_ADDR:-}" ]; then
     bash "$0" "$@"
 fi
 
+# Host-key material for the fleet. Ansible verifies host keys (it should), and
+# the connection plugin PROMPTS when a key is unknown — which in an unattended
+# run raises "stdin is not interactive" and reports every target UNREACHABLE.
+# That message names neither host keys nor the real cause, which is how it cost
+# five days of misdiagnosis once already.
+#
+# This container's home is not on the persisted volume, so a recreated container
+# starts with no known_hosts and every connection fails that way. Keep the file
+# on the volume and install it into home at the start of every run. Fail loudly
+# when it is absent or empty: continuing would hand the run a failure mode that
+# looks like anything except its cause.
+#
+# Interim by design. The durable fix is host certificates from the estate's own
+# authority, after which this file becomes a single authority line and stops
+# needing maintenance at all.
+KNOWN_HOSTS_SOURCE="${KNOWN_HOSTS_SOURCE:-/var/lib/semaphore/ssh_known_hosts}"
+if [ ! -s "$KNOWN_HOSTS_SOURCE" ]; then
+  echo "semaphore-run-ansible.sh: $KNOWN_HOSTS_SOURCE is missing or empty, so host-key verification has nothing to verify against and every connection would fail with a message that does not mention host keys. Refusing to start." >&2
+  exit 1
+fi
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+install -m 600 "$KNOWN_HOSTS_SOURCE" "$HOME/.ssh/known_hosts"
+
 if [ -f requirements.yml ]; then
   echo "Installing Ansible requirements..."
   ansible-galaxy install -r requirements.yml --roles-path roles || true
