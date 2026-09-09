@@ -17,8 +17,19 @@ FROM semaphoreui/semaphore:${SEMAPHORE_VERSION}
 ARG BAO_VERSION=2.5.5
 
 USER root
-RUN apk add --no-cache curl jq openssh-client git bash py3-pip py3-requests aws-cli \
-    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko netaddr || true; done \
+# Every tool and library below is reached by a role that runs ON THE
+# CONTROLLER, so a missing one fails the play rather than the target. Each
+# was found the same way: an outage whose message named something else.
+#   openssl     generating credential material in the secrets-seeding roles
+#   bind-tools  the resolution fallbacks (dig) in routing and object storage
+#   netaddr     address filters in the identity and inventory roles
+#   proxmoxer   the guest start/verify modules
+#   hvac        secret-store access
+#   paramiko    the container connection transport
+# Verified present in the base image and therefore NOT repeated here:
+# boto3/botocore, jmespath, cryptography, passlib, gpg/gpgv.
+RUN apk add --no-cache curl jq openssh-client git bash py3-pip py3-requests aws-cli openssl bind-tools \
+    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko netaddr proxmoxer || true; done \
     && mkdir -p /usr/lib/python3.12/site-packages \
     && echo "/opt/semaphore/apps/ansible/13.5.0/venv/lib/python3.12/site-packages" > /usr/lib/python3.12/site-packages/venv.pth
 
