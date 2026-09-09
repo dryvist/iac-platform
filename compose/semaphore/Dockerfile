@@ -18,7 +18,7 @@ ARG BAO_VERSION=2.5.5
 
 USER root
 RUN apk add --no-cache curl jq openssh-client git bash py3-pip py3-requests aws-cli \
-    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko || true; done \
+    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko netaddr || true; done \
     && mkdir -p /usr/lib/python3.12/site-packages \
     && echo "/opt/semaphore/apps/ansible/13.5.0/venv/lib/python3.12/site-packages" > /usr/lib/python3.12/site-packages/venv.pth
 
