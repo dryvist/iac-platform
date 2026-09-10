@@ -186,6 +186,16 @@ if [ "${1:-}" = "--inner" ]; then
     && [ -z "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" ]; then
     missing_run_creds="$missing_run_creds OPENBAO_APPROLE_{SEMAPHORE,ANSIBLE}_ROLE_ID"
   fi
+  # The reconcile identity is reported separately because its absence has a
+  # different symptom. A missing run credential fails at connect time and is
+  # obvious. A missing reconcile credential makes the store-provisioning play
+  # SKIP every task it owns while the run still reports success, so it is
+  # invisible in a recap. Report it whether or not the pair above is present.
+  if [ -z "${OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID:-}" ] \
+    || [ -z "${OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID:-}" ]; then
+    echo "WARNING: OPENBAO_APPROLE_OPENBAO_RECONCILE_{ROLE,SECRET}_ID absent."
+    echo "         Store provisioning will skip policies, identities and generated app secrets, and the run will still report success."
+  fi
   if [ -n "$missing_run_creds" ]; then
     echo "WARNING: Semaphore run credentials absent:${missing_run_creds}"
     echo "         Ansible templates are declared, but a run cannot mint its SSH certificate and will fail at connect time."
@@ -225,6 +235,8 @@ if [ "${1:-}" = "--inner" ]; then
       --arg sem_secret "${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}" \
       --arg role "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" \
       --arg secret "${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}" \
+      --arg rc_role "${OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID:-}" \
+      --arg rc_secret "${OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID:-}" \
       --arg bao "${BAO_ADDR:-}" \
       --arg hec "${SPLUNK_HEC_TOKEN:-}" \
       --arg nurl "${NAUTOBOT_URL:-}" \
@@ -239,6 +251,8 @@ if [ "${1:-}" = "--inner" ]; then
           OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret,
           OPENBAO_APPROLE_ANSIBLE_ROLE_ID: $role,
           OPENBAO_APPROLE_ANSIBLE_SECRET_ID: $secret,
+          OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID: $rc_role,
+          OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID: $rc_secret,
           SPLUNK_HEC_TOKEN: $hec,
           NAUTOBOT_URL: $nurl,
           NAUTOBOT_TOKEN: $ntoken

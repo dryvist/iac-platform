@@ -393,6 +393,14 @@ services:
       # to the static break-glass key. Delete it once all four wrappers match.
       OPENBAO_APPROLE_ANSIBLE_ROLE_ID: ${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}
       OPENBAO_APPROLE_ANSIBLE_SECRET_ID: ${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}
+      # The reconcile identity's pair. Distinct from the pair above: that one
+      # buys an SSH certificate so a run can reach a host, this one is what the
+      # store-provisioning play authenticates with to reconcile policies,
+      # identities and generated application secrets. Without it that play
+      # SKIPS every task it owns and the run still reports success, so its
+      # absence is invisible in a recap — which is exactly how it went unnoticed.
+      OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID: ${OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID:-}
+      OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID: ${OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID:-}
       # STILL HERE BECAUSE ITS CONSUMER IS NOT A PLAYBOOK. Read by the
       # converge-telemetry Ansible CALLBACK, which publishes each run's
       # per-host outcome to the logging pipeline. A callback plugin has no
