@@ -110,6 +110,9 @@ clone failing with the helper reporting an unset address means that list, not
 the credential. The value must be a JSON array — Semaphore panics at startup
 on anything else.
 
+Which git ref a run uses, and how to start a run from a preview ref:
+[semaphore-refs.md](semaphore-refs.md).
+
 **Nothing is created in the Semaphore UI.** The project, repositories,
 inventories, environment, templates and schedules are declared in
 `tofu/semaphore/` and applied as a Terrakube job, the same way `tofu/terrakube/`

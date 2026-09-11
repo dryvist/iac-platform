@@ -27,11 +27,13 @@
 # suppress_success_alerts, and the build / deploy / survey_vars / task_params /
 # vaults blocks. Declared below: the identity and wiring fields, app, playbook,
 # arguments, description, allow_override_args_in_task and
-# suppress_success_alerts. Deliberately absent: git_branch (the repository's own
-# branch governs — an override here would silently run a different ref than the
-# one declared in repositories.tf), view_id (no views are declared), build and
-# deploy (artifact templates, unused), survey_vars (a prompt is a manual input,
-# which is the thing this root exists to remove), task_params and vaults.
+# suppress_success_alerts and view_id. Deliberately absent: git_branch (the
+# repository's own branch governs — an override here would silently run a
+# different ref than the one declared in repositories.tf; running a second ref
+# is expressed instead by a second repository entry, which puts the ref in the
+# repository name, the template name and the view), build and deploy (artifact
+# templates, unused), survey_vars (a prompt is a manual input, which is the
+# thing this root exists to remove), task_params and vaults.
 
 locals {
   # `limit` is the host pattern WITHOUT localhost; the argument list appends it,
@@ -122,6 +124,34 @@ locals {
   }
 }
 
+# Cross the playbooks with the refs their repository may be run from.
+#
+# The deployed ref keeps the bare template key, so its resource address, its
+# name in the UI and every schedule that reaches it are all unchanged — this
+# adds templates, it does not renumber the existing ones. A preview ref gets
+# `<template> @ <branch>`, which is what the run history will show.
+#
+# `deployed` rides along because schedules.tf must be able to assert that
+# nothing unattended reaches a preview ref, and asserting on a substring of the
+# key would be a naming convention pretending to be a control.
+locals {
+  ansible_template_refs = {
+    for pair in flatten([
+      for tname, t in local.ansible_templates : [
+        for rkey, r in local.repository_refs : {
+          key = r.deployed ? tname : "${tname} @ ${r.branch}"
+          value = merge(t, {
+            repository_key = rkey
+            branch         = r.branch
+            deployed       = r.deployed
+            template       = tname
+          })
+        } if r.repo == t.repository
+      ]
+    ]) : pair.key => pair.value
+  }
+}
+
 # A limit that already names localhost would produce `localhost,localhost`, and
 # an empty one would drop the real hosts entirely — the exact footgun the
 # wrapper's third rule exists to catch. Fail at plan time instead.
@@ -138,15 +168,22 @@ resource "terraform_data" "limit_guard" {
 }
 
 resource "semaphoreui_project_template" "ansible" {
-  for_each = local.ansible_templates
+  for_each = local.ansible_template_refs
 
   project_id     = semaphoreui_project.homelab.id
-  repository_id  = semaphoreui_project_repository.ansible[each.value.repository].id
+  repository_id  = semaphoreui_project_repository.ansible[each.value.repository_key].id
   inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
   environment_id = semaphoreui_project_environment.homelab.id
 
-  name        = each.key
-  description = each.value.description
+  # Deployed templates sit on the first tab; a preview ref gets its own, so
+  # picking one is a deliberate act rather than a misread of a list.
+  view_id = each.value.deployed ? semaphoreui_project_view.deployed.id : semaphoreui_project_view.preview[each.value.branch].id
+
+  name = each.key
+  description = each.value.deployed ? each.value.description : join(" ", [
+    each.value.description,
+    "Runs the ${each.value.branch} ref — unreleased, on demand only, never scheduled.",
+  ])
 
   app      = "bash"
   playbook = "semaphore-run-ansible.sh"
@@ -180,6 +217,10 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
   inventory_id   = semaphoreui_project_inventory.homelab_nautobot.id
   environment_id = semaphoreui_project_environment.homelab.id
+
+  # Deployed ref only: this one is scheduled, and nothing scheduled runs an
+  # unreleased ref.
+  view_id = semaphoreui_project_view.deployed.id
 
   name        = "nautobot-drift-report"
   description = "Read-only report comparing Nautobot against the published inventory."

@@ -39,6 +39,16 @@ resource "terraform_data" "schedule_guard" {
       condition     = alltrue([for k, _ in local.scheduled_templates : contains(keys(local.schedule_crons), k)])
       error_message = "A non-mutating template has no cron. Give it one, or mark it mutating — silence here means a schedule was dropped by accident."
     }
+    # Nothing unattended may run an unreleased ref. This asserts on the
+    # `deployed` flag carried through from repositories.tf rather than on the
+    # shape of the key, because a naming convention is not a control.
+    precondition {
+      condition = alltrue([
+        for k, _ in local.schedule_crons :
+        try(local.ansible_template_refs[k].deployed, false)
+      ])
+      error_message = "A cron is declared for a template that is not built from its repository's deployed branch. Scheduled runs are for the deployed ref only."
+    }
   }
 }
 

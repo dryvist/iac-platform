@@ -28,30 +28,49 @@ variable "project_name" {
 
 variable "ansible_repositories" {
   description = <<-EOT
-    Ansible repositories Semaphore may run, keyed by short name. `url` is the
-    public clone URL and `branch` the ref templates check out. Public over
-    HTTPS: nothing here needs a deploy key, which is why every repository and
-    inventory references the `none`-type key.
+    Ansible repositories Semaphore may run, keyed by short name.
+
+    `url` is the public clone URL. `branch` is the DEPLOYED ref — the one the
+    unsuffixed template runs and the only one anything scheduled may touch.
+    `preview_branches` names further refs the same repository may be run from
+    on demand; each gets its own repository entry, its own templates and its
+    own tab in the UI, so which ref a run used is never inferred.
+
+    Public over HTTPS: nothing here needs a deploy key, which is why every
+    repository and inventory references the `none`-type key.
+
+    Only remote HTTPS origins are permitted, and the validations below enforce
+    it. SemaphoreUI itself accepts `ssh`, `http`, `file` and `git` URIs and
+    bare absolute paths; a path- or file-scheme repository would let a run
+    execute whatever happens to be sitting on the plane's filesystem, which is
+    unreviewed, unversioned and invisible to anyone reading this root. There is
+    no case for it here.
   EOT
 
   type = map(object({
-    url    = string
-    branch = string
+    url              = string
+    branch           = string
+    preview_branches = optional(list(string), [])
   }))
 
   default = {
     ansible-proxmox = {
-      url    = "https://github.com/dryvist/ansible-proxmox.git"
-      branch = "main"
+      url              = "https://github.com/dryvist/ansible-proxmox.git"
+      branch           = "main"
+      preview_branches = ["develop"]
     }
     ansible-proxmox-apps = {
-      url    = "https://github.com/dryvist/ansible-proxmox-apps.git"
-      branch = "main"
+      url              = "https://github.com/dryvist/ansible-proxmox-apps.git"
+      branch           = "main"
+      preview_branches = ["develop"]
     }
     ansible-proxmox-ai = {
-      url    = "https://github.com/dryvist/ansible-proxmox-ai.git"
-      branch = "main"
+      url              = "https://github.com/dryvist/ansible-proxmox-ai.git"
+      branch           = "main"
+      preview_branches = ["develop"]
     }
+    # No develop branch upstream: this repository releases from main only, so
+    # naming one here would produce a template whose every run fails to clone.
     ansible-splunk = {
       url    = "https://github.com/dryvist/ansible-splunk.git"
       branch = "main"
@@ -60,12 +79,21 @@ variable "ansible_repositories" {
 
   validation {
     condition     = alltrue([for r in var.ansible_repositories : can(regex("^https://", r.url))])
-    error_message = "Every repository url must be an HTTPS clone URL."
+    error_message = "Every repository url must be an HTTPS clone URL. Path-based and file:// repositories are never permitted: a run must only ever execute a reviewed, pushed commit."
   }
 
   validation {
     condition     = alltrue([for r in var.ansible_repositories : length(trimspace(r.branch)) > 0])
-    error_message = "Every repository must name a branch; an empty branch is only valid for path-based repositories."
+    error_message = "Every repository must name a branch; an empty branch is what SemaphoreUI treats as a path-based repository."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.ansible_repositories : alltrue([
+        for b in r.preview_branches : length(trimspace(b)) > 0 && b != r.branch
+      ])
+    ])
+    error_message = "Every preview branch must be non-empty and different from the deployed branch; repeating the deployed branch would create two entries racing for the same name."
   }
 }
 
