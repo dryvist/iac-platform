@@ -42,6 +42,15 @@ locals {
   # `mutating` drives schedules.tf. It is not a comment — a template marked
   # false is eligible to run unattended, so it is the safety property of this
   # whole file and is asserted on below.
+  #
+  # `tags` is optional and omitted by almost every entry. Set it only when a
+  # playbook must be run for one of its plays rather than in full, and only
+  # after confirming the tag is carried by the play itself with a static
+  # `roles:` list — `--tags` never reaches inside an untagged `include_role`,
+  # and a tag that matches nothing yields a converge that runs cleanly, changes
+  # nothing and reports success. A scoped entry is a second template, never an
+  # edit to the full-scope one, so narrowing this file can never narrow what an
+  # existing caller already gets.
   ansible_templates = {
     apps-site = {
       repository  = "ansible-proxmox-apps"
@@ -121,6 +130,23 @@ locals {
       mutating    = true
       description = "GPU inference serving stack converge (llama.cpp, LiteLLM proxy, Redis spend store)."
     }
+
+    ai-llm-router = {
+      repository = "ansible-proxmox-ai"
+      playbook   = "playbooks/llm-serving.yml"
+      limit      = "llm_router_group"
+      tags       = "llm_router"
+      # The sibling above runs all five plays in this playbook, reaching the
+      # ROCm tier, both NVIDIA-guest plays and the spend store as well as the
+      # router. This entry exists so the router can be converged on its own
+      # without owning those four outcomes.
+      #
+      # Mutating: the play restarts pool members. It does so one at a time
+      # (`serial: 1`, `max_fail_percentage: 0`) so the front door stays up,
+      # but a rolling restart is still a restart.
+      mutating    = true
+      description = "LiteLLM router converge only, scoped by tag and limit."
+    }
   }
 }
 
@@ -187,12 +213,11 @@ resource "semaphoreui_project_template" "ansible" {
 
   app      = "bash"
   playbook = "semaphore-run-ansible.sh"
-  arguments = [
-    "./scripts/run-ansible.sh",
-    each.value.playbook,
-    "--limit", "${each.value.limit},localhost",
-    "--diff",
-  ]
+  arguments = concat(
+    ["./scripts/run-ansible.sh", each.value.playbook],
+    try(each.value.tags, null) != null ? ["--tags", each.value.tags] : [],
+    ["--limit", "${each.value.limit},localhost", "--diff"],
+  )
 
   # The argument list is the contract. Letting a task edit it at launch would
   # allow --check, a dropped localhost, or a different playbook entirely —
