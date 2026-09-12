@@ -272,12 +272,3 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   allow_override_args_in_task = false
   suppress_success_alerts     = false
 }
-
-# A template named ai-llm-router already exists on the server outside this
-# state. Adopt it rather than create a second one under the same name; the
-# plan then changes it in place. Remove this block once the import has
-# applied — it is a one-time adoption, not part of the declared graph.
-import {
-  to = semaphoreui_project_template.ansible["ai-llm-router"]
-  id = "project/1/template/12"
-}
