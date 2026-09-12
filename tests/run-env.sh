@@ -102,7 +102,7 @@ check "  ...and the login body names the shared role" 0 "" \
   grep -q '"role_id":"shared-role"' "$STUB_KV_DIR/login-body.json"
 
 echo "== deploy.sh --inner required-name guard =="
-# Everything the guards ahead of the run-environment guard demand, so a failure
+# Everything the guards ahead of the AppRole-pair guard demand, so a failure
 # below is the guard under test and not one of its predecessors.
 prereqs=(
   DEX_GITHUB_CLIENT_ID=id DEX_GITHUB_CLIENT_SECRET=secret
@@ -111,24 +111,24 @@ prereqs=(
   SEMAPHORE_OIDC_CLIENT_SECRET=sem DEX_AUTHELIA_CLIENT_SECRET=dex
 )
 
-check "refuses when the name is absent from every document" 1 \
-  "SPLUNK_HEC_TOKEN absent from platform/ansible/env on every mount (config secret secrets-external)" \
-  env -u SPLUNK_HEC_TOKEN -u DEPLOY_HOST "${prereqs[@]}" \
-  bash "$REPO_ROOT/scripts/deploy.sh" --inner
-
 # The plane's own pair is the only thing a run cannot fetch for itself, so a
 # deploy without it refuses before it touches the host.
 check "refuses when the plane's AppRole pair is absent" 1 \
   "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID missing" \
   env -u DEPLOY_HOST -u OPENBAO_APPROLE_SEMAPHORE_ROLE_ID -u OPENBAO_APPROLE_SEMAPHORE_SECRET_ID \
-  "${prereqs[@]}" SPLUNK_HEC_TOKEN=from-the-store \
+  "${prereqs[@]}" \
   bash "$REPO_ROOT/scripts/deploy.sh" --inner
 
 # With every name present the guards pass and the deploy moves on to the next
 # one — DEPLOY_HOST — rather than exiting 0 having deployed nothing.
 check "proceeds past the guards when every name is present" 1 "DEPLOY_HOST missing" \
-  env -u DEPLOY_HOST "${prereqs[@]}" SPLUNK_HEC_TOKEN=from-the-store \
+  env -u DEPLOY_HOST "${prereqs[@]}" \
   OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret \
   bash "$REPO_ROOT/scripts/deploy.sh" --inner
+
+# The deploy reads the stack's own two paths and nothing else: no
+# run-environment document is in its exec chain.
+check "the exec chain reads only the stack's own paths" 0 "" \
+  bash -c '! grep -q "platform/ansible/env" "$1"' _ "$REPO_ROOT/scripts/deploy.sh"
 
 exit "$FAIL"
