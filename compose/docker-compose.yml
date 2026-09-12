@@ -386,11 +386,13 @@ services:
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
         "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
-      # STAGED ROLLOUT, not redundancy. run-ansible.sh prefers the SEMAPHORE
-      # pair and falls back to this one; only ansible-splunk's copy of that
-      # wrapper knows the new pair so far. The other three repos still select
-      # this one, and removing it now would drop every one of their templates
-      # to the static break-glass key. Delete it once all four wrappers match.
+      # FALLBACK, not redundancy. Every repo's run-ansible.sh prefers the
+      # SEMAPHORE pair and falls back to this one with a warning; the
+      # run-environment exporter (scripts/openbao-exec-env.sh) does the same.
+      # A template runs the wrapper at its pinned ref, so this pair stays until
+      # every pinned ref carries the preference; removing it earlier drops
+      # those templates to the static break-glass key. Delete it once every
+      # template's run log reports `authenticated as: semaphore`.
       OPENBAO_APPROLE_ANSIBLE_ROLE_ID: ${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}
       OPENBAO_APPROLE_ANSIBLE_SECRET_ID: ${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}
       # The reconcile identity's pair. Distinct from the pair above: that one
