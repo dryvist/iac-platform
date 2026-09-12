@@ -242,11 +242,13 @@ resource "semaphoreui_project_template" "ansible" {
   suppress_success_alerts = false
 }
 
-# The Nautobot parity report. Not an Ansible run and not wrapped: it is a
-# read-only Python script that queries Nautobot and compares it against the
-# published inventory artifact, and by its own contract it exits non-zero only
-# on an API error, never on drift. That property is what makes it safe to
-# schedule — see schedules.tf.
+# The Nautobot parity report. Not an Ansible run: a read-only Python script
+# that queries Nautobot and compares it against the published inventory
+# artifact, and by its own contract it exits non-zero only on an API error,
+# never on drift. That property is what makes it safe to schedule — see
+# schedules.tf. It runs through a wrapper in its repository that exports the
+# read-only Nautobot credential from the store at run time, the same way the
+# Ansible templates get theirs, so the run environment carries none of it.
 #
 # It runs against the Nautobot inventory rather than the tofu one so that the
 # scheduled job exercises the same resolution path a future cutover would use.
@@ -263,8 +265,8 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   name        = "nautobot-drift-report"
   description = "Read-only report comparing Nautobot against the published inventory."
 
-  app      = "python"
-  playbook = "scripts/nautobot_drift.py"
+  app      = "bash"
+  playbook = "scripts/nautobot-drift.sh"
   arguments = [
     "--tofu-inventory", "inventory/tofu_inventory.json",
   ]

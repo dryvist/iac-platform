@@ -101,6 +101,17 @@ if [ "${1:-}" = "--inner" ]; then
     exit 1
   }
 
+  # The plane's own AppRole pair is the one thing a Semaphore run cannot fetch
+  # for itself: it is what logs in to fetch everything else. Every other value
+  # a run needs comes from OpenBao at run time (scripts/semaphore-run-ansible.sh
+  # exports the run-environment documents before the playbook starts), so an
+  # environment without this pair is a plane that cannot run anything, and the
+  # deploy refuses rather than publish an environment that fails at the first
+  # login of every task.
+  for _var in BAO_ADDR OPENBAO_APPROLE_SEMAPHORE_ROLE_ID OPENBAO_APPROLE_SEMAPHORE_SECRET_ID; do
+    [ -n "${!_var:-}" ] || { echo "$_var missing — the Semaphore run environment cannot be published without it" >&2; exit 1; }
+  done
+
   host="${DEPLOY_HOST:?DEPLOY_HOST missing from OpenBao}"
   # Ship the two non-secret config dirs into the (root-owned) VM path via a root
   # helper container over the docker connection: the VM has no rsync and the ssh
@@ -166,81 +177,20 @@ if [ "${1:-}" = "--inner" ]; then
   # already migrated and serving.
   DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh"
 
-  # Report — loudly, without failing the deploy — when the credentials a
-  # Semaphore-driven Ansible run needs are absent from this environment. They
-  # are passed into the container (see compose/docker-compose.yml) and inherited
-  # by every task process; they are deliberately not stored as Semaphore
-  # Environment secrets, because that provider persists secret values in state.
-  #
-  # Warn rather than fail: the stack itself is healthy without them, and a
-  # deploy that refuses over a credential the templates have not run against yet
-  # would block the very deploy that installs those templates. Silence, though,
-  # would leave the templates present and failing at connect time — which reads
-  # as an SSH fault rather than as a missing credential.
-  missing_run_creds=""
-  [ -n "${BAO_ADDR:-}" ] || missing_run_creds=" BAO_ADDR"
-  # Either identity satisfies the runner: it prefers the SEMAPHORE pair and
-  # falls back to the ANSIBLE one. Requiring a specific pair here would report
-  # a healthy deploy as broken during the staged cutover.
-  if [ -z "${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}" ] \
-    && [ -z "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" ]; then
-    missing_run_creds="$missing_run_creds OPENBAO_APPROLE_{SEMAPHORE,ANSIBLE}_ROLE_ID"
-  fi
-  # The reconcile identity is reported separately because its absence has a
-  # different symptom. A missing run credential fails at connect time and is
-  # obvious. A missing reconcile credential makes the store-provisioning play
-  # SKIP every task it owns while the run still reports success, so it is
-  # invisible in a recap. Report it whether or not the pair above is present.
-  if [ -z "${OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID:-}" ] \
-    || [ -z "${OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID:-}" ]; then
-    echo "WARNING: OPENBAO_APPROLE_OPENBAO_RECONCILE_{ROLE,SECRET}_ID absent."
-    echo "         Store provisioning will skip policies, identities and generated app secrets, and the run will still report success."
-  fi
-  if [ -n "$missing_run_creds" ]; then
-    echo "WARNING: Semaphore run credentials absent:${missing_run_creds}"
-    echo "         Ansible templates are declared, but a run cannot mint its SSH certificate and will fail at connect time."
-  fi
-  # Nautobot's inventory credentials are NOT ambient secret-zero: the nautobot
-  # role mints a read-only API token and publishes it, with the API URL, to
-  # secret/apps/nautobot (roles/nautobot/tasks/readonly_token.yml). Read them
-  # from there rather than expecting them in the environment — the superuser
-  # creds at the same path are deliberately not what the inventory uses.
-  for _pair in "NAUTOBOT_URL:inventory_url" "NAUTOBOT_TOKEN:inventory_ro_token"; do
-    _var="${_pair%%:*}"
-    [ -n "${!_var:-}" ] && continue
-    _field="${_pair#*:}"
-    _val="$(curl -sf --max-time 10 -H "X-Vault-Token: ${BAO_TOKEN:-${VAULT_TOKEN:-}}" \
-      "${BAO_ADDR}/v1/secret/data/apps/nautobot" \
-      | jq -r --arg f "$_field" '.data.data[$f] // ""')" || _val=""
-    if [ -n "$_val" ]; then
-      export "$_var=$_val"
-    else
-      echo "WARNING: $_var absent — secret/apps/nautobot has no $_field yet."
-      echo "         Converge the nautobot role with nautobot_token_publish_openbao enabled to mint it."
-    fi
-  done
-
   # Inject runtime credentials into Semaphore Project 1 Environment 1 so task
   # worker processes inherit them (Semaphore LocalJob does not inherit container
   # os.Environ unless mapped in the project environment template).
   sem_token="$(docker --host "$host" exec semaphore semaphore users token create --login "${SEMAPHORE_ADMIN:-admin}" --name deploy-env-sync 2>&1 | tail -n 1 | tr -d '\r\n')" || true
   if [ -n "$sem_token" ]; then
-    # HEC_NAMESPACE and the Splunkbase/object-storage credentials are gone from
-    # this payload: the playbooks read them from OpenBao at run time now. What
-    # remains is the bootstrap (address + an AppRole pair), the telemetry
-    # callback's token, and the Nautobot pair — the two whose consumers are not
-    # playbooks. See compose/docker-compose.yml for why each one is still here.
+    # Secret-zero only. Everything a playbook, callback or inventory plugin reads
+    # is exported from OpenBao before the run starts; the one template that is
+    # not an Ansible run wraps itself the same way (scripts/nautobot-drift.sh in
+    # its repository). The address is here too because the exporter gates on it
+    # before it can read anything.
     payload="$(jq -nc \
-      --arg sem_role "${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}" \
-      --arg sem_secret "${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}" \
-      --arg role "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" \
-      --arg secret "${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}" \
-      --arg rc_role "${OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID:-}" \
-      --arg rc_secret "${OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID:-}" \
-      --arg bao "${BAO_ADDR:-}" \
-      --arg hec "${SPLUNK_HEC_TOKEN:-}" \
-      --arg nurl "${NAUTOBOT_URL:-}" \
-      --arg ntoken "${NAUTOBOT_TOKEN:-}" \
+      --arg bao "$BAO_ADDR" \
+      --arg sem_role "$OPENBAO_APPROLE_SEMAPHORE_ROLE_ID" \
+      --arg sem_secret "$OPENBAO_APPROLE_SEMAPHORE_SECRET_ID" \
       '{
         id: 1,
         project_id: 1,
@@ -248,14 +198,7 @@ if [ "${1:-}" = "--inner" ]; then
         env: ({
           BAO_ADDR: $bao,
           OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: $sem_role,
-          OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret,
-          OPENBAO_APPROLE_ANSIBLE_ROLE_ID: $role,
-          OPENBAO_APPROLE_ANSIBLE_SECRET_ID: $secret,
-          OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID: $rc_role,
-          OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID: $rc_secret,
-          SPLUNK_HEC_TOKEN: $hec,
-          NAUTOBOT_URL: $nurl,
-          NAUTOBOT_TOKEN: $ntoken
+          OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret
         } | tojson),
         json: "{}"
       }')"

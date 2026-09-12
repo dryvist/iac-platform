@@ -43,12 +43,11 @@ resource "semaphoreui_project_environment" "homelab" {
   project_id = semaphoreui_project.homelab.id
   name       = "homelab"
 
-  # Process environment for the run. These are addresses and switches, not
-  # credentials — the credentials they point at are fetched at run time by
-  # run-ansible.sh using the AppRole that deploy.sh injects.
+  # Process environment for the run. The store address is the one value a run
+  # needs before it can read anything; everything else — including the
+  # AppRole pair deploy.sh injects — is fetched from the store at run time.
   environment = {
-    BAO_ADDR     = var.openbao_address
-    NAUTOBOT_URL = var.nautobot_url
+    BAO_ADDR = var.openbao_address
 
     # run-ansible.sh refuses to run against a checkout that is behind its
     # remote. Semaphore clones the declared branch fresh for each task, so the
