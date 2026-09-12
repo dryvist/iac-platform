@@ -44,13 +44,15 @@ locals {
   # whole file and is asserted on below.
   #
   # `tags` is optional and omitted by almost every entry. Set it only when a
-  # playbook must be run for one of its plays rather than in full, and only
-  # after confirming the tag is carried by the play itself with a static
+  # playbook must be run for some of its plays rather than in full, and only
+  # after confirming each tag is carried by the play itself with a static
   # `roles:` list — `--tags` never reaches inside an untagged `include_role`,
   # and a tag that matches nothing yields a converge that runs cleanly, changes
-  # nothing and reports success. A scoped entry is a second template, never an
-  # edit to the full-scope one, so narrowing this file can never narrow what an
-  # existing caller already gets.
+  # nothing and reports success. A scoped entry still names the ENTRY playbook
+  # (the one whose preamble loads the inventory), never an imported fragment
+  # of it. A scoped entry is a second template, never an edit to the
+  # full-scope one, so narrowing this file can never narrow what an existing
+  # caller already gets.
   ansible_templates = {
     apps-site = {
       repository  = "ansible-proxmox-apps"
@@ -123,23 +125,34 @@ locals {
       description = "Full AI/LLM stack converge (Ollama, LiteLLM, Qdrant, Hermes, Langfuse, etc.)."
     }
 
+    # Both scoped AI entries enter through site.yml, never through the
+    # llm-serving.yml fragment they narrow to. That file is an import_playbook
+    # fragment of site.yml: it carries neither the inventory loader nor the
+    # always-tagged secrets pre-fetch, so run on its own it matches no hosts,
+    # skips every play and reports success (the recap wrapper caught exactly
+    # that). Entering through site.yml keeps both preamble plays, and the tags
+    # select the fragment's plays from there.
     ai-llm-serving = {
-      repository  = "ansible-proxmox-ai"
-      playbook    = "playbooks/llm-serving.yml"
-      limit       = "all"
+      repository = "ansible-proxmox-ai"
+      playbook   = "playbooks/site.yml"
+      limit      = "all"
+      # Exactly the four plays llm-serving.yml contains: the two llama.cpp
+      # tiers, the spend store and the router. Not the broader `llm` tag —
+      # in site.yml it also matches the Ollama and Open WebUI plays.
+      tags        = "llama_cpp,llm_redis,llm_router"
       mutating    = true
       description = "GPU inference serving stack converge (llama.cpp, LiteLLM proxy, Redis spend store)."
     }
 
     ai-llm-router = {
       repository = "ansible-proxmox-ai"
-      playbook   = "playbooks/llm-serving.yml"
+      playbook   = "playbooks/site.yml"
       limit      = "llm_router_group"
       tags       = "llm_router"
-      # The sibling above runs all five plays in this playbook, reaching the
-      # ROCm tier, both NVIDIA-guest plays and the spend store as well as the
-      # router. This entry exists so the router can be converged on its own
-      # without owning those four outcomes.
+      # The sibling above runs all four serving plays, reaching the ROCm tier,
+      # the NVIDIA guest and the spend store as well as the router. This entry
+      # exists so the router can be converged on its own without owning those
+      # three outcomes.
       #
       # Mutating: the play restarts pool members. It does so one at a time
       # (`serial: 1`, `max_fail_percentage: 0`) so the front door stays up,
