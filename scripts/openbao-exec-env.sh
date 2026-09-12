@@ -4,7 +4,8 @@
 #
 # The caller authenticates to OpenBao with a native human or workload method
 # and supplies its short-lived BAO_TOKEN (VAULT_TOKEN is also accepted), or
-# carries the ansible-converge AppRole pair and this script logs in with it.
+# carries a workload AppRole pair (the execution plane's own, or the shared
+# ansible-converge pair) and this script logs in with it.
 # Nothing secret touches disk; the values live only in this process's env and
 # whatever it exec's.
 #
@@ -21,9 +22,17 @@ shift
 token="${BAO_TOKEN:-${VAULT_TOKEN:-}}"
 # No ambient token but a workload AppRole pair (how the Semaphore container
 # runs): log in once and hand the token down the exec chain, so nested calls
-# and the wrapped command reuse it instead of each minting their own.
-if [ -z "$token" ] && [ -n "${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}" ] && [ -n "${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}" ]; then
-  token="$(jq -nc --arg r "$OPENBAO_APPROLE_ANSIBLE_ROLE_ID" --arg s "$OPENBAO_APPROLE_ANSIBLE_SECRET_ID" '{role_id: $r, secret_id: $s}' \
+# and the wrapped command reuse it instead of each minting their own. The
+# execution plane's own pair wins over the shared ansible pair, so the store's
+# audit log names the plane rather than the identity every workstation shares.
+role_id="${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}"
+secret_id="${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}"
+if [ -z "$role_id" ] || [ -z "$secret_id" ]; then
+  role_id="${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}"
+  secret_id="${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}"
+fi
+if [ -z "$token" ] && [ -n "$role_id" ] && [ -n "$secret_id" ]; then
+  token="$(jq -nc --arg r "$role_id" --arg s "$secret_id" '{role_id: $r, secret_id: $s}' \
     | curl -sf --max-time 10 -H 'Content-Type: application/json' --data @- "${BAO_ADDR}/v1/auth/approle/login" \
     | jq -er '.auth.client_token')" || { echo "openbao-exec-env.sh: AppRole login failed" >&2; exit 1; }
   export BAO_TOKEN="$token"

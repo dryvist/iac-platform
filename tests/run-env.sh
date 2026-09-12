@@ -19,6 +19,11 @@ cat >"$STUB_DIR/curl" <<'STUB'
 #!/usr/bin/env bash
 url=""
 for a in "$@"; do case "$a" in http*) url="$a" ;; esac; done
+case "$url" in */auth/approle/login)
+  cat >"$STUB_KV_DIR/login-body.json"
+  printf '{"auth":{"client_token":"stub-login-token"}}'
+  exit 0 ;;
+esac
 mount="${url#*/v1/}"; mount="${mount%%/*}"
 body="$STUB_KV_DIR/$mount.json"
 [ -f "$body" ] || exit 22   # curl -f's exit code for a 4xx, i.e. no such document
@@ -78,6 +83,23 @@ check "missing address fails loudly" 1 "BAO_ADDR" \
 
 check "missing token fails loudly" 1 "set BAO_TOKEN" \
   env -u BAO_TOKEN -u VAULT_TOKEN "$EXEC_ENV" secret/platform/ansible/env -- true
+
+# No ambient token: the plane's own pair is what logs in, even when the shared
+# ansible pair is also present.
+check "logs in with the execution plane's pair when both pairs are present" 0 "stub-login-token" \
+  env -u BAO_TOKEN -u VAULT_TOKEN \
+  OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret \
+  OPENBAO_APPROLE_ANSIBLE_ROLE_ID=shared-role OPENBAO_APPROLE_ANSIBLE_SECRET_ID=shared-secret \
+  "$EXEC_ENV" secret/platform/ansible/env -- printenv BAO_TOKEN
+check "  ...and the login body names the plane's role" 0 "" \
+  grep -q '"role_id":"plane-role"' "$STUB_KV_DIR/login-body.json"
+
+check "falls back to the shared pair when the plane's is absent" 0 "stub-login-token" \
+  env -u BAO_TOKEN -u VAULT_TOKEN \
+  OPENBAO_APPROLE_ANSIBLE_ROLE_ID=shared-role OPENBAO_APPROLE_ANSIBLE_SECRET_ID=shared-secret \
+  "$EXEC_ENV" secret/platform/ansible/env -- printenv BAO_TOKEN
+check "  ...and the login body names the shared role" 0 "" \
+  grep -q '"role_id":"shared-role"' "$STUB_KV_DIR/login-body.json"
 
 echo "== deploy.sh --inner required-name guard =="
 # Everything the guards ahead of the run-environment guard demand, so a failure

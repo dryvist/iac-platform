@@ -259,12 +259,26 @@ if [ "${1:-}" = "--inner" ]; then
         } | tojson),
         json: "{}"
       }')"
-    docker --host "$host" exec -i semaphore curl -sf -X PUT \
+    # This PUT is the only writer of that environment: a failed write leaves
+    # whatever was there before, so it fails the deploy instead of reporting a
+    # sync that did not happen. The response body echoes the environment and
+    # is never printed.
+    put_status="$(docker --host "$host" exec -i semaphore curl -s -o /dev/null -w '%{http_code}' -X PUT \
       -H "Authorization: Bearer $sem_token" \
       -H "Content-Type: application/json" \
       -d "$payload" \
-      http://127.0.0.1:3000/api/project/1/environment/1 >/dev/null 2>&1 || true
-    echo "Synced runtime credentials to Semaphore project environment (idempotent)."
+      http://127.0.0.1:3000/api/project/1/environment/1 2>/dev/null)" || put_status="000"
+    case "$put_status" in
+      2*) echo "Synced runtime credentials to Semaphore project environment (HTTP $put_status)." ;;
+      *)
+        echo "ERROR: Semaphore project environment sync failed (HTTP $put_status); the live environment is unchanged." >&2
+        docker --host "$host" exec semaphore curl -sf -X DELETE \
+          -H "Authorization: Bearer $sem_token" \
+          "http://127.0.0.1:3000/api/user/tokens/$sem_token" >/dev/null 2>&1 \
+          || echo "WARNING: could not revoke the deploy-env-sync API token; revoke it by hand." >&2
+        exit 1
+        ;;
+    esac
     # This block mints a fresh API token on every deploy, so it revokes the one
     # it minted. A Semaphore API token does not expire on its own and is not
     # scoped below its owner, which makes an unrevoked one a standing
@@ -274,6 +288,9 @@ if [ "${1:-}" = "--inner" ]; then
       -H "Authorization: Bearer $sem_token" \
       "http://127.0.0.1:3000/api/user/tokens/$sem_token" >/dev/null 2>&1 \
       || echo "WARNING: could not revoke the deploy-env-sync API token; revoke it by hand."
+  else
+    echo "ERROR: could not mint a Semaphore API token, so the project environment was not synced." >&2
+    exit 1
   fi
 
   # The --inner branch is the whole deploy; without this the script falls
