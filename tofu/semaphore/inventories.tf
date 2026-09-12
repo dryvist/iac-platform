@@ -38,8 +38,9 @@ resource "semaphoreui_project_inventory" "homelab_tofu" {
 # The parallel Nautobot-sourced inventory. inventory/nautobot.yml is the
 # existing opt-in GraphQL plugin config whose group mapping deliberately mirrors
 # load_tofu's, so a future cutover is a change of which inventory a template
-# names rather than a rewrite. It resolves through NAUTOBOT_URL / NAUTOBOT_TOKEN
-# from the environment.
+# names rather than a rewrite. It resolves through NAUTOBOT_URL / NAUTOBOT_TOKEN,
+# which the drift report's wrapper script exports from the store at run time;
+# a converge that cuts over to it needs the same export in front of it.
 #
 # Nothing references this inventory yet — cutting a converge over to it is a
 # separate, deliberate decision. It exists so the drift report can exercise the

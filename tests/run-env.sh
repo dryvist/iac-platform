@@ -116,10 +116,19 @@ check "refuses when the name is absent from every document" 1 \
   env -u SPLUNK_HEC_TOKEN -u DEPLOY_HOST "${prereqs[@]}" \
   bash "$REPO_ROOT/scripts/deploy.sh" --inner
 
-# With the name present the guard passes and the deploy moves on to the next
+# The plane's own pair is the only thing a run cannot fetch for itself, so a
+# deploy without it refuses before it touches the host.
+check "refuses when the plane's AppRole pair is absent" 1 \
+  "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID missing" \
+  env -u DEPLOY_HOST -u OPENBAO_APPROLE_SEMAPHORE_ROLE_ID -u OPENBAO_APPROLE_SEMAPHORE_SECRET_ID \
+  "${prereqs[@]}" SPLUNK_HEC_TOKEN=from-the-store \
+  bash "$REPO_ROOT/scripts/deploy.sh" --inner
+
+# With every name present the guards pass and the deploy moves on to the next
 # one — DEPLOY_HOST — rather than exiting 0 having deployed nothing.
-check "proceeds past the guard when the name is present" 1 "DEPLOY_HOST missing" \
+check "proceeds past the guards when every name is present" 1 "DEPLOY_HOST missing" \
   env -u DEPLOY_HOST "${prereqs[@]}" SPLUNK_HEC_TOKEN=from-the-store \
+  OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret \
   bash "$REPO_ROOT/scripts/deploy.sh" --inner
 
 exit "$FAIL"

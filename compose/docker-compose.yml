@@ -386,37 +386,12 @@ services:
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
         "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
-      # FALLBACK, not redundancy. Every repo's run-ansible.sh prefers the
-      # SEMAPHORE pair and falls back to this one with a warning; the
-      # run-environment exporter (scripts/openbao-exec-env.sh) does the same.
-      # A template runs the wrapper at its pinned ref, so this pair stays until
-      # every pinned ref carries the preference; removing it earlier drops
-      # those templates to the static break-glass key. Delete it once every
-      # template's run log reports `authenticated as: semaphore`.
-      OPENBAO_APPROLE_ANSIBLE_ROLE_ID: ${OPENBAO_APPROLE_ANSIBLE_ROLE_ID:-}
-      OPENBAO_APPROLE_ANSIBLE_SECRET_ID: ${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}
-      # The reconcile identity's pair. Distinct from the pair above: that one
-      # buys an SSH certificate so a run can reach a host, this one is what the
-      # store-provisioning play authenticates with to reconcile policies,
-      # identities and generated application secrets. Without it that play
-      # SKIPS every task it owns and the run still reports success, so its
-      # absence is invisible in a recap — which is exactly how it went unnoticed.
-      OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID: ${OPENBAO_APPROLE_OPENBAO_RECONCILE_ROLE_ID:-}
-      OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID: ${OPENBAO_APPROLE_OPENBAO_RECONCILE_SECRET_ID:-}
-      # STILL HERE BECAUSE ITS CONSUMER IS NOT A PLAYBOOK. Read by the
-      # converge-telemetry Ansible CALLBACK, which publishes each run's
-      # per-host outcome to the logging pipeline. A callback plugin has no
-      # access to the lookup machinery the playbooks use, so moving this to
-      # OpenBao means teaching a Python plugin to authenticate — bespoke
-      # credential code, which is the thing this whole change is removing.
-      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
-      # Same reason. NAUTOBOT_URL is not a secret; NAUTOBOT_TOKEN is, and its
-      # consumers are the Nautobot inventory PLUGIN and the drift report, which
-      # runs as a `python` template and never touches Ansible at all. The
-      # native fix is to make that report a playbook like every other template,
-      # not to give the script its own OpenBao client.
-      NAUTOBOT_URL: ${NAUTOBOT_URL:-}
-      NAUTOBOT_TOKEN: ${NAUTOBOT_TOKEN:-}
+      # Nothing else. Every other value a run needs — the ansible pair the
+      # runners fall back to, the reconcile pair, the telemetry callback's
+      # token, the Nautobot pair — is read from OpenBao at run time: the
+      # wrapper exports the run-environment documents before any playbook
+      # starts, and the one non-Ansible template wraps itself the same way.
+      # A value listed here would be a second copy with its own rotation.
     volumes:
       - semaphore_data:/var/lib/semaphore
     ports:

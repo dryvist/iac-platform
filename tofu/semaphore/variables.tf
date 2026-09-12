@@ -107,12 +107,3 @@ variable "openbao_address" {
   }
 }
 
-variable "nautobot_url" {
-  description = "Internal HTTPS address of Nautobot, supplied at apply time. Published to runs as NAUTOBOT_URL so the parallel Nautobot inventory and the drift report can resolve it."
-  type        = string
-
-  validation {
-    condition     = can(regex("^https://", var.nautobot_url))
-    error_message = "nautobot_url must be an HTTPS URL."
-  }
-}
