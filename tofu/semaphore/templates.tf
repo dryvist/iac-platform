@@ -117,15 +117,16 @@ resource "semaphoreui_project_template" "ansible" {
   suppress_success_alerts = false
 }
 
-# The Nautobot parity report. Not an Ansible run: a read-only Python script
-# that queries Nautobot and compares it against the published inventory
-# artifact, and by its own contract it exits non-zero only on an API error,
-# never on drift. That property is what makes it safe to schedule — see
-# schedules.tf. It runs through a wrapper in its repository that exports the
-# read-only Nautobot credential from the store at run time, the same way the
-# Ansible templates get theirs, so the run environment carries none of it.
+# The Nautobot parity report: a localhost-only playbook that resolves the
+# published inventory artifact, reads the read-only Nautobot credential from
+# the store for the duration of the play, and runs the comparison script. By
+# that script's own contract it exits non-zero only on an API error, never on
+# drift, which is what makes it safe to schedule — see schedules.tf. It runs
+# through the same wrapper as every other template, so the run environment
+# carries nothing for it. Declared apart from ansible_templates because it has
+# no host pattern: the play names localhost itself.
 #
-# It runs against the Nautobot inventory rather than the tofu one so that the
+# It is bound to the Nautobot inventory rather than the tofu one so that the
 # scheduled job exercises the same resolution path a future cutover would use.
 resource "semaphoreui_project_template" "nautobot_drift" {
   project_id     = semaphoreui_project.homelab.id
@@ -141,9 +142,10 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   description = "Read-only report comparing Nautobot against the published inventory."
 
   app      = "bash"
-  playbook = "scripts/nautobot-drift.sh"
+  playbook = "semaphore-run-ansible.sh"
   arguments = [
-    "--tofu-inventory", "inventory/tofu_inventory.json",
+    "./scripts/run-ansible.sh", "playbooks/nautobot-drift.yml",
+    "--limit", "localhost",
   ]
 
   allow_override_args_in_task = false
