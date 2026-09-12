@@ -1,6 +1,6 @@
 locals {
   scheduled_templates = {
-    for k, t in local.ansible_templates : k => t if t.schedule_enabled
+    for k, t in local.ansible_templates : k => t if try(t.schedule_enabled, false)
   }
 
   schedule_crons = {

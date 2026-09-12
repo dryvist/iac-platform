@@ -254,7 +254,7 @@ resource "semaphoreui_project_template" "ansible" {
     ["./scripts/run-ansible.sh", each.value.playbook],
     try(each.value.tags, null) != null ? ["--tags", each.value.tags] : [],
     ["--limit", "${each.value.limit},localhost", "--diff"],
-    each.value.extra_args,
+    try(each.value.extra_args, []),
   )
 
   # The argument list is the contract. Letting a task edit it at launch would
