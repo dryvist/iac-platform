@@ -16,7 +16,9 @@
 #      host never ran — the `--limit ...,localhost` footgun) -> exit
 #      non-zero. This heuristic is evaluated ONLY when a recap exists;
 #      absence of a recap is always rule 1, never this rule — conflating the
-#      two is the other half of the upstream bug.
+#      two is the other half of the upstream bug. A caller whose `--limit` is
+#      exactly `localhost` asked for that recap on purpose (a localhost-only
+#      play, such as a read-only report) and is exempt from this rule alone.
 #   4. Recap exists, covers a real host, no failures -> exit with the
 #      wrapped command's own exit code.
 #
@@ -67,8 +69,15 @@ if grep -qE 'unreachable=[1-9][0-9]*|failed=[1-9][0-9]*' <<<"$recap_lines"; then
   exit 1
 fi
 
+limit=""
+prev=""
+for a in "$@"; do
+  { [ "$prev" = "--limit" ] || [ "$prev" = "-l" ]; } && limit="$a"
+  case "$a" in --limit=*) limit="${a#--limit=}" ;; esac
+  prev="$a"
+done
 hosts="$(awk -F' *: *' '{print $1}' <<<"$recap_lines" | sort -u)"
-if [ "$hosts" = "localhost" ]; then
+if [ "$hosts" = "localhost" ] && [ "$limit" != "localhost" ]; then
   echo "semaphore-run-ansible.sh: PLAY RECAP only covers localhost — the real target host(s) never ran (check --limit includes them, not just localhost)" >&2
   exit 1
 fi
