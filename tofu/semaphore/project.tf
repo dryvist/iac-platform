@@ -14,9 +14,10 @@ resource "semaphoreui_project" "homelab" {
   alert      = false
   alert_chat = ""
 
-  # Serialise runs. Two converges of the same repository at once would race on
-  # the shared checkout and on the hosts they both target.
-  max_parallel_tasks = 1
+  # Semaphore already serialises runs of the same template (its scheduler
+  # blocks a second run of a template still running) and gives each template
+  # its own checkout dir, so no project-level cap is needed.
+  max_parallel_tasks = 0
 }
 
 # Repositories and inventories both REQUIRE an ssh_key_id even when no
