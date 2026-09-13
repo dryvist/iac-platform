@@ -33,7 +33,7 @@ if [ -z "$role_id" ] || [ -z "$secret_id" ]; then
 fi
 if [ -z "$token" ] && [ -n "$role_id" ] && [ -n "$secret_id" ]; then
   token="$(jq -nc --arg r "$role_id" --arg s "$secret_id" '{role_id: $r, secret_id: $s}' \
-    | curl -sf --max-time 10 -H 'Content-Type: application/json' --data @- "${BAO_ADDR}/v1/auth/approle/login" \
+    | curl -sf --max-time 45 --retry 2 --retry-all-errors -H 'Content-Type: application/json' --data @- "${BAO_ADDR}/v1/auth/approle/login" \
     | jq -er '.auth.client_token')" || { echo "openbao-exec-env.sh: AppRole login failed" >&2; exit 1; }
   export BAO_TOKEN="$token"
 fi
@@ -43,7 +43,7 @@ fi
 # "secret/platform/terrakube/main" reads at "/v1/secret/data/platform/terrakube/main".
 mount="${path%%/*}"
 subpath="${path#*/}"
-kv_json="$(curl -sf --max-time 10 -H "X-Vault-Token: $token" \
+kv_json="$(curl -sf --max-time 45 --retry 2 --retry-all-errors -H "X-Vault-Token: $token" \
   "${BAO_ADDR}/v1/${mount}/data/${subpath}")" \
   || { echo "openbao-exec-env.sh: read of ${path} failed" >&2; exit 1; }
 
