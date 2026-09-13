@@ -14,10 +14,11 @@ resource "semaphoreui_project" "homelab" {
   alert      = false
   alert_chat = ""
 
-  # Semaphore already serialises runs of the same template (its scheduler
-  # blocks a second run of a template still running) and gives each template
-  # its own checkout dir, so no project-level cap is needed.
-  max_parallel_tasks = 0
+  # Every task's Ansible workers run inside the same memory-capped container
+  # (compose mem_limit on the semaphore service, ~16 workers total); two
+  # templates at once over-commits it and workers get OOM-killed mid-play.
+  # Lift this again only in the same change that raises that limit.
+  max_parallel_tasks = 1
 }
 
 # Repositories and inventories both REQUIRE an ssh_key_id even when no
