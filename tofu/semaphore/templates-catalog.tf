@@ -151,5 +151,32 @@ locals {
       mutating    = true
       description = "LiteLLM router converge only, scoped by tag and limit."
     }
+
+    # Two scoped second templates, never edits of apps-site: each narrows the
+    # full-scope converge to one play-level tag on a static `include_role`, so
+    # --tags reaches it cleanly (the constraint documented above).
+    apps-zammad = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "zammad_group"
+      tags             = "zammad"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Zammad ITSM converge only (bootstrap seeds the incident closure-contract Job, SLA and overview), via --tags zammad."
+    }
+
+    # Declares the template that already exists on the plane as id 13
+    # (undeclared drift) — see the import block in templates.tf.
+    apps-openbao-tagged = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "all"
+      tags             = "openbao"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Store reconciliation only, via --tags openbao. Skips the baseline phase."
+    }
   }
 }
