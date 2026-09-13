@@ -152,12 +152,17 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   suppress_success_alerts     = false
 }
 
-# A template named apps-openbao-tagged already exists on the server outside
-# this state (undeclared drift). Adopt it rather than create a second one
-# under the same name; the plan then changes it in place. Remove this block
-# once the import has applied — it is a one-time adoption, not part of the
-# declared graph.
+# Templates named apps-openbao-tagged and apps-zammad already exist on the
+# server outside this state (undeclared drift). Adopt them rather than create
+# a second one under the same name; the plan then changes each in place.
+# Remove these blocks once the import has applied — they are a one-time
+# adoption, not part of the declared graph.
 import {
   to = semaphoreui_project_template.ansible["apps-openbao-tagged"]
   id = "project/1/template/13"
+}
+
+import {
+  to = semaphoreui_project_template.ansible["apps-zammad"]
+  id = "project/1/template/23"
 }
