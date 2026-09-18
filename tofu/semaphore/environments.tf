@@ -47,7 +47,7 @@ resource "semaphoreui_project_environment" "homelab" {
   # needs before it can read anything; everything else — including the
   # AppRole pair deploy.sh injects — is fetched from the store at run time.
   environment = {
-    BAO_ADDR = var.openbao_address
+    BAO_ADDR = local.openbao_address
 
     # run-ansible.sh refuses to run against a checkout that is behind its
     # remote. Semaphore clones the declared branch fresh for each task, so the

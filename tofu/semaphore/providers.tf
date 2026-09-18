@@ -56,7 +56,37 @@ ephemeral "vault_kv_secret_v2" "semaphore" {
   name  = "apps/semaphore"
 }
 
+# The base domain, read from the same store the deploy already uses. This is
+# what makes a remote run self-sufficient: the endpoints below are derived
+# rather than passed in, so the real domain is committed nowhere and is not a
+# workspace variable either — the workspace keeps only its dynamic-credential
+# controls, which is the rule this root is built around.
+#
+# A data source rather than an `ephemeral` one, deliberately and despite the
+# provider's deprecation warning: `openbao_address` is published into a managed
+# resource (the Semaphore environment's BAO_ADDR) and therefore has to persist,
+# and an ephemeral value cannot feed a persisted attribute. Switching to
+# ephemeral would reintroduce the required-variable that makes this workspace
+# unrunnable. The address it yields is already carried in that resource today,
+# so this puts nothing in state that was not there before.
+#
+# Revisit if the provider grows a supported way to persist one field of an
+# ephemeral read; the warning is accepted here, not ignored.
+data "vault_kv_secret_v2" "platform" {
+  mount = "secret"
+  name  = "platform/terrakube/main"
+}
+
+locals {
+  # Explicit values win; otherwise derive. Keeping the variables as optional
+  # overrides means a run can still be pointed at a non-deployed endpoint
+  # without editing this file.
+  base_domain            = data.vault_kv_secret_v2.platform.data["DOMAIN"]
+  semaphore_api_base_url = coalesce(var.semaphore_api_base_url, "https://semaphore.${local.base_domain}/api")
+  openbao_address        = coalesce(var.openbao_address, "https://openbao.${local.base_domain}")
+}
+
 provider "semaphoreui" {
-  api_base_url = var.semaphore_api_base_url
+  api_base_url = local.semaphore_api_base_url
   api_token    = ephemeral.vault_kv_secret_v2.semaphore.data.semaphore_api_token
 }
