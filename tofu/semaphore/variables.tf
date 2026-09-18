@@ -108,18 +108,19 @@ variable "ansible_repositories" {
 
 variable "openbao_address" {
   description = <<-EOT
-    Internal HTTPS address of the secret store. Published to runs as BAO_ADDR.
+    Internal HTTPS address of the secret store. Published to runs as BAO_ADDR,
+    and the single input every other endpoint in this root is derived from.
 
-    Optional, and derived from the stored base domain when null — same reason
-    as semaphore_api_base_url above.
+    Supplied as TF_VAR_openbao_address in the run environment. That value is
+    already present there as the store address the dynamic-credential flow
+    uses, so passing it here discloses nothing new — and it keeps the real
+    domain out of this repository, which is the actual requirement.
   EOT
   type        = string
-  default     = null
-  nullable    = true
 
   validation {
-    condition     = var.openbao_address == null || can(regex("^https://", var.openbao_address))
-    error_message = "openbao_address must be an HTTPS URL."
+    condition     = can(regex("^https://openbao\\.[a-z0-9.-]+$", var.openbao_address))
+    error_message = "openbao_address must be https://openbao.<domain> with no path or port — the Semaphore endpoint is derived from the domain inside it."
   }
 }
 

@@ -56,34 +56,37 @@ ephemeral "vault_kv_secret_v2" "semaphore" {
   name  = "apps/semaphore"
 }
 
-# The base domain, read from the same store the deploy already uses. This is
-# what makes a remote run self-sufficient: the endpoints below are derived
-# rather than passed in, so the real domain is committed nowhere and is not a
-# workspace variable either — the workspace keeps only its dynamic-credential
-# controls, which is the rule this root is built around.
+# One address in, every other endpoint derived from it.
 #
-# A data source rather than an `ephemeral` one, deliberately and despite the
-# provider's deprecation warning: `openbao_address` is published into a managed
-# resource (the Semaphore environment's BAO_ADDR) and therefore has to persist,
-# and an ephemeral value cannot feed a persisted attribute. Switching to
-# ephemeral would reintroduce the required-variable that makes this workspace
-# unrunnable. The address it yields is already carried in that resource today,
-# so this puts nothing in state that was not there before.
+# `openbao_address` is the only value this root cannot work out for itself, and
+# it is already present in the run environment as the store address the dynamic
+# credential flow uses — same value, same place, already non-sensitive. Passing
+# it as TF_VAR_openbao_address therefore discloses nothing that is not there
+# already, which is what makes this the cheapest option available: no secret
+# document to read, no policy to widen, and nothing new in state.
 #
-# Revisit if the provider grows a supported way to persist one field of an
-# ephemeral read; the warning is accepted here, not ignored.
-data "vault_kv_secret_v2" "platform" {
-  mount = "secret"
-  name  = "platform/terrakube/main"
+# Everything else composes from the base domain carried inside it. Deriving
+# rather than accepting a second variable keeps the two endpoints from drifting
+# apart, which is the failure a pair of independently-supplied URLs invites.
+locals {
+  # "https://openbao.<domain>" -> "<domain>". Anchored on the scheme and the
+  # leading label so a value that is not the store's own address fails the
+  # validation below rather than silently producing a wrong hostname.
+  base_domain = replace(local.openbao_address, "/^https://openbao\\./", "")
+
+  openbao_address        = var.openbao_address
+  semaphore_api_base_url = coalesce(var.semaphore_api_base_url, "https://semaphore.${local.base_domain}/api")
 }
 
-locals {
-  # Explicit values win; otherwise derive. Keeping the variables as optional
-  # overrides means a run can still be pointed at a non-deployed endpoint
-  # without editing this file.
-  base_domain            = data.vault_kv_secret_v2.platform.data["DOMAIN"]
-  semaphore_api_base_url = coalesce(var.semaphore_api_base_url, "https://semaphore.${local.base_domain}/api")
-  openbao_address        = coalesce(var.openbao_address, "https://openbao.${local.base_domain}")
+# A derivation that silently produced a wrong hostname would point the provider
+# at something that is not this estate's API, so it fails at plan time instead.
+resource "terraform_data" "derived_endpoint_guard" {
+  lifecycle {
+    precondition {
+      condition     = local.base_domain != local.openbao_address && length(local.base_domain) > 0
+      error_message = "openbao_address must look like https://openbao.<domain>; the Semaphore endpoint is derived from the domain inside it."
+    }
+  }
 }
 
 provider "semaphoreui" {
