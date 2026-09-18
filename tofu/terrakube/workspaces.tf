@@ -192,3 +192,19 @@ resource "terrakube_workspace_variable" "openbao_auth_path" {
   sensitive       = false
   hcl             = false
 }
+
+# The semaphore workspace's root module takes openbao_address as a TERRAFORM
+# variable and derives every endpoint from it. Terrakube does not forward a CLI
+# -var or a local TF_VAR_* to a remote run, so the value must exist on the
+# workspace itself or the run stops at input validation. Same non-secret value
+# as VAULT_ADDR above, declared separately because the categories differ.
+resource "terrakube_workspace_variable" "semaphore_openbao_address" {
+  organization_id = terrakube_organization.org.id
+  workspace_id    = terrakube_workspace_cli.iac_platform_semaphore.id
+  key             = "openbao_address"
+  value           = var.openbao_address
+  description     = "Root input the Semaphore workspace derives its endpoints from"
+  category        = "TERRAFORM"
+  sensitive       = false
+  hcl             = false
+}
