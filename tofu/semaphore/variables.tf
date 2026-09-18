@@ -1,9 +1,18 @@
 variable "semaphore_api_base_url" {
-  description = "HTTPS base URL of the Semaphore API, including the /api suffix. Supplied at apply time because the real domain is not committed."
+  description = <<-EOT
+    HTTPS base URL of the Semaphore API, including the /api suffix.
+
+    Optional. Left null it is derived from the base domain the store already
+    holds (see locals.tf), which is what lets a remote run work without the
+    real domain being committed here OR set as a workspace variable. Pass it
+    explicitly only to point a run at something other than the deployed API.
+  EOT
   type        = string
+  default     = null
+  nullable    = true
 
   validation {
-    condition     = can(regex("^https://", var.semaphore_api_base_url))
+    condition     = var.semaphore_api_base_url == null || can(regex("^https://", var.semaphore_api_base_url))
     error_message = "semaphore_api_base_url must be an HTTPS URL."
   }
 
@@ -15,7 +24,7 @@ variable "semaphore_api_base_url" {
   # every call here is answered by a 302 to the auth portal, which the provider
   # reports as a confusing decode error rather than as an auth failure.
   validation {
-    condition     = can(regex("/api$", var.semaphore_api_base_url))
+    condition     = var.semaphore_api_base_url == null || can(regex("/api$", var.semaphore_api_base_url))
     error_message = "semaphore_api_base_url must end in /api — the provider appends resource paths to it, not the /api prefix."
   }
 }
@@ -98,12 +107,20 @@ variable "ansible_repositories" {
 }
 
 variable "openbao_address" {
-  description = "Internal HTTPS address of OpenBao, supplied at apply time because the real domain is not committed. Published to runs as BAO_ADDR."
+  description = <<-EOT
+    Internal HTTPS address of the secret store. Published to runs as BAO_ADDR,
+    and the single input every other endpoint in this root is derived from.
+
+    Supplied as TF_VAR_openbao_address in the run environment. That value is
+    already present there as the store address the dynamic-credential flow
+    uses, so passing it here discloses nothing new — and it keeps the real
+    domain out of this repository, which is the actual requirement.
+  EOT
   type        = string
 
   validation {
-    condition     = can(regex("^https://", var.openbao_address))
-    error_message = "openbao_address must be an HTTPS URL."
+    condition     = can(regex("^https://openbao\\.[a-z0-9.-]+$", var.openbao_address))
+    error_message = "openbao_address must be https://openbao.<domain> with no path or port — the Semaphore endpoint is derived from the domain inside it."
   }
 }
 

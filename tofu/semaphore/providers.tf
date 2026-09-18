@@ -56,7 +56,40 @@ ephemeral "vault_kv_secret_v2" "semaphore" {
   name  = "apps/semaphore"
 }
 
+# One address in, every other endpoint derived from it.
+#
+# `openbao_address` is the only value this root cannot work out for itself, and
+# it is already present in the run environment as the store address the dynamic
+# credential flow uses — same value, same place, already non-sensitive. Passing
+# it as TF_VAR_openbao_address therefore discloses nothing that is not there
+# already, which is what makes this the cheapest option available: no secret
+# document to read, no policy to widen, and nothing new in state.
+#
+# Everything else composes from the base domain carried inside it. Deriving
+# rather than accepting a second variable keeps the two endpoints from drifting
+# apart, which is the failure a pair of independently-supplied URLs invites.
+locals {
+  # "https://openbao.<domain>" -> "<domain>". Anchored on the scheme and the
+  # leading label so a value that is not the store's own address fails the
+  # validation below rather than silently producing a wrong hostname.
+  base_domain = replace(local.openbao_address, "/^https://openbao\\./", "")
+
+  openbao_address        = var.openbao_address
+  semaphore_api_base_url = coalesce(var.semaphore_api_base_url, "https://semaphore.${local.base_domain}/api")
+}
+
+# A derivation that silently produced a wrong hostname would point the provider
+# at something that is not this estate's API, so it fails at plan time instead.
+resource "terraform_data" "derived_endpoint_guard" {
+  lifecycle {
+    precondition {
+      condition     = local.base_domain != local.openbao_address && length(local.base_domain) > 0
+      error_message = "openbao_address must look like https://openbao.<domain>; the Semaphore endpoint is derived from the domain inside it."
+    }
+  }
+}
+
 provider "semaphoreui" {
-  api_base_url = var.semaphore_api_base_url
+  api_base_url = local.semaphore_api_base_url
   api_token    = ephemeral.vault_kv_secret_v2.semaphore.data.semaphore_api_token
 }
