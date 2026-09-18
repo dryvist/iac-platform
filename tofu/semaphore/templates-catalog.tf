@@ -178,5 +178,21 @@ locals {
       extra_args       = []
       description      = "Store reconciliation only, via --tags openbao. Skips the baseline phase."
     }
+
+    # The SSO portal play carries the `authelia` tag on a static `roles:` entry,
+    # so --tags reaches it under the same constraint as the two above. The
+    # secret pre-fetch play is tagged `always`, so a run scoped this way still
+    # resolves the portal's own credentials rather than converging against an
+    # empty secret domain.
+    apps-authelia = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "authelia_group"
+      tags             = "authelia"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "SSO portal converge only, via --tags authelia. Skips the baseline phase."
+    }
   }
 }
