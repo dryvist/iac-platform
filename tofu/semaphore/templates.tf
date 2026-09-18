@@ -16,7 +16,9 @@
 #     inside the playbook, so a limit that excludes localhost skips that play
 #     and the whole run no-ops at exit 0.
 #   * `--diff`, never `--check`. A dry run is not a converge and must not be
-#     able to masquerade as one.
+#     able to masquerade as one. Since allow_override_args_in_task was enabled,
+#     the wrapper refuses --check outright rather than relying on it being
+#     absent from the list below.
 #   * the wrapper applies the PLAY RECAP as the verdict instead of trusting the
 #     wrapped exit code, because run-ansible.sh can exit 0 on a run interrupted
 #     mid-play. Calling run-ansible.sh bare loses that.
@@ -107,10 +109,22 @@ resource "semaphoreui_project_template" "ansible" {
     try(each.value.extra_args, []),
   )
 
-  # The argument list is the contract. Letting a task edit it at launch would
-  # allow --check, a dropped localhost, or a different playbook entirely —
-  # every guard above, bypassable from the UI.
-  allow_override_args_in_task = false
+  # The argument list is the DEFAULT, no longer the contract. The three things
+  # a frozen list prevented — --check, a dropped localhost, an arbitrary
+  # playbook — are now refused by the wrapper itself
+  # (scripts/semaphore-run-ansible.sh, "Argument guard"), which enforces them
+  # for every caller rather than only for the arguments declared here.
+  #
+  # Moving the contract into the wrapper is what makes a scoped run possible
+  # without declaring a template for each scope: a caller passes its own
+  # --tags/--limit at launch and the guard still holds. Freezing the list
+  # instead meant every new scope was an IaC change plus an apply before it
+  # could be run once.
+  #
+  # This is only safe while the wrapper actually runs. Every template above is
+  # app = "bash" invoking it; a template that called run-ansible.sh directly
+  # would carry no guard at all, which is why the header forbids that.
+  allow_override_args_in_task = true
 
   # Success is not silent: outcomes reach Splunk through the converge-telemetry
   # callback and the run output through the container log pipeline.
