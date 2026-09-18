@@ -178,5 +178,25 @@ locals {
       extra_args       = []
       description      = "Store reconciliation only, via --tags openbao. Skips the baseline phase."
     }
+
+    # The log/telemetry pipeline hosts. The `cribl` tag covers all three plays
+    # that make up the pipeline — Stream, Edge and the shared packs — each on a
+    # static `roles:` list, so --tags reaches them under the constraint
+    # documented above. The limit names both groups because the packs play
+    # spans them.
+    #
+    # Declared because the full-scope template is the only other route to these
+    # hosts and it measures ~98 minutes, which the converge budget forbids. A
+    # scoped run reaches them in minutes.
+    apps-cribl = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "cribl_edge:cribl_stream_group"
+      tags             = "cribl"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Log/telemetry pipeline converge only (Stream, Edge, packs), via --tags cribl."
+    }
   }
 }
