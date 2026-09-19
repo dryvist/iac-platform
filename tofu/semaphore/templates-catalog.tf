@@ -20,6 +20,10 @@ locals {
   # of it. A scoped entry is a second template, never an edit to the
   # full-scope one, so narrowing this file can never narrow what an existing
   # caller already gets.
+  #
+  # `deployed_only` is optional. Set it on a template that must exist only for
+  # the repository's deployed ref: templates.tf then builds no `@ <branch>`
+  # preview variant of it, whatever preview branches the repository declares.
   ansible_templates = {
     apps-site = {
       repository       = "ansible-proxmox-apps"
@@ -28,7 +32,10 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      description      = "Full application-layer converge."
+      # The full converge is the post-merge apply of the deployed ref and
+      # nothing else; the scoped templates below cover preview testing.
+      deployed_only = true
+      description   = "Full application-layer converge."
     }
 
     apps-verify-grafana-dashboards = {
