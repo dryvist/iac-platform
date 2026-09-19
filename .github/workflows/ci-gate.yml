@@ -31,3 +31,12 @@ jobs:
       # validation (startup_failure).
       actions: write
     uses: dryvist/.github/.github/workflows/_ci-gate.yml@main
+    with:
+      tofu_ci: true
+      tofu_working_directories: '["tofu/semaphore", "tofu/terrakube"]'
+      filters: |
+        terraform:
+          - '**.tf'
+          - '**.tfvars'
+          - '**/.terraform.lock.hcl'
+          - '.tflint.hcl'
