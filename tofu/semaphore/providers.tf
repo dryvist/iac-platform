@@ -93,5 +93,3 @@ provider "semaphoreui" {
   api_base_url = local.semaphore_api_base_url
   api_token    = ephemeral.vault_kv_secret_v2.semaphore.data.semaphore_api_token
 }
-
-# ci: OpenTofu CI wiring test (reverted before merge)
