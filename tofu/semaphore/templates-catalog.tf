@@ -222,6 +222,20 @@ locals {
       description      = "Pipeline Stream tier converge only, via --tags cribl_stream."
     }
 
+    # Grafana + VictoriaMetrics observability stack only. The full apps-site
+    # converge takes far longer than a scoped run needs for this one stack;
+    # this reaches grafana_group in minutes via the role's own play tag.
+    apps-grafana = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "grafana_group"
+      tags             = "grafana"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Grafana/VictoriaMetrics stack converge only, via --tags grafana."
+    }
+
     # Runner hosts only. Same argument as apps-cribl: the full-scope template is
     # the only other route to them, and it now exceeds the run budget before it
     # gets there, so those hosts are unreachable in practice.
