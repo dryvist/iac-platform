@@ -236,6 +236,20 @@ locals {
       description      = "Grafana/VictoriaMetrics stack converge only, via --tags grafana."
     }
 
+    # Authelia SSO portal only. Same scoping rationale as apps-grafana: reaches
+    # authelia_group in minutes via the role's own play tag instead of the
+    # full apps-site converge.
+    apps-authelia = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "authelia_group"
+      tags             = "authelia"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "SSO gateway converge only, via --tags authelia."
+    }
+
     # Prometheus-native network monitoring stack only. Same scoping rationale
     # as apps-grafana: reaches prometheus_group in minutes via the role's own
     # play tag instead of the full apps-site converge.
