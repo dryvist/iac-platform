@@ -189,9 +189,17 @@ locals {
     # hosts and it measures ~98 minutes, which the converge budget forbids. A
     # scoped run reaches them in minutes.
     apps-cribl = {
-      repository       = "ansible-proxmox-apps"
-      playbook         = "playbooks/site.yml"
-      limit            = "cribl_edge:cribl_stream_group"
+      repository = "ansible-proxmox-apps"
+      playbook   = "playbooks/site.yml"
+      # COMMA, never a colon. A play's own `hosts:` accepts `a:b` as a union,
+      # but --limit does not split on it: the whole string is taken as one
+      # literal host name, matches nothing, and is dropped with a warning,
+      # leaving only the appended localhost. The run then completes green over
+      # a single host and changes nothing. Measured as task 205 — "Could not
+      # match supplied host pattern, ignoring: cribl_edge:cribl_stream_group",
+      # then a recap covering localhost alone. Single-group limits are fine,
+      # which is why the grafana verifier's has always worked.
+      limit            = "cribl_edge,cribl_stream_group"
       tags             = "cribl"
       mutating         = true
       schedule_enabled = false
