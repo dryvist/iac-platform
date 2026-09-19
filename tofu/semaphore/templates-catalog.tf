@@ -207,6 +207,21 @@ locals {
       description      = "Log/telemetry pipeline converge only (Stream, Edge, packs), via --tags cribl."
     }
 
+    # The Stream half of apps-cribl on its own. Both halves together run past
+    # the per-run wall-clock budget, so there is no route to a completed Stream
+    # converge through the combined entry. Splitting the two is what keeps each
+    # one inside the budget; run this when only the Stream tier needs to move.
+    apps-cribl-stream = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "cribl_stream_group"
+      tags             = "cribl_stream"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Pipeline Stream tier converge only, via --tags cribl_stream."
+    }
+
     # Runner hosts only. Same argument as apps-cribl: the full-scope template is
     # the only other route to them, and it now exceeds the run budget before it
     # gets there, so those hosts are unreachable in practice.
