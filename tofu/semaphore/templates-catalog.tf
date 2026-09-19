@@ -236,6 +236,20 @@ locals {
       description      = "Grafana/VictoriaMetrics stack converge only, via --tags grafana."
     }
 
+    # Prometheus-native network monitoring stack only. Same scoping rationale
+    # as apps-grafana: reaches prometheus_group in minutes via the role's own
+    # play tag instead of the full apps-site converge.
+    apps-prometheus = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "prometheus_group"
+      tags             = "prometheus"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Prometheus-native monitoring converge only, via --tags prometheus."
+    }
+
     # Runner hosts only. Same argument as apps-cribl: the full-scope template is
     # the only other route to them, and it now exceeds the run budget before it
     # gets there, so those hosts are unreachable in practice.
