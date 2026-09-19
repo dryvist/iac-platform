@@ -36,7 +36,7 @@ jobs:
       tofu_working_directories: '["tofu/semaphore", "tofu/terrakube"]'
       filters: |
         terraform:
-          - 'tofu/**.tf'
-          - 'tofu/**.tfvars'
-          - 'tofu/**/.terraform.lock.hcl'
+          - '**.tf'
+          - '**.tfvars'
+          - '**/.terraform.lock.hcl'
           - '.tflint.hcl'
