@@ -198,5 +198,19 @@ locals {
       extra_args       = []
       description      = "Log/telemetry pipeline converge only (Stream, Edge, packs), via --tags cribl."
     }
+
+    # Runner hosts only. Same argument as apps-cribl: the full-scope template is
+    # the only other route to them, and it now exceeds the run budget before it
+    # gets there, so those hosts are unreachable in practice.
+    apps-github-runner = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "docker_vms"
+      tags             = "github_runner"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Runner host converge only, via --tags github_runner."
+    }
   }
 }
