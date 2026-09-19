@@ -284,5 +284,24 @@ locals {
       extra_args       = []
       description      = "Runner host converge only, via --tags github_runner."
     }
+
+    # Docker VM group only. Same argument as apps-github-runner: the
+    # full-scope template is the only other route to the baseline plays
+    # (ssh_ca_trust among them) and it now exceeds the run budget before it
+    # gets there, so a VM that missed baseline once has no scoped path back
+    # to it. `baseline` also carries ntp, node_exporter and cadvisor for this
+    # host group — all lightweight (no apt installs beyond ntp's single
+    # chrony package, everything else a binary/container fetch), so the set
+    # stays well inside the run budget on three hosts.
+    apps-baseline-docker-vms = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "docker_vms"
+      tags             = "baseline"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Docker VM baseline converge only (ssh_ca_trust, ntp, node_exporter, cadvisor), via --tags baseline."
+    }
   }
 }
