@@ -47,6 +47,10 @@
 # `deployed` rides along because schedules.tf must be able to assert that
 # nothing unattended reaches a preview ref, and asserting on a substring of the
 # key would be a naming convention pretending to be a control.
+#
+# A template marked `deployed_only` gets no preview variant at all: removing
+# the flag is the only way to bring one back, so it cannot reappear by adding a
+# preview branch to the repository.
 locals {
   ansible_template_refs = {
     for pair in flatten([
@@ -59,7 +63,7 @@ locals {
             deployed       = r.deployed
             template       = tname
           })
-        } if r.repo == t.repository
+        } if r.repo == t.repository && (r.deployed || !try(t.deployed_only, false))
       ]
     ]) : pair.key => pair.value
   }
