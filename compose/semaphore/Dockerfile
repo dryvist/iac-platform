@@ -6,7 +6,7 @@
 # Default mirrors compose/.env.example's SEMAPHORE_VERSION so a bare
 # `docker build` (no --build-arg) still resolves to a real image; compose
 # always passes the live pin via build.args, keeping the two in step.
-ARG SEMAPHORE_VERSION=v2.18.18
+ARG SEMAPHORE_VERSION=v2.19.14
 FROM semaphoreui/semaphore:${SEMAPHORE_VERSION}
 
 # The OpenBao CLI scripts/run-ansible.sh uses to log in and mint the SSH cert.
