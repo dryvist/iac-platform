@@ -1,12 +1,12 @@
 # Adds the tools scripts/run-ansible.sh needs (an ephemeral OpenBao-signed SSH
 # cert, ansible-playbook is invoked from the checked-out Ansible repo itself)
 # on top of the upstream Semaphore image. SEMAPHORE_VERSION is a build arg
-# fed from compose/.env by docker-compose.yml (build.args), so the version is
-# tracked once, by the existing renovate customManager — not duplicated here.
-# Default mirrors compose/.env.example's SEMAPHORE_VERSION so a bare
-# `docker build` (no --build-arg) still resolves to a real image; compose
-# always passes the live pin via build.args, keeping the two in step.
-ARG SEMAPHORE_VERSION=v2.19.14
+# fed from compose/.env.example by docker-compose.yml (build.args), so the
+# version is tracked in exactly one place (the renovate-managed pin), not
+# duplicated here as a second literal that can drift from it. No default: a
+# bare `docker build` without --build-arg fails instead of silently
+# resolving to a stale image.
+ARG SEMAPHORE_VERSION
 FROM semaphoreui/semaphore:${SEMAPHORE_VERSION}
 
 # The OpenBao CLI scripts/run-ansible.sh uses to log in and mint the SSH cert.
