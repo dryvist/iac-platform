@@ -36,3 +36,8 @@ resource "terrakube_team" "admins" {
 # confirm; approval templates declared in templates.tf). CI plan/apply
 # choreography — and the team token it would need — gets added only if a
 # real recurring need appears (simplicity directive, 2026-07-03).
+
+import {
+  to = terrakube_team.admins
+  id = "${terrakube_organization.org.id},b09ff17c-3098-4484-b6a8-3d0ed093be0d"
+}
