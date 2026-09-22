@@ -8,6 +8,15 @@ locals {
     splunk-validate                = "37 6 * * *"
     splunk-weekly-update           = "17 22 * * 4"
   }
+
+  # The only ansible_templates entry allowed to be both mutating = true and
+  # scheduled. A template declared apart from ansible_templates (same reason
+  # as nautobot_drift — no host pattern) gets its own schedule resource below
+  # instead, so it never appears in scheduled_templates and needs no entry
+  # here — openbao-rotate-approles-scheduled among them.
+  mutating_schedule_exceptions = [
+    "splunk-weekly-update",
+  ]
 }
 
 resource "terraform_data" "schedule_guard" {
@@ -22,9 +31,9 @@ resource "terraform_data" "schedule_guard" {
     }
     precondition {
       condition = alltrue([
-        for k, t in local.scheduled_templates : !t.mutating || k == "splunk-weekly-update"
+        for k, t in local.scheduled_templates : !t.mutating || contains(local.mutating_schedule_exceptions, k)
       ])
-      error_message = "Only splunk-weekly-update may be both mutating and scheduled."
+      error_message = "Only an entry in mutating_schedule_exceptions may be both mutating and scheduled."
     }
     # Nothing unattended may run an unreleased ref. This asserts on the
     # `deployed` flag carried through from repositories.tf rather than on the
@@ -63,5 +72,17 @@ resource "semaphoreui_project_schedule" "nautobot_drift" {
   template_id = semaphoreui_project_template.nautobot_drift.id
   name        = "nautobot-drift-report"
   cron_format = "47 6 * * *"
+  enabled     = true
+}
+
+# Scheduled AppRole secret_id rotation, every 12h and off the :00/:30 mark.
+# Declared apart from schedule_crons/scheduled_templates for the same reason
+# as nautobot_drift's schedule above — this template is not in
+# ansible_templates and schedule_guard's derivation never reaches it.
+resource "semaphoreui_project_schedule" "openbao_rotate_scheduled" {
+  project_id  = semaphoreui_project.homelab.id
+  template_id = semaphoreui_project_template.openbao_rotate_scheduled.id
+  name        = "openbao-rotate-approles-scheduled"
+  cron_format = "13 3,15 * * *"
   enabled     = true
 }

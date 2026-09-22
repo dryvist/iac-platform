@@ -155,3 +155,42 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   allow_override_args_in_task = false
   suppress_success_alerts     = false
 }
+
+# Scheduled AppRole secret_id rotation (Vikunja 3197). Declared apart from
+# ansible_templates for the same reason as nautobot_drift: no host pattern,
+# the play names localhost itself. Unlike nautobot_drift, this template DOES
+# mutate — it mints a fresh secret_id per openbao_secrets domain plus its own
+# scheduled identity, writes the rotated pair into the shared platform env
+# document, and destroys a previous secret_id only once it is proven
+# never-expiring — see schedules.tf's schedule_guard exception list for why
+# that self-limiting shape is what makes scheduling it acceptable.
+#
+# Authenticates as approle-secret-id-rotate-scheduled via the ambient
+# OPENBAO_APPROLE_APPROLE_SECRET_ID_ROTATE_SCHEDULED_{ROLE,SECRET}_ID pair —
+# scripts/semaphore-run-ansible.sh exports secret/platform/ansible/env into
+# every run's process before the playbook starts (the same document
+# ansible-proxmox-apps' rotation playbook itself reads and writes), so no
+# -e argument or environment change is needed here to deliver it.
+resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
+  project_id     = semaphoreui_project.homelab.id
+  repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
+  environment_id = semaphoreui_project_environment.homelab.id
+
+  # Deployed ref only: this one is scheduled, and nothing scheduled runs an
+  # unreleased ref.
+  view_id = semaphoreui_project_view.deployed.id
+
+  name        = "openbao-rotate-approles-scheduled"
+  description = "Scheduled rotation of openbao_secrets domain AppRole secret_ids."
+
+  app      = "bash"
+  playbook = "semaphore-run-ansible.sh"
+  arguments = [
+    "./scripts/run-ansible.sh", "playbooks/openbao-rotate-approles.yml",
+    "--limit", "localhost", "--diff",
+  ]
+
+  allow_override_args_in_task = false
+  suppress_success_alerts     = false
+}
