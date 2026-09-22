@@ -69,5 +69,18 @@ RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh /usr/local/bin/openbao-exec
 RUN git config --system credential.https://github.com.helper openbao \
     && git config --system credential.https://github.com.username x-access-token
 
+# hermes_agent's content-bundle build runs on THIS controller, never on a
+# target guest (roles/hermes_agent/tasks/assert_curriculum_and_policy.yml
+# asserts `nix --version` before any config deploys, delegate_to: localhost).
+# Without this, that assert fails on every hermes_agent/hermes_ui_docker
+# converge. Alpine's own community repo ships nix natively for musl (no
+# glibc-only installer needed) — install it in single-user mode: no daemon,
+# no nixbld build users, /nix owned by the unprivileged runtime user.
+RUN apk add --no-cache nix \
+    && mkdir -p /etc/nix \
+    && printf 'sandbox = false\nexperimental-features = nix-command flakes\n' > /etc/nix/nix.conf \
+    && mkdir -p /nix \
+    && chown -R semaphore:root /nix /etc/nix
+
 # Drop back to the image's own unprivileged user for runtime.
 USER semaphore
