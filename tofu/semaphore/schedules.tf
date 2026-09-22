@@ -65,3 +65,13 @@ resource "semaphoreui_project_schedule" "nautobot_drift" {
   cron_format = "47 6 * * *"
   enabled     = true
 }
+
+# Every 12h, off the :00/:30 mark. Declared apart from
+# schedule_crons/scheduled_templates, same as nautobot_drift's schedule above.
+resource "semaphoreui_project_schedule" "openbao_rotate_scheduled" {
+  project_id  = semaphoreui_project.homelab.id
+  template_id = semaphoreui_project_template.openbao_rotate_scheduled.id
+  name        = "openbao-rotate-approles-scheduled"
+  cron_format = "13 3,15 * * *"
+  enabled     = true
+}

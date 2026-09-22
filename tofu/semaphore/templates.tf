@@ -155,3 +155,32 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   allow_override_args_in_task = false
   suppress_success_alerts     = false
 }
+
+# Every 12h: rotate openbao_secrets domain AppRole secret_ids. Declared
+# apart from ansible_templates: no host pattern, the play names localhost
+# itself.
+# Auth: the scheduled AppRole pair from the platform env document the
+# wrapper exports.
+resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
+  project_id     = semaphoreui_project.homelab.id
+  repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
+  environment_id = semaphoreui_project_environment.homelab.id
+
+  # Deployed ref only: this one is scheduled, and nothing scheduled runs an
+  # unreleased ref.
+  view_id = semaphoreui_project_view.deployed.id
+
+  name        = "openbao-rotate-approles-scheduled"
+  description = "Scheduled rotation of openbao_secrets domain AppRole secret_ids."
+
+  app      = "bash"
+  playbook = "semaphore-run-ansible.sh"
+  arguments = [
+    "./scripts/run-ansible.sh", "playbooks/openbao-rotate-approles.yml",
+    "--limit", "localhost", "--diff",
+  ]
+
+  allow_override_args_in_task = false
+  suppress_success_alerts     = false
+}
