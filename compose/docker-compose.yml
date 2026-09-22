@@ -31,6 +31,12 @@ x-logging: &logging
   # shipper. The estate's syslog role documents this driver as its assumption;
   # this is the file that makes the assumption true.
   driver: journald
+  options:
+    # Without this, journald's syslog identifier for every service here is
+    # the container's short hash — indistinguishable from any other
+    # container in a downstream search or alert, and different on every
+    # recreate. {{.Name}} resolves to each service's own container_name.
+    tag: "{{.Name}}"
 
 x-api: &api_env
   # Tofu releases list served from a pinned static file in THIS repo (raw URL),
