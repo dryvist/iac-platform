@@ -7,8 +7,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Image pins in compose/.env (TK_VERSION etc.)",
-      "managerFilePatterns": ["/^compose/\\.env$/"],
+      "description": "Image pins in compose/.env.example (TK_VERSION etc.) — the committed template; compose/.env is gitignored and Renovate can never see it",
+      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
       "matchStrings": [
         "TK_VERSION=(?<currentValue>.+)"
       ],
@@ -17,14 +17,14 @@
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^compose/\\.env$/"],
+      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
       "matchStrings": ["TK_DEX_VERSION=(?<currentValue>.+)"],
       "depNameTemplate": "ghcr.io/dexidp/dex",
       "datasourceTemplate": "docker"
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^compose/\\.env$/"],
+      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
       "matchStrings": ["SEMAPHORE_VERSION=(?<currentValue>.+)"],
       "depNameTemplate": "semaphoreui/semaphore",
       "datasourceTemplate": "docker"

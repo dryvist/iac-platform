@@ -60,8 +60,10 @@ here; all fleet roots use native OpenTofu through Terrakube.
   tofu-proxmox `constants.tf` — the ingress rows reference those
   constants, this repo's `compose/.env` carries the same numbers.
 - The Terrakube **executor is never published or fronted** — API-internal only.
-- Image pins bump in `compose/.env` only (renovate-tracked); redeploy + smoke
-  test after every bump. Manual `pg_dumpall` before major bumps.
+- Image pins bump in `compose/.env.example` (renovate-tracked, committed);
+  `compose/.env` is gitignored, so Renovate cannot see it — copy the bumped
+  pin into the live `compose/.env` at deploy time, then redeploy + smoke test.
+  Manual `pg_dumpall` before major bumps.
 - Conventional commits; GPG-signed; never commit secrets — store references.
 - Onboarding a new consumer root = one `terrakube_workspace_cli` in
   `workspaces.tf`, an exact-claim OpenBao JWT role in the OpenBao-owning repo,
