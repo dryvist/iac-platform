@@ -336,10 +336,13 @@ services:
       SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
       SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${SEMAPHORE_ACCESS_KEY_ENCRYPTION}
       SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
-      # The plane's own rail: Semaphore stops any task at 20 minutes, above
-      # the playbooks' 10-minute soft budget and at their hard cap. A run that
-      # needs longer is a defect to scope down, never a value to raise here.
-      SEMAPHORE_MAX_TASK_DURATION_SEC: "1200"
+      # The plane's own rail: Semaphore stops any task at 75 minutes. Some
+      # legitimate full-scope converges measure 20-40 minutes, so 1200s
+      # (20 min) — the playbooks' own soft budget, not the plane's — was
+      # tight enough to kill a real converge, not just a hung one. This is
+      # the PLANE-SIDE backstop above that soft budget, not a target to
+      # design runs toward.
+      SEMAPHORE_MAX_TASK_DURATION_SEC: "4500"
       # Authelia OIDC login (Semaphore's own JSON-string provider config).
       # DOMAIN is already a plain env var here like every other hostname in
       # this file, so the provider_url needs no extra indirection.
