@@ -33,6 +33,7 @@ resource "terrakube_team" "admins" {
 
 # Deliberately NO team token / CI credentials: consumers use Terrakube's
 # native CLI-driven flow (tofu login once per machine; interactive apply
-# confirm; UI approval templates). CI plan/apply choreography — and the
-# team token it would need — gets added only if a real recurring need
-# appears (simplicity directive, 2026-07-03).
+# confirm; approval templates, now declared in templates.tf — see Vikunja
+# #3320). CI plan/apply choreography — and the team token it would need —
+# gets added only if a real recurring need appears (simplicity directive,
+# 2026-07-03).
