@@ -254,6 +254,12 @@ services:
       - --rename-command
       - FLUSHALL
       - ""
+      - --save
+      - ""
+      - --maxmemory
+      - 96mb
+      - --maxmemory-policy
+      - allkeys-lru
     volumes:
       - redis_data:/data
     mem_limit: 128m
