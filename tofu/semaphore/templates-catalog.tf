@@ -24,10 +24,15 @@
 #   full-scope one, so narrowing this file can never narrow what an existing
 #   caller already gets.
 #
-#   `deployed_only` is optional. Set it on a template that must exist only
-#   for the repository's deployed ref: templates.tf then builds no
-#   `@ <branch>` preview variant of it, whatever preview branches the
-#   repository declares.
+#   `deployed_only` is currently a no-op: preview-branch (`@ <branch>`)
+#   templates were dropped when the project split landed (see
+#   repositories.tf) and have not been rebuilt on a per-project basis. Left
+#   on the entries that had it so restoring preview-branch support later
+#   does not silently un-flag them.
+#
+#   `project` names one of project.tf's semaphore_project_names. Required on
+#   every entry — repositories.tf, inventories.tf and templates.tf all key
+#   off it to resolve which project's checkout a template runs from.
 
 locals {
   ansible_templates = merge(

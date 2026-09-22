@@ -4,6 +4,7 @@ locals {
   ansible_templates_ai = {
     ai-site = {
       repository  = "ansible-proxmox-ai"
+      project     = "ai"
       playbook    = "playbooks/site.yml"
       limit       = "all"
       mutating    = true
@@ -19,6 +20,7 @@ locals {
     # select the fragment's plays from there.
     ai-llm-serving = {
       repository = "ansible-proxmox-ai"
+      project    = "ai"
       playbook   = "playbooks/site.yml"
       limit      = "all"
       # Exactly the four plays llm-serving.yml contains: the two llama.cpp
@@ -31,6 +33,7 @@ locals {
 
     ai-llm-router = {
       repository = "ansible-proxmox-ai"
+      project    = "ai"
       playbook   = "playbooks/site.yml"
       limit      = "llm_router_group"
       tags       = "llm_router"
