@@ -46,9 +46,12 @@ x-api: &api_env
   # format the executor's parser accepts) and trimmed to recent stable releases.
   # STALENESS CONTRACT: when a workspace's tofu version pin moves past the
   # newest entry, regenerate compose/tofu-releases.json (see the file's PR /
-  # issue #25 for the one-liner). Durable fix tracked in issue #25
-  # (authenticated fetch via CustomReleaseGithubToken).
+  # issue #25 for the one-liner).
   CustomTofuReleasesUrl: https://raw.githubusercontent.com/dryvist/iac-platform/main/compose/tofu-releases.json
+  # Authenticated fetch (issue #25): raises the anonymous-request ceiling this
+  # endpoint was hitting. Empty value keeps the previous unauthenticated
+  # behavior.
+  CustomReleaseGithubToken: ${CustomReleaseGithubToken:-}
   ApiDataSourceType: POSTGRESQL
   DatasourceHostname: postgresql-service
   DatasourceDatabase: ${TK_POSTGRESQL_DATABASE_NAME}
