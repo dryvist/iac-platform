@@ -368,6 +368,14 @@ services:
       # effectively unbounded — so this MUST be set explicitly rather than
       # left to inherit a safe-looking default that is not actually safe.
       SEMAPHORE_MAX_PARALLEL_TASKS: "3"
+      # Every task dispatches to the remote runner below instead of the
+      # embedded local job pool — only the runner path enforces
+      # SEMAPHORE_MAX_TASK_DURATION_SEC (v2.19.14, services/tasks/RemoteJob.go
+      # scheduleTimeout).
+      SEMAPHORE_USE_REMOTE_RUNNER: "true"
+      # Shared static token the runner service presents to self-register
+      # (api/runners/runners.go RegisterRunner); same value on both services.
+      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:-}
       # Authelia OIDC login (Semaphore's own JSON-string provider config).
       # DOMAIN is already a plain env var here like every other hostname in
       # this file, so the provider_url needs no extra indirection.
@@ -409,21 +417,21 @@ services:
       # git credential helper sees none of the three variables above unless
       # they are named. Task processes get them from the Semaphore project
       # environment instead, which is why playbooks worked while clones did
-      # not. Forwarding changes no trust boundary: every value listed here is
-      # already in this file and already reaches every task.
+      # not. Forwarding changes no trust boundary: the same three values are
+      # already in this file and already reach every task.
       #
       # JSON array, and only a JSON array: the config loader json.Unmarshals
       # this value and PANICS at startup on anything else
       # (util/config.go setConfigValue).
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
-        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID", "SEMAPHORE_MAX_TASK_DURATION_SEC"]
-      # Nothing else here. Every other value a run needs — the ansible pair
-      # the runners fall back to, the reconcile pair, the telemetry callback's
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
+      # Nothing else. Every other value a run needs — the ansible pair the
+      # runners fall back to, the reconcile pair, the telemetry callback's
       # token, the Nautobot pair — is read from OpenBao at run time: the
       # wrapper exports the run-environment documents before any playbook
       # starts, and the one non-Ansible template wraps itself the same way.
-      # A secret listed here would be a second copy with its own rotation.
+      # A value listed here would be a second copy with its own rotation.
     volumes:
       - semaphore_data:/var/lib/semaphore
     ports:
@@ -467,10 +475,51 @@ services:
       postgresql-service:
         condition: service_healthy
 
+  # Executes every task (SEMAPHORE_USE_REMOTE_RUNNER above); the semaphore
+  # service above only serves the UI/API now. Same image as that service
+  # (built there; no build: block here), command overridden to run in
+  # runner mode instead of the default server-wrapper.
+  semaphore-runner:
+    logging: *logging
+    image: semaphoreui/semaphore:${SEMAPHORE_VERSION}
+    container_name: semaphore-runner
+    command: ["semaphore", "runner", "start", "--no-config", "--register"]
+    environment:
+      SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
+      # Shared static token both services read; see api/runners/runners.go
+      # RegisterRunner (v2.19.14) for the self-registration flow it drives.
+      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:-}
+      # Persists the token RegisterRunner issues, so a restart re-uses the
+      # same runner identity instead of registering a new one each time.
+      SEMAPHORE_RUNNER_TOKEN_FILE: /var/lib/semaphore/runner_token.txt
+      # Same budget as SEMAPHORE_MAX_PARALLEL_TASKS above (server-side and
+      # runner-side concurrency are separate config keys).
+      SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS: "3"
+      # run-ansible.sh's own OpenBao identity — this container is where every
+      # task now executes (services/runners/job_pool.go), same as BAO_ADDR
+      # and the AppRole pair on the semaphore service above.
+      BAO_ADDR: ${BAO_ADDR:-}
+      OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: ${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}
+      OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: ${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}
+      SEMAPHORE_FORWARDED_ENV_VARS: >-
+        ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
+    volumes:
+      - semaphore_runner_data:/var/lib/semaphore
+    # Same worst-case-per-task budget as the semaphore service's mem_limit
+    # comment above (K=SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS=3, same forks
+    # assumption) — the Ansible forks this stack runs happen here now.
+    mem_limit: 6144m
+    restart: unless-stopped
+    depends_on:
+      semaphore:
+        condition: service_started
+
 volumes:
   redis_data:
   postgresql_data:
   semaphore_data:
+  semaphore_runner_data:
 
 # Docker Compose materializes these environment-sourced values as read-only
 # files under /run/secrets. The values are injected from OpenBao for deploy and
