@@ -53,6 +53,17 @@ locals {
       description      = "Zammad ITSM converge only (bootstrap seeds the incident closure-contract Job, SLA and overview), via --tags zammad."
     }
 
+    apps-vikunja = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "vikunja_group"
+      tags             = "vikunja"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Vikunja converge only, via --tags vikunja."
+    }
+
     # Declares the template that already exists on the plane as id 13
     # (undeclared drift) — see the import block in templates.tf.
     apps-openbao-tagged = {
