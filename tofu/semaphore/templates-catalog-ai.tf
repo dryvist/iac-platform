@@ -45,5 +45,14 @@ locals {
       mutating    = true
       description = "LiteLLM router converge only, scoped by tag and limit."
     }
+
+    ai-hermes-agent = {
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/site.yml"
+      limit       = "hermes_agent_group"
+      tags        = "hermes_agent"
+      mutating    = true
+      description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
+    }
   }
 }
