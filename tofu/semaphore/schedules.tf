@@ -73,5 +73,5 @@ resource "semaphoreui_project_schedule" "openbao_rotate_scheduled" {
   template_id = semaphoreui_project_template.openbao_rotate_scheduled.id
   name        = "openbao-rotate-approles-scheduled"
   cron_format = "13 3,15 * * *"
-  enabled     = true
+  enabled     = false
 }
