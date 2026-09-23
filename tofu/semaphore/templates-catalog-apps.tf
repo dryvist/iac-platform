@@ -184,6 +184,9 @@ locals {
     # host group — all lightweight (no apt installs beyond ntp's single
     # chrony package, everything else a binary/container fetch), so the set
     # stays well inside the run budget on three hosts.
+    # Docker VM group only. `baseline` also carries ntp, node_exporter and
+    # cadvisor for this host group. See templates-catalog-apps-site-split.tf
+    # for the apt_proxy/registry_mirror split of this same play by host group.
     apps-baseline-docker-vms = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"

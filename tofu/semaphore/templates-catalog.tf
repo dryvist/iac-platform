@@ -32,6 +32,7 @@
 locals {
   ansible_templates = merge(
     local.ansible_templates_apps,
+    local.ansible_templates_apps_site_split,
     local.ansible_templates_proxmox,
     local.ansible_templates_splunk,
     local.ansible_templates_ai,
