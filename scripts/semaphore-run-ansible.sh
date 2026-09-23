@@ -50,16 +50,9 @@ fi
 log="$(mktemp)"
 trap 'rm -f "$log"' EXIT
 
-# SEMAPHORE_MAX_TASK_DURATION_SEC (compose/docker-compose.yml, semaphore
-# service env) is never enforced by Semaphore itself for a locally-executed
-# task: the server only applies it in services/tasks/RemoteJob.go, gated on
-# util.Config.UseRemoteRunner, which this single-container deployment does
-# not set — every task here runs through the local job pool instead, which
-# has no timeout of its own. This wrapper is the one place every Ansible
-# template already routes through, so it enforces the same variable here
-# rather than duplicating it as a second literal.
+# Enforce the task duration limit; the server applies it only to remote-runner tasks.
 set +e
-timeout "${SEMAPHORE_MAX_TASK_DURATION_SEC:-1200}" "$@" 2>&1 | tee "$log"
+timeout "${SEMAPHORE_MAX_TASK_DURATION_SEC:?}" "$@" 2>&1 | tee "$log"
 rc="${PIPESTATUS[0]}"
 set -e
 
