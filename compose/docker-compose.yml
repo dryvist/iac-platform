@@ -448,7 +448,6 @@ services:
     command: ["semaphore", "runner", "start", "--no-config", "--register"]
     environment:
       SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
-      # Shared static token both services read; see api/runners/runners.go
       # Shared token this runner presents to register itself.
       SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:?}
       # Persists the issued token so a restart keeps the same runner identity.
