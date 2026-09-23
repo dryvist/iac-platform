@@ -454,6 +454,10 @@ services:
       SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${semaphore_runner_registration_token:?}
       # Persists the issued token so a restart keeps the same runner identity.
       SEMAPHORE_RUNNER_TOKEN_FILE: /var/lib/semaphore/runner_token.txt
+      # Runner registers Active=false by default; force it enabled so tasks route to it.
+      SEMAPHORE_RUNNER_ENABLED: "true"
+      # Names the runner record instead of leaving it blank.
+      SEMAPHORE_RUNNER_NAME: semaphore-runner
       # Runner-side concurrency cap (separate key from the server's, above).
       SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS: "3"
       # run-ansible.sh's OpenBao identity, same values as the semaphore service.
