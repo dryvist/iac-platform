@@ -371,7 +371,7 @@ services:
       # Dispatches every task to the runner service below.
       SEMAPHORE_USE_REMOTE_RUNNER: "true"
       # Shared token the runner below presents to register itself.
-      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:?}
+      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${semaphore_runner_registration_token:?}
       # Authelia OIDC login (Semaphore's own JSON-string provider config).
       # DOMAIN is already a plain env var here like every other hostname in
       # this file, so the provider_url needs no extra indirection.
@@ -449,7 +449,7 @@ services:
     environment:
       SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
       # Shared token this runner presents to register itself.
-      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:?}
+      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${semaphore_runner_registration_token:?}
       # Persists the issued token so a restart keeps the same runner identity.
       SEMAPHORE_RUNNER_TOKEN_FILE: /var/lib/semaphore/runner_token.txt
       # Runner-side concurrency cap (separate key from the server's, above).
