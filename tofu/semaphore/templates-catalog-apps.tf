@@ -184,15 +184,91 @@ locals {
     # host group — all lightweight (no apt installs beyond ntp's single
     # chrony package, everything else a binary/container fetch), so the set
     # stays well inside the run budget on three hosts.
+    # `apt_proxy` and `registry_mirror` added here (was baseline-only): 01's
+    # single "Configure apt proxy on LXC containers and docker VMs" play spans
+    # lxc_containers:docker_vms and alone measured 6m20s combined — over half
+    # of 3468/3476's task-327/328 profiles. Limiting to docker_vms here and to
+    # lxc_containers in apps-baseline-lxc below splits that one play by host
+    # group without touching ansible.cfg/strategy, each half well under budget.
     apps-baseline-docker-vms = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"
       limit            = "docker_vms"
-      tags             = "baseline"
+      tags             = "baseline,apt_proxy,registry_mirror"
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      description      = "Docker VM baseline converge only (ssh_ca_trust, ntp, node_exporter, cadvisor), via --tags baseline."
+      description      = "Docker VM baseline converge only (ssh_ca_trust, ntp, node_exporter, cadvisor, apt proxy, registry mirror), via --tags baseline,apt_proxy,registry_mirror."
+    }
+
+    # The LXC-side half of site/01-baseline-infra.yml (see
+    # apps-baseline-docker-vms above for why apt_proxy is split by host
+    # group). Also picks up the small single-group plays (apt-cacher-ng, Zot,
+    # syslog forwarder, RustFS, PBS) that have no template of their own —
+    # each targets one small LXC group so bundling them here stays cheap.
+    apps-baseline-lxc = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "lxc_containers,apt_cacher_group,registry_group,object_storage_group,pbs_group"
+      tags             = "baseline,apt_proxy,apt_cacher_ng,zot,syslog_forwarder,object-storage,pbs"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "LXC-side baseline converge (apt cache/proxy, Zot, syslog forwarder, RustFS, PBS, ssh_ca_trust/ntp/node_exporter/cadvisor on LXCs), via --tags baseline,apt_proxy,apt_cacher_ng,zot,syslog_forwarder,object-storage,pbs."
+    }
+
+    # site/02-dns-and-pipeline.yml, minus cribl/cribl_stream/prometheus which
+    # already have their own scoped templates above.
+    apps-dns-pipeline = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "technitium_dns_group,haproxy_group,netmon_group,prometheus_group,unifi_metrics_group"
+      tags             = "technitium_install,technitium_dns,haproxy,netmon,smokeping,prometheus_pve_exporter,github_exporter,unifi_metrics"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "DNS and syslog/netflow pipeline converge (Technitium, HAProxy, netmon, exporters), via --tags technitium_install,technitium_dns,haproxy,netmon,smokeping,prometheus_pve_exporter,github_exporter,unifi_metrics."
+    }
+
+    # site/03-notifications-and-core-apps.yml in full — no play in this file
+    # has its own template yet.
+    apps-core-apps = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "mailpit_group,ntfy_group,healthchecks_group,technitium_dns_group,traefik_group,haproxy_group,openbao_group,docker_vms,mssql_group,postgres_group,postgres_ai_group,nautobot_group,idrac_kvm_group,n8n_group,openproject_group"
+      tags             = "mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Notifications and core apps converge (mailpit, ntfy, healthchecks, deadman, mssql, postgres, nautobot, n8n, openproject, ...), via --tags mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker."
+    }
+
+    # site/04-secrets-and-collab-apps.yml, minus openbao (apps-openbao-tagged),
+    # zammad, vikunja, authelia and grafana, which already have their own
+    # scoped templates above.
+    apps-collab = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "immich_group,homeassistant_group,phpipam_group,homarr_group,homepage_group,glance_group,status_group,traefik_group"
+      tags             = "immich,homeassistant,phpipam,homarr,homepage,glance,status,traefik"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Remaining collaboration apps converge (immich, homeassistant, phpipam, homarr, homepage, glance, status, traefik), via --tags immich,homeassistant,phpipam,homarr,homepage,glance,status,traefik."
+    }
+
+    # site/05-media-and-gate.yml. site/04b-github-runners.yml's own play is
+    # already covered by apps-github-runner above, so only the `media` tag is
+    # needed here.
+    apps-media = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "media_group"
+      tags             = "media"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Media stack converge only, via --tags media."
     }
   }
 }
