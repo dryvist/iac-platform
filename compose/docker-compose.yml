@@ -447,7 +447,9 @@ services:
     container_name: semaphore-runner
     command: ["semaphore", "runner", "start", "--no-config", "--register"]
     environment:
-      SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
+      # In-network address of the semaphore server (compose service name,
+      # container port), not the ingress vhost.
+      SEMAPHORE_WEB_ROOT: http://semaphore:3000
       # Shared token this runner presents to register itself.
       SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${semaphore_runner_registration_token:?}
       # Persists the issued token so a restart keeps the same runner identity.
