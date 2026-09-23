@@ -368,6 +368,10 @@ services:
       # effectively unbounded — so this MUST be set explicitly rather than
       # left to inherit a safe-looking default that is not actually safe.
       SEMAPHORE_MAX_PARALLEL_TASKS: "3"
+      # Dispatches every task to the runner service below.
+      SEMAPHORE_USE_REMOTE_RUNNER: "true"
+      # Shared token the runner below presents to register itself.
+      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:?}
       # Authelia OIDC login (Semaphore's own JSON-string provider config).
       # DOMAIN is already a plain env var here like every other hostname in
       # this file, so the provider_url needs no extra indirection.
@@ -409,68 +413,70 @@ services:
       # git credential helper sees none of the three variables above unless
       # they are named. Task processes get them from the Semaphore project
       # environment instead, which is why playbooks worked while clones did
-      # not. Forwarding changes no trust boundary: every value listed here is
-      # already in this file and already reaches every task.
+      # not. Forwarding changes no trust boundary: the same three values are
+      # already in this file and already reach every task.
       #
       # JSON array, and only a JSON array: the config loader json.Unmarshals
       # this value and PANICS at startup on anything else
       # (util/config.go setConfigValue).
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
-        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID", "SEMAPHORE_MAX_TASK_DURATION_SEC"]
-      # Nothing else here. Every other value a run needs — the ansible pair
-      # the runners fall back to, the reconcile pair, the telemetry callback's
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
+      # Nothing else. Every other value a run needs — the ansible pair the
+      # runners fall back to, the reconcile pair, the telemetry callback's
       # token, the Nautobot pair — is read from OpenBao at run time: the
       # wrapper exports the run-environment documents before any playbook
       # starts, and the one non-Ansible template wraps itself the same way.
-      # A secret listed here would be a second copy with its own rotation.
+      # A value listed here would be a second copy with its own rotation.
     volumes:
       - semaphore_data:/var/lib/semaphore
     ports:
       - "${PORT_SEMAPHORE}:3000"
-    # This container is not just a web UI: every task forks an Ansible
-    # controller inside it, and each worker process measured ~110 MiB resident
-    # against the fleet. At 512m the cgroup killed workers instead of the run
-    # finishing — 249 OOM kills in one hour, all `ansible-playbook`, which
-    # Ansible then reported as "a worker was found in a dead state" and, one
-    # layer further out, as unreachable hosts. Nothing in either message names
-    # memory.
-    #
-    # Worse, it was self-amplifying: a worker killed mid-handshake drops an SSH
-    # connection before authenticating, which is exactly the pattern OpenSSH
-    # penalises per source address, so the kills also broke connections for
-    # hosts that were fine.
-    #
-    # THIS VALUE, `forks` IN THE ANSIBLE REPOSITORIES, AND
-    # SEMAPHORE_MAX_PARALLEL_TASKS ABOVE ARE ONE BUDGET, not three
-    # independent knobs. Per-task worker ceiling is roughly (mem_limit / K -
-    # 250 MiB of parent and interpreter) / 110 MiB per worker, where K is
-    # SEMAPHORE_MAX_PARALLEL_TASKS: at 2 GiB and K=1 that was about sixteen
-    # workers, with the ansible repositories' forks set well below that
-    # deliberately, leaving headroom for a worker heavier than the average
-    # rather than sizing to the average and hoping. Raised to 6 GiB to afford
-    # K=3 at the same per-task headroom (worst case ~1.53 GiB per task —
-    # 250 MiB parent + 12 x 110 MiB workers at forks=12 — x3 tasks / 0.8
-    # target utilization =~ 5.75 GiB, rounded up).
-    #
-    # Raising forks or K without raising this trades a slow converge for a
-    # crashed one — see the 512m incident above. Raising this instead of
-    # lowering forks/K is the wrong direction while the declared limits
-    # across this stack still add up to less than the host has; that
-    # property is worth more than a faster converge. If the host cannot
-    # afford this limit, the fix is more host memory (dynamic RAM: raise the
-    # balloon floor/max in tofu-proxmox), never shrinking K back to 1 to fit
-    # what the host already has — runner capacity is never the bottleneck.
-    mem_limit: 6144m
+    # No task forking here anymore; sized like the other small services below
+    # (terrakube-executor 1536m, postgresql-service 512m).
+    mem_limit: 1024m
     restart: unless-stopped
     depends_on:
       postgresql-service:
         condition: service_healthy
 
+  # Runs every task; reuses the semaphore image above via a command override.
+  semaphore-runner:
+    logging: *logging
+    image: semaphoreui/semaphore:${SEMAPHORE_VERSION}
+    container_name: semaphore-runner
+    command: ["semaphore", "runner", "start", "--no-config", "--register"]
+    environment:
+      SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
+      # Shared token this runner presents to register itself.
+      SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:?}
+      # Persists the issued token so a restart keeps the same runner identity.
+      SEMAPHORE_RUNNER_TOKEN_FILE: /var/lib/semaphore/runner_token.txt
+      # Runner-side concurrency cap (separate key from the server's, above).
+      SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS: "3"
+      # run-ansible.sh's OpenBao identity, same values as the semaphore service.
+      BAO_ADDR: ${BAO_ADDR:-}
+      OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: ${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}
+      OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: ${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}
+      # Curated git-clone env allow-list; same three values as above.
+      SEMAPHORE_FORWARDED_ENV_VARS: >-
+        ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
+    volumes:
+      - semaphore_runner_data:/var/lib/semaphore
+    # Ansible forks run here now: sized for K=3 (SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS)
+    # at ~1.53 GiB worst-case per task (250 MiB parent + 12x110 MiB workers).
+    mem_limit: 6144m
+    restart: unless-stopped
+    depends_on:
+      semaphore:
+        condition: service_started
+
 volumes:
   redis_data:
   postgresql_data:
   semaphore_data:
+  semaphore_runner_data:
 
 # Docker Compose materializes these environment-sourced values as read-only
 # files under /run/secrets. The values are injected from OpenBao for deploy and

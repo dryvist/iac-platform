@@ -50,9 +50,8 @@ fi
 log="$(mktemp)"
 trap 'rm -f "$log"' EXIT
 
-# Enforce the task duration limit; the server applies it only to remote-runner tasks.
 set +e
-timeout "${SEMAPHORE_MAX_TASK_DURATION_SEC:?}" "$@" 2>&1 | tee "$log"
+"$@" 2>&1 | tee "$log"
 rc="${PIPESTATUS[0]}"
 set -e
 

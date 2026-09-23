@@ -24,6 +24,8 @@ BAO_PATH="secret/platform/terrakube/main"
 # Authelia OIDC client secrets (semaphore + terrakube-dex) live in the shared
 # Authelia secrets path, not this stack's own OpenBao path.
 AUTHELIA_BAO_PATH="secret/apps/authelia"
+# The Semaphore runner's shared self-registration token.
+SEMAPHORE_BAO_PATH="secret/apps/semaphore"
 EXEC_ENV="$REPO_ROOT/scripts/openbao-exec-env.sh"
 # Stable VM path the compose file mounts the two non-secret config dirs from.
 VM_CONFIG_DIR="/var/lib/platform/compose"
@@ -233,10 +235,10 @@ for bin in curl jq tar docker; do
 done
 # The platform node may be powered off — if this can't connect, check it is on.
 # Chained reads: openbao-exec-env.sh execs its command after exporting one
-# path, so nesting a second call layers in the Authelia path's keys too —
-# both are exported into the same process before --inner runs. These two paths
+# path, so nesting further calls layers in each path's keys too — all three
+# are exported into the same process before --inner runs. These three paths
 # are all the deploy reads: the run-environment documents belong to the
 # execution plane, which reads them itself at the start of every task
 # (scripts/semaphore-run-ansible.sh), so the deploy identity needs no grant on
 # them.
-exec "$EXEC_ENV" "$BAO_PATH" -- "$EXEC_ENV" "$AUTHELIA_BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner
+exec "$EXEC_ENV" "$BAO_PATH" -- "$EXEC_ENV" "$AUTHELIA_BAO_PATH" -- "$EXEC_ENV" "$SEMAPHORE_BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner
