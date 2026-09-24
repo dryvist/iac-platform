@@ -167,7 +167,16 @@ lives on exactly one tier:
 | `secret/platform/ansible/env` | internal-only secrets |
 | `secrets-external/platform/ansible/env` | publicly reachable secrets |
 
-The ansible-converge AppRole reads all three. A converge of the OpenBao nodes
+Run tracing uses two keys in `config/platform/ansible/env`. The playbook
+repository's `ansible.cfg` turns on the native
+`community.general.opentelemetry` callback:
+
+| Key | Value |
+| --- | --- |
+| `ANSIBLE_OPENTELEMETRY_ENABLED` | `true`. The callback runs only when this is set. |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Base OTLP/HTTP URL of the trace receiver (FQDN, no path) |
+
+The ansible-converge AppRole reads all three documents. A converge of the OpenBao nodes
 themselves is the one run that does not go through Semaphore: its inputs are
 the seal key and the provisioning identities, which cannot be served by the
 store they unseal, so that play runs from a workstation under the run wrapper
