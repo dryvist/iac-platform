@@ -41,3 +41,40 @@ import {
   to = terrakube_team.admins
   id = "${terrakube_organization.org.id},b09ff17c-3098-4484-b6a8-3d0ed093be0d"
 }
+
+# One narrow-scope CI workload: GitHub Actions in a desired-state repository,
+# trusted via Terrakube's Federated OIDC Authentication rather than any
+# OpenBao credential — Terrakube has no OpenBao integration to mint against.
+# The federated credential's own name is the string match to the team it
+# authorizes (same convention as the admin team's name above); the team
+# itself grants zero org-wide permissions and gets its only rights from the
+# workspace_access grant below, scoped to one workspace.
+resource "terrakube_team" "desired_state_apply" {
+  name            = "${var.organization_name}:desired-state-apply"
+  organization_id = terrakube_organization.org.id
+}
+
+resource "terrakube_workspace_access" "desired_state_apply" {
+  organization_id = terrakube_organization.org.id
+  workspace_id    = terrakube_workspace_cli.tofu_proxmox.id
+  name            = terrakube_team.desired_state_apply.name
+  manage_job      = true
+}
+
+resource "terrakube_federated_credential" "desired_state_github_actions" {
+  name       = terrakube_team.desired_state_apply.name
+  issuer_url = "https://token.actions.githubusercontent.com"
+  audience   = "terrakube"
+}
+
+resource "terrakube_federated_credential_claim" "desired_state_repository" {
+  federated_credential_id = terrakube_federated_credential.desired_state_github_actions.id
+  claim_key               = "repository"
+  claim_value             = var.desired_state_repo
+}
+
+resource "terrakube_federated_credential_claim" "desired_state_ref" {
+  federated_credential_id = terrakube_federated_credential.desired_state_github_actions.id
+  claim_key               = "ref"
+  claim_value             = var.desired_state_ref
+}
