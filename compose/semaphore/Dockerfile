@@ -26,10 +26,13 @@ USER root
 #   proxmoxer   the guest start/verify modules
 #   hvac        secret-store access
 #   paramiko    the container connection transport
+#   opentelemetry-{api,sdk,exporter-otlp}
+#               the community.general.opentelemetry callback plugin's run
+#               tracing (ansible-proxmox-ai ansible.cfg)
 # Verified present in the base image and therefore NOT repeated here:
 # boto3/botocore, jmespath, cryptography, passlib, gpg/gpgv.
 RUN apk add --no-cache curl jq openssh-client git bash py3-pip py3-requests aws-cli openssl bind-tools \
-    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko netaddr proxmoxer || true; done \
+    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko netaddr proxmoxer opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp || true; done \
     && mkdir -p /usr/lib/python3.12/site-packages \
     && echo "/opt/semaphore/apps/ansible/13.5.0/venv/lib/python3.12/site-packages" > /usr/lib/python3.12/site-packages/venv.pth
 
