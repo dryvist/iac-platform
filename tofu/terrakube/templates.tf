@@ -69,6 +69,27 @@ locals {
           step: 200
       EOF
     }
+    # The plan_and_apply template above gates on team "TERRAFORM_CLI", which
+    # desired_state_apply is not a member of. This template gates the same
+    # flow on desired_state_apply instead, so that team can approve its own
+    # jobs without widening plan_and_apply's approval to a second team.
+    desired_state_apply = {
+      name        = "Desired state apply"
+      description = "Running Terraform plan and apply for the desired-state gated apply workload"
+      content     = <<-EOF
+        flow:
+          - type: "terraformPlan"
+            name: "Plan"
+            step: 100
+          - type: "approval"
+            name: "Approve Apply"
+            step: 150
+            team: "${terrakube_team.desired_state_apply.name}"
+          - type: "terraformApply"
+            name: "Apply"
+            step: 200
+      EOF
+    }
     cli_plan_destroy = {
       name        = "Terraform-Plan/Destroy-Cli"
       description = "Running Terraform destroy from Terraform CLI"
