@@ -184,3 +184,26 @@ resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
   allow_override_args_in_task = false
   suppress_success_alerts     = false
 }
+
+# One-shot seed of host secret-zero identities into the env document.
+# Manual only: no schedule reaches it. Same auth as the scheduled rotation.
+resource "semaphoreui_project_template" "openbao_seed_host_secret_zero" {
+  project_id     = semaphoreui_project.homelab.id
+  repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps@develop"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
+  environment_id = semaphoreui_project_environment.homelab.id
+  view_id        = semaphoreui_project_view.preview["develop"].id
+
+  name        = "openbao-seed-host-secret-zero @ develop"
+  description = "Seeds host secret-zero AppRole pairs into the env document; skips any already present. Runs the develop ref, on demand only."
+
+  app      = "bash"
+  playbook = "semaphore-run-ansible.sh"
+  arguments = [
+    "./scripts/run-ansible.sh", "playbooks/openbao-seed-host-secret-zero.yml",
+    "--limit", "localhost", "--diff",
+  ]
+
+  allow_override_args_in_task = false
+  suppress_success_alerts     = false
+}
