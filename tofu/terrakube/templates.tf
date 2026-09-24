@@ -69,10 +69,7 @@ locals {
           step: 200
       EOF
     }
-    # The plan_and_apply template above gates on team "TERRAFORM_CLI", which
-    # desired_state_apply is not a member of. This template gates the same
-    # flow on desired_state_apply instead, so that team can approve its own
-    # jobs without widening plan_and_apply's approval to a second team.
+    # Same flow as plan_and_apply, approval gated on the desired_state_apply team.
     desired_state_apply = {
       name        = "Desired state apply"
       description = "Running Terraform plan and apply for the desired-state gated apply workload"
