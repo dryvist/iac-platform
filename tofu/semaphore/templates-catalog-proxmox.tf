@@ -50,5 +50,18 @@ locals {
       extra_args       = []
       description      = "Docker-in-LXC feature flags only, via --tags docker_lxc_features."
     }
+
+    # pve_node_exporter only: node_exporter version/flag changes (e.g. the
+    # drm collector) without a full hypervisor-layer converge.
+    proxmox-node-exporter = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/site.yml"
+      limit            = "proxmox"
+      tags             = "pve_node_exporter"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "node_exporter converge only, via --tags pve_node_exporter."
+    }
   }
 }
