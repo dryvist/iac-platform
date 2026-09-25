@@ -4,6 +4,7 @@ locals {
   ansible_templates_proxmox = {
     proxmox-site = {
       repository       = "ansible-proxmox"
+      project          = "pve"
       playbook         = "playbooks/site.yml"
       limit            = "all"
       mutating         = true
@@ -14,6 +15,7 @@ locals {
 
     proxmox-validate-nas = {
       repository = "ansible-proxmox"
+      project    = "pve"
       playbook   = "playbooks/validate-nas.yml"
       limit      = "proxmox"
       # Asserts and reads, but reaches the hosts through ansible.builtin.command

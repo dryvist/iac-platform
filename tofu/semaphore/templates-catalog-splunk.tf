@@ -4,6 +4,7 @@ locals {
   ansible_templates_splunk = {
     splunk-site = {
       repository       = "ansible-splunk"
+      project          = "observability"
       playbook         = "playbooks/site.yml"
       limit            = "all"
       mutating         = true
@@ -14,6 +15,7 @@ locals {
 
     splunk-weekly-update = {
       repository       = "ansible-splunk"
+      project          = "observability"
       playbook         = "playbooks/site.yml"
       limit            = "all"
       mutating         = true
@@ -24,6 +26,7 @@ locals {
 
     splunk-validate = {
       repository       = "ansible-splunk"
+      project          = "observability"
       playbook         = "playbooks/validate.yml"
       limit            = "splunk"
       mutating         = false

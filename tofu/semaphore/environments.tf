@@ -1,4 +1,5 @@
-# The variable group every template runs under.
+# One variable group per project, every template in that project runs under
+# its own project's group.
 #
 # SECRETS ARE DELIBERATELY NOT DECLARED HERE.
 #
@@ -14,9 +15,10 @@
 #
 #   * this file declares every NON-secret value, as code, and owns them;
 #   * the secret values — the ansible-converge AppRole id/secret, the Splunk HEC
-#     token, and the Nautobot read-only token — are written into this same
-#     environment by scripts/deploy.sh after apply, from the OpenBao env it
-#     already holds, using Semaphore's API.
+#     token, and the Nautobot read-only token — are written into EACH of these
+#     five environments by scripts/deploy.sh after apply, from the OpenBao env
+#     it already holds, using Semaphore's API (deploy.sh now loops the sync
+#     over every project/environment pair instead of the one it used to write).
 #
 # Both halves are version-controlled. Neither is a manual step.
 #
@@ -39,8 +41,10 @@
 # `environment`, `variables` and the identity fields are declared; `secrets` is
 # knowingly managed out of band per the above, and is the ONLY attribute of any
 # resource in this root that is not declared in tofu.
-resource "semaphoreui_project_environment" "homelab" {
-  project_id = semaphoreui_project.homelab.id
+resource "semaphoreui_project_environment" "each" {
+  for_each = local.semaphore_project_names
+
+  project_id = semaphoreui_project.each[each.value].id
   name       = "homelab"
 
   # Process environment for the run. The store address is the one value a run

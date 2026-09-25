@@ -4,6 +4,7 @@ locals {
   ansible_templates_apps = {
     apps-site = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "all"
       mutating         = true
@@ -17,6 +18,7 @@ locals {
 
     apps-verify-grafana-dashboards = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/verify-grafana-dashboards.yml"
       limit            = "grafana_group"
       mutating         = false
@@ -27,6 +29,7 @@ locals {
 
     apps-validate-pipeline = {
       repository = "ansible-proxmox-apps"
+      project    = "apps"
       playbook   = "playbooks/validate-pipeline.yml"
       limit      = "all"
       # Composed of many imported validate-pipeline/* playbooks. Declared so it
@@ -44,6 +47,7 @@ locals {
     # --tags reaches it cleanly (the constraint documented above).
     apps-zammad = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "zammad_group"
       tags             = "zammad"
@@ -67,7 +71,12 @@ locals {
     # Declares the template that already exists on the plane as id 13
     # (undeclared drift) — see the import block in templates.tf.
     apps-openbao-tagged = {
-      repository       = "ansible-proxmox-apps"
+      repository = "ansible-proxmox-apps"
+      # Privileged: reconciles OpenBao's own policies/AppRoles/secret_ids.
+      # Its own project (never the shared "apps" one) so its per-project
+      # max_parallel_tasks = 1 bounds only OTHER openbao-tagged runs against
+      # each other — see tofu/semaphore/project.tf.
+      project          = "secrets"
       playbook         = "playbooks/site.yml"
       limit            = "all"
       tags             = "openbao"
@@ -88,6 +97,7 @@ locals {
     # scoped run reaches them in minutes.
     apps-cribl = {
       repository = "ansible-proxmox-apps"
+      project    = "apps"
       playbook   = "playbooks/site.yml"
       # COMMA, never a colon. A play's own `hosts:` accepts `a:b` as a union,
       # but --limit does not split on it: the whole string is taken as one
@@ -111,6 +121,7 @@ locals {
     # one inside the budget; run this when only the Stream tier needs to move.
     apps-cribl-stream = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "cribl_stream_group"
       tags             = "cribl_stream"
@@ -125,6 +136,7 @@ locals {
     # this reaches grafana_group in minutes via the role's own play tag.
     apps-grafana = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "grafana_group"
       tags             = "grafana"
@@ -139,6 +151,7 @@ locals {
     # full apps-site converge.
     apps-authelia = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "authelia_group"
       tags             = "authelia"
@@ -153,6 +166,7 @@ locals {
     # play tag instead of the full apps-site converge.
     apps-prometheus = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "prometheus_group"
       tags             = "prometheus"
@@ -167,6 +181,7 @@ locals {
     # gets there, so those hosts are unreachable in practice.
     apps-github-runner = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "docker_vms"
       tags             = "github_runner"
@@ -189,6 +204,7 @@ locals {
     # for the apt_proxy/registry_mirror split of this same play by host group.
     apps-baseline-docker-vms = {
       repository       = "ansible-proxmox-apps"
+      project          = "apps"
       playbook         = "playbooks/site.yml"
       limit            = "docker_vms"
       tags             = "baseline"

@@ -1,84 +1,69 @@
-# One repository entry per (repo, ref) Semaphore may run.
+# One repository checkout per (project, repo) pair.
 #
-# Semaphore binds a ref to the REPOSITORY, not to the run: a template inherits
-# whichever branch its repository names, and the task list shows the commit it
-# landed on but not the branch it came from. So the only way to make "which ref
-# did this run use" legible is to give each ref its own entry and put the ref in
-# the name. `templates.tf` then names the ref in the template too, and
-# `views.tf` puts it in a tab.
-#
-# The alternative the provider offers is `git_branch` on the template, which
-# overrides the repository's branch invisibly. It is deliberately unused — see
-# the drift audit at the top of templates.tf.
-#
-# Keys: the deployed ref keeps the bare repository name, so every existing
-# reference (inventories.tf, the Nautobot template) resolves unchanged and no
-# entry is replaced. Preview refs are keyed `<repo>@<branch>`.
+# Scope cut, stated plainly: this pass covers the DEPLOYED branch only. The
+# previous single-project root also declared a second repository entry per
+# preview branch (ansible_repositories[*].preview_branches, e.g.
+# "ansible-proxmox-apps@develop") so an unreleased ref could be run on
+# demand, with its own template set and its own UI tab (views.tf). That
+# preview-branch machinery is DROPPED here, not carried into the per-project
+# cross product — doing so would multiply project x repo x branch, on top of
+# the "every project also needs ansible-proxmox-apps for its inventory
+# loader" duplication below. If on-demand preview-branch runs are still
+# wanted after the split, that is a follow-up, scoped and reviewed on its
+# own, not a silent casualty of this one.
 #
 # Declarative-drift audit (semaphoreui_project_repository): the settable
 # attributes are name, project_id, url, branch and ssh_key_id. All five are
-# declared. `project_id` is ForceNew, which is harmless here — the project is
-# created once and never renamed in a way that would replace it.
-
+# declared. `project_id` is ForceNew — harmless when a project is created
+# once, but here it also means this resource cannot be given a new project_id
+# in place: moving a repository (or anything keyed off it) from one project
+# to another is a destroy-and-recreate, not an in-place move. See templates.tf
+# for what that means for template IDs.
 locals {
-  # Flattened (repo, ref) pairs. `deployed` is the safety property this file
-  # exports: schedules.tf may only ever reach a template built from one.
-  repository_refs = merge(
-    {
-      for name, r in var.ansible_repositories : name => {
-        repo     = name
-        url      = r.url
-        branch   = r.branch
-        deployed = true
-      }
-    },
-    {
-      for pair in flatten([
-        for name, r in var.ansible_repositories : [
-          for b in r.preview_branches : {
-            key    = "${name}@${b}"
-            repo   = name
-            url    = r.url
-            branch = b
-          }
-        ]
-        ]) : pair.key => {
-        repo     = pair.repo
-        url      = pair.url
-        branch   = pair.branch
-        deployed = false
-      }
-    },
-  )
+  # Every project needs ansible-proxmox-apps checked out, whether or not any
+  # of its own templates run from that repo: inventory/hosts.yml lives there,
+  # and every playbook (regardless of which repository it ships from) imports
+  # load_tofu.yml as its first play to populate the inventory from it — see
+  # inventories.tf. "apps" and "secrets" use that same checkout as their
+  # template repository too; "pve", "observability" and "ai" check it out a
+  # second time solely for the loader.
+  project_repo_names = {
+    for p in local.semaphore_project_names : p => distinct(concat(
+      [for k, t in local.ansible_templates : t.repository if t.project == p],
+      ["ansible-proxmox-apps"],
+    ))
+  }
+
+  project_repos = {
+    for pair in flatten([
+      for p, repos in local.project_repo_names : [
+        for r in repos : { key = "${p}/${r}", project = p, repo = r }
+      ]
+    ]) : pair.key => pair
+  }
 }
 
-# The url validation on the variable covers what is declared here. It cannot
-# see a repository somebody adds in the UI, so assert the invariant against the
-# resolved set as well: a future edit that builds a url rather than copying one
-# still fails at plan time rather than at clone time.
 resource "terraform_data" "repository_origin_guard" {
   lifecycle {
     precondition {
       condition = alltrue([
-        for r in local.repository_refs :
-        startswith(r.url, "https://") && length(trimspace(r.branch)) > 0
+        for pair in local.project_repos :
+        startswith(var.ansible_repositories[pair.repo].url, "https://") &&
+        length(trimspace(var.ansible_repositories[pair.repo].branch)) > 0
       ])
       error_message = "Every Semaphore repository must be a remote HTTPS origin with a named branch. A path-based or file:// repository would run whatever is on the plane's filesystem, which nothing reviews and nothing versions."
     }
   }
 }
 
-resource "semaphoreui_project_repository" "ansible" {
-  for_each = local.repository_refs
+resource "semaphoreui_project_repository" "each" {
+  for_each = local.project_repos
 
-  project_id = semaphoreui_project.homelab.id
-
-  # The ref is part of the display name, so the repository picker cannot be
-  # read as ambiguous.
-  name   = "${each.value.repo} (${each.value.branch})"
-  url    = each.value.url
-  branch = each.value.branch
+  project_id = semaphoreui_project.each[each.value.project].id
+  name       = each.value.repo
+  url        = var.ansible_repositories[each.value.repo].url
+  branch     = var.ansible_repositories[each.value.repo].branch
 
   # Public HTTPS clone — see the None key rationale in project.tf.
-  ssh_key_id = semaphoreui_project_key.none.id
+  ssh_key_id = semaphoreui_project_key.each[each.value.project].id
 }
