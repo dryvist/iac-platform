@@ -99,6 +99,19 @@ locals {
       description      = "Media stack converge only, via --tags media."
     }
 
+    # site/04's Traefik ingress play alone. apps-collab also carries it, but
+    # runs it last, after every collab app.
+    apps-traefik = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "traefik_group"
+      tags             = "traefik"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Traefik ingress converge only, via --tags traefik."
+    }
+
     # site/04c-wall.yml: the server-room wall pages and data gateway.
     apps-wall = {
       repository       = "ansible-proxmox-apps"
