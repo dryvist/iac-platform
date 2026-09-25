@@ -135,5 +135,16 @@ locals {
       extra_args       = []
       description      = "Server-room wall converge only, via --tags wall."
     }
+
+    apps-status = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "status_group"
+      tags             = "status"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Status stack (Gatus + Uptime Kuma) converge only, via --tags status."
+    }
   }
 }
