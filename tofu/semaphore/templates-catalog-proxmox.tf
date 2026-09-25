@@ -24,5 +24,18 @@ locals {
       extra_args       = []
       description      = "Validation of the hypervisor SMB shares."
     }
+
+    # playbooks/node-hardware.yml's idrac_kiosk role only; inert on hosts that
+    # do not opt in.
+    proxmox-idrac-kiosk = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/site.yml"
+      limit            = "proxmox"
+      tags             = "idrac_kiosk"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Node console kiosk converge only, via --tags idrac_kiosk."
+    }
   }
 }
