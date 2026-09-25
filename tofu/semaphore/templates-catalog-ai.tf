@@ -46,6 +46,17 @@ locals {
       description = "LiteLLM router converge only, scoped by tag and limit."
     }
 
+    ai-llm-router-rebuild = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/site.yml"
+      limit            = "llm_router_group"
+      tags             = "llm_router"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = ["--extra-vars", "llm_router_seed_mode=rebuild"]
+      description      = "LiteLLM router converge with llm_router_seed_mode=rebuild: re-seeds roles, fallbacks and router_settings from git."
+    }
+
     ai-hermes-agent = {
       repository  = "ansible-proxmox-ai"
       playbook    = "playbooks/site.yml"
