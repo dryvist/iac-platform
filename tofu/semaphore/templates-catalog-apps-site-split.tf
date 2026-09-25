@@ -29,6 +29,18 @@ locals {
       description      = "LXC-side baseline converge (apt cache/proxy, Zot, syslog forwarder, RustFS, PBS, ssh_ca_trust/ntp/node_exporter/cadvisor on LXCs), via --tags baseline,apt_proxy,apt_cacher_ng,zot,syslog_forwarder,object-storage,pbs."
     }
 
+    # site/01-baseline-infra.yml's node_exporter play alone, on every guest.
+    apps-node-exporter = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "all"
+      tags             = "node_exporter"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Guest node_exporter converge only (LXC + VM), via --tags node_exporter."
+    }
+
     # The docker_vms-side half of the same apt-proxy play, plus 01a's Docker
     # registry mirror play (also lxc_containers:docker_vms). apps-baseline-
     # docker-vms (templates-catalog-apps.tf) already covers docker_vms's
