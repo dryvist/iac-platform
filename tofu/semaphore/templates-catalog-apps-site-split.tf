@@ -98,5 +98,17 @@ locals {
       extra_args       = []
       description      = "Media stack converge only, via --tags media."
     }
+
+    # site/04c-wall.yml: the server-room wall pages and data gateway.
+    apps-wall = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "wall_group"
+      tags             = "wall"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Server-room wall converge only, via --tags wall."
+    }
   }
 }
