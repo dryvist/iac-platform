@@ -26,8 +26,17 @@ run "max_parallel_tasks_matches_compose_anchor" {
   }
 
   assert {
+    # Anchored to the variable "max_parallel_tasks" block itself, not the
+    # first "default = N" anywhere in the file — the variable's own
+    # description prose contains the word "default", and other variables in
+    # this file (semaphore_api_base_url, ansible_repositories) have their own
+    # default = ... lines above this one that an unanchored pattern would
+    # match instead. [\s\S]*? is RE2's lazy any-char-including-newline
+    # quantifier (Go regexp, which OpenTofu's regex() uses); verified
+    # non-greedy locally: it stops at the first "default = N" following the
+    # variable header, not the last.
     condition = tonumber(regex(
-      "default\\s*=\\s*([0-9]+)",
+      "variable \"max_parallel_tasks\"[\\s\\S]*?default\\s*=\\s*([0-9]+)",
       file("${path.module}/../../../variables.tf")
       )[0]) == tonumber(regex(
       "&max_parallel_tasks \"([0-9]+)\"",
