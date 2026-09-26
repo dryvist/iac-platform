@@ -14,11 +14,7 @@ resource "semaphoreui_project" "homelab" {
   alert      = false
   alert_chat = ""
 
-  # Every task's Ansible workers run inside the same memory-capped container
-  # (compose mem_limit on the semaphore service, ~16 workers total); two
-  # templates at once over-commits it and workers get OOM-killed mid-play.
-  # Lift this again only in the same change that raises that limit.
-  max_parallel_tasks = 1
+  max_parallel_tasks = var.max_parallel_tasks
 }
 
 # Repositories and inventories both REQUIRE an ssh_key_id even when no

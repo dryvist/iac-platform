@@ -20,6 +20,10 @@
 # The executor is deliberately unpublished: only the API reaches it, on the
 # compose-internal network.
 
+x-semaphore-task-duration-sec: &task_duration_sec "900"
+
+x-semaphore-max-parallel-tasks: &max_parallel_tasks "3"
+
 x-logging: &logging
   # journald, not the default json-file, for every service in this stack.
   #
@@ -348,26 +352,35 @@ services:
       SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
       SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${SEMAPHORE_ACCESS_KEY_ENCRYPTION}
       SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
-      # The plane's own rail: Semaphore stops any task at 20 minutes, above
-      # the playbooks' 10-minute soft budget and at their hard cap. A run that
-      # needs longer is a defect to scope down, never a value to raise here.
-      SEMAPHORE_MAX_TASK_DURATION_SEC: "1200"
+      # 15-minute hard rail, defined once above (&task_duration_sec) and
+      # shared with semaphore-runner below. The playbooks' own budget gate
+      # (ansible-proxmox-apps playbooks/site/budget-gate.yml) reads the same
+      # forwarded value and stops itself with margin before this rail ever
+      # fires; a run that still needs this rail to stop it is a defect to
+      # scope down, never a value to raise here.
+      SEMAPHORE_MAX_TASK_DURATION_SEC: *task_duration_sec
       # Server-wide concurrency ceiling, spanning every project. Each project
-      # below still declares its own max_parallel_tasks = 1 (tofu/semaphore),
-      # which only bounds concurrency WITHIN that project; splitting into
-      # several projects (tofu/semaphore) would otherwise let one task per
-      # project run at once, unbounded by anything else. This is the actual
-      # limit, and it is sized to the memory budget below, not to project
-      # count: THIS VALUE AND mem_limit ARE ONE BUDGET, same relationship as
-      # the mem_limit comment already documents for forks. Worst-case peak
-      # per task (an "all"-scoped template at forks=12) is ~250 MiB parent +
-      # 12 x 110 MiB workers =~ 1.53 GiB; raising this without raising
-      # mem_limit trades a slow converge for OOM-killed workers on whichever
-      # task loses the race, same failure mode a bare max_parallel_tasks
-      # bump on one project already causes today. Default (unset) is 9999 —
-      # effectively unbounded — so this MUST be set explicitly rather than
-      # left to inherit a safe-looking default that is not actually safe.
-      SEMAPHORE_MAX_PARALLEL_TASKS: "3"
+      # below still declares its own max_parallel_tasks (tofu/semaphore,
+      # var.max_parallel_tasks), which only bounds concurrency WITHIN that
+      # project; splitting into several projects (tofu/semaphore) would
+      # otherwise let one task per project run at once, unbounded by anything
+      # else. This is the actual limit, and it is sized to the memory budget
+      # on semaphore-runner below (where task forks actually run), not to
+      # project count: THIS VALUE, var.max_parallel_tasks's default and
+      # SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS below are ONE BUDGET — all three
+      # are the same &max_parallel_tasks anchor (compose) / literal (tofu);
+      # compose and tofu have no common runtime source to read a single value
+      # from, so tofu/semaphore/tests/max_parallel_tasks_contract.tftest.hcl
+      # (run in this repo's own CI, not the shared org gate — see that test's
+      # comment) fails the two apart instead.
+      # Worst-case peak per task (an "all"-scoped template at forks=12) is
+      # ~250 MiB parent + 12 x 110 MiB workers =~ 1.53 GiB; raising this
+      # without raising semaphore-runner's mem_limit trades a slow converge
+      # for OOM-killed workers on whichever task loses the race. Default
+      # (unset) is 9999 — effectively unbounded — so this MUST be set
+      # explicitly rather than left to inherit a safe-looking default that is
+      # not actually safe.
+      SEMAPHORE_MAX_PARALLEL_TASKS: *max_parallel_tasks
       # Dispatches every task to the runner service below.
       SEMAPHORE_USE_REMOTE_RUNNER: "true"
       # Shared token the runner below presents to register itself.
@@ -421,13 +434,18 @@ services:
       # (util/config.go setConfigValue).
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
-        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
-      # Nothing else. Every other value a run needs — the ansible pair the
-      # runners fall back to, the reconcile pair, the telemetry callback's
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID", "SEMAPHORE_MAX_TASK_DURATION_SEC"]
+      # Nothing else here. Every other value a run needs — the ansible pair
+      # the runners fall back to, the reconcile pair, the telemetry callback's
       # token, the Nautobot pair — is read from OpenBao at run time: the
       # wrapper exports the run-environment documents before any playbook
       # starts, and the one non-Ansible template wraps itself the same way.
-      # A value listed here would be a second copy with its own rotation.
+      # A secret listed here would be a second copy with its own rotation.
+      # SEMAPHORE_MAX_TASK_DURATION_SEC is not a secret; it is forwarded so
+      # the playbooks' budget gate can read the same rail via
+      # lookup('env', 'SEMAPHORE_MAX_TASK_DURATION_SEC') that this server
+      # enforces (see semaphore-runner below, the process that actually
+      # spawns each task once SEMAPHORE_USE_REMOTE_RUNNER is set).
     volumes:
       - semaphore_data:/var/lib/semaphore
     ports:
@@ -441,6 +459,16 @@ services:
         condition: service_healthy
 
   # Runs every task; reuses the semaphore image above via a command override.
+  # This is the process SEMAPHORE_USE_REMOTE_RUNNER routes every task to, so
+  # it (not the semaphore service above) is what actually spawns the task
+  # subprocess and therefore what forwarded_env_vars governs for that
+  # subprocess's environment — per Semaphore's own docs (env-vars.md, via
+  # Context7 /semaphoreui/semaphore-docs): "forwarded_env_vars: a list of
+  # variable names the server will forward from its own process environment"
+  # to app/git processes it starts. With a remote runner, this container is
+  # the one starting them, so it needs its own copies of both the value and
+  # the allow-list, same as the semaphore service needs its own for the
+  # local processes it starts directly (the OIDC/API server itself).
   semaphore-runner:
     logging: *logging
     image: semaphoreui/semaphore:${SEMAPHORE_VERSION}
@@ -458,16 +486,74 @@ services:
       SEMAPHORE_RUNNER_ENABLED: "true"
       # Names the runner record instead of leaving it blank.
       SEMAPHORE_RUNNER_NAME: semaphore-runner
-      # Runner-side concurrency cap (separate key from the server's, above).
-      SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS: "3"
+      # Runner-side concurrency cap. Same &max_parallel_tasks anchor as
+      # SEMAPHORE_MAX_PARALLEL_TASKS and local.max_parallel_tasks
+      # (tofu/semaphore/project.tf) — one budget, contract-tested; see the
+      # comment on SEMAPHORE_MAX_PARALLEL_TASKS above.
+      SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS: *max_parallel_tasks
+      # The 15-minute hard rail this runner enforces on every task it spawns
+      # (RemoteJob.go, gated on SEMAPHORE_USE_REMOTE_RUNNER, which is set on
+      # the semaphore service above) and forwards below so the playbooks'
+      # own budget gate can read the same value and stop first.
+      SEMAPHORE_MAX_TASK_DURATION_SEC: *task_duration_sec
       # run-ansible.sh's OpenBao identity, same values as the semaphore service.
       BAO_ADDR: ${BAO_ADDR:-}
       OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: ${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}
       OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: ${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}
-      # Curated git-clone env allow-list; same three values as above.
+      # Curated allow-list for every subprocess THIS runner starts (git clone
+      # and the task's own bash template) — see the service-level comment
+      # above. SEMAPHORE_MAX_TASK_DURATION_SEC is not a secret; it is here so
+      # the playbooks' budget gate can read it via lookup('env', ...).
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
-        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID", "SEMAPHORE_MAX_TASK_DURATION_SEC"]
+      # Warm caches on the semaphore_runner_data volume (below) instead of the
+      # container's writable layer, so a runner redeploy stays warm instead of
+      # paying full collection-install and fact-gathering cost again. None of
+      # the four paths below need a pre-created directory: each consumer
+      # creates its own, confirmed against ansible-core source (grep.app,
+      # ansible/ansible) rather than assumed —
+      #   - ANSIBLE_COLLECTIONS_PATH: lib/ansible/galaxy/collection/__init__.py
+      #     (_build_collection_dir -> os.makedirs(b_collection_output, ...);
+      #     tarball extraction -> os.makedirs(b_parent_path, exist_ok=True))
+      #   - ANSIBLE_CACHE_PLUGIN_CONNECTION: lib/ansible/plugins/cache/__init__.py
+      #     ("if not os.path.exists(self._cache_dir): os.makedirs(self._cache_dir)")
+      #   - ANSIBLE_SSH_CONTROL_PATH_DIR: lib/ansible/plugins/connection/ssh.py
+      #     ("makedirs_safe(b_cpdir, 0o700)" before the ControlPath is used)
+      #   - SEMAPHORE_TMP_PATH below: semaphoreui/semaphore db_lib/CmdGitClient.go
+      #     ("os.MkdirAll(cmd.Dir, 0755)" under util.Config.GetProjectTmpDir)
+      # A wrapper script whose only job was `mkdir -p` for paths every one of
+      # these already creates itself would be exactly the kind of fix-as-script
+      # this estate never commits when a native path exists.
+      #
+      # ANSIBLE_ROLES_PATH is deliberately NOT set here: every ansible-*
+      # repository's playbooks call `ansible-galaxy install -r
+      # requirements.yml --roles-path roles` (scripts/semaphore-run-ansible.sh),
+      # and that explicit --roles-path flag always wins over this env var for
+      # where install puts roles (ansible-galaxy user_guide, via Context7
+      # /ansible/ansible-documentation); the installed ./roles directory is
+      # also always searched by ansible-playbook regardless of roles_path,
+      # since it sits relative to the playbook being run. Setting this var
+      # would be a no-op for this install pattern, not a cache — and moot
+      # either way now that SEMAPHORE_TMP_PATH keeps the checkout itself (and
+      # therefore ./roles) on this same volume across redeploys.
+      ANSIBLE_COLLECTIONS_PATH: /var/lib/semaphore/ansible-cache/collections
+      # Fact cache connection (a directory, for the jsonfile-family plugins
+      # the ansible-* repos' own ansible.cfg selects); relocated here so the
+      # cache survives a runner redeploy instead of living in $HOME.
+      ANSIBLE_CACHE_PLUGIN_CONNECTION: /var/lib/semaphore/ansible-cache/facts
+      # ControlPersist socket directory, ready for Phase 2's ssh-transport
+      # rollout to reuse across tasks instead of the connection plugin's
+      # per-run default.
+      ANSIBLE_SSH_CONTROL_PATH_DIR: /var/lib/semaphore/ansible-cache/ssh-control
+      # The repository-checkout cache (docs/admin-guide/configuration.md,
+      # /reference/configuration.md: "Path to directory where cloned
+      # repositories and generated files are stored", default /tmp/semaphore
+      # — the container's writable layer). Moved onto this volume so the
+      # checkout — and the galaxy-installed ./roles inside it, see
+      # ANSIBLE_ROLES_PATH above — survives a runner redeploy instead of
+      # re-cloning and re-installing on the next task.
+      SEMAPHORE_TMP_PATH: /var/lib/semaphore/tmp
     volumes:
       - semaphore_runner_data:/var/lib/semaphore
     # Ansible forks run here now: sized for K=3 (SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS)
