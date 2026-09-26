@@ -9,10 +9,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      # The full converge is the post-merge apply of the deployed ref and
-      # nothing else; the scoped templates below cover preview testing.
-      deployed_only = true
-      description   = "Full application-layer converge."
+      description      = "Full application-layer converge."
     }
 
     apps-verify-grafana-dashboards = {
