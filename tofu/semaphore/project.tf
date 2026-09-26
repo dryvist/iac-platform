@@ -1,3 +1,23 @@
+# One base value for Semaphore's task concurrency, shared with
+# compose/docker-compose.yml's &max_parallel_tasks anchor
+# (SEMAPHORE_MAX_PARALLEL_TASKS on the semaphore service,
+# SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS on semaphore-runner) — a single literal
+# on each side rather than a runtime-shared source, because compose reads
+# compose/.env at deploy time and this root reads TF_VAR_* from the run
+# environment, two paths with no common file to point at. Drift between the
+# two is caught instead by tests/semaphore-parallel-tasks-contract.sh, which
+# parses both files and fails if the values differ.
+#
+# Ansible's forks actually run in semaphore-runner (not this project's own
+# server-side scheduling), sized in compose for K=3 at mem_limit 6144m: an
+# "all"-scoped template at forks=12 peaks around 250 MiB parent + 12 x 110
+# MiB workers =~ 1.53 GiB, so 3 concurrent tasks fit with room to spare. This
+# value and that mem_limit are one budget — raise this only in the same
+# change that raises mem_limit, and by the same ratio.
+locals {
+  max_parallel_tasks = 3
+}
+
 # The single project, and the one key every other object references.
 #
 # Declarative-drift audit (semaphoreui_project): the provider exposes exactly
@@ -14,11 +34,7 @@ resource "semaphoreui_project" "homelab" {
   alert      = false
   alert_chat = ""
 
-  # Every task's Ansible workers run inside the same memory-capped container
-  # (compose mem_limit on the semaphore service, ~16 workers total); two
-  # templates at once over-commits it and workers get OOM-killed mid-play.
-  # Lift this again only in the same change that raises that limit.
-  max_parallel_tasks = 1
+  max_parallel_tasks = local.max_parallel_tasks
 }
 
 # Repositories and inventories both REQUIRE an ssh_key_id even when no

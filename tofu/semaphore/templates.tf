@@ -111,10 +111,19 @@ resource "semaphoreui_project_template" "ansible" {
     try(each.value.extra_args, []),
   )
 
-  # The argument list is the contract. Letting a task edit it at launch would
-  # allow --check, a dropped localhost, or a different playbook entirely —
-  # every guard above, bypassable from the UI.
-  allow_override_args_in_task = false
+  # Allows a task launch (UI or API) to replace `arguments` — the terraform
+  # provider's only lever for a per-task override, per its own docs (Terraform
+  # SemaphoreUI Provider, resource/project_template.md, via Context7
+  # /semaphoreui/semaphore-terraform-provider): there is no separate
+  # limit/tags override, since limit and tags ARE arguments here. This is what
+  # lets a scoped rerun after a budget-gate stop (the failed hosts as
+  # --limit, remaining stages as --tags) run as its own task instead of
+  # re-running the whole template. limit_guard above still catches an empty or
+  # localhost-only limit at PLAN time for the declared arguments; it cannot
+  # see an override supplied at launch, so a caller minting one of these tasks
+  # is trusted to keep the same --limit ...,localhost --diff shape this
+  # resource declares, not to strip it.
+  allow_override_args_in_task = true
 
   # Success is not silent: outcomes reach Splunk through the converge-telemetry
   # callback and the run output through the container log pipeline.
