@@ -361,15 +361,18 @@ services:
       SEMAPHORE_MAX_TASK_DURATION_SEC: *task_duration_sec
       # Server-wide concurrency ceiling, spanning every project. Each project
       # below still declares its own max_parallel_tasks (tofu/semaphore,
-      # local.max_parallel_tasks), which only bounds concurrency WITHIN that
+      # var.max_parallel_tasks), which only bounds concurrency WITHIN that
       # project; splitting into several projects (tofu/semaphore) would
       # otherwise let one task per project run at once, unbounded by anything
       # else. This is the actual limit, and it is sized to the memory budget
       # on semaphore-runner below (where task forks actually run), not to
-      # project count: THIS VALUE, local.max_parallel_tasks and
+      # project count: THIS VALUE, var.max_parallel_tasks's default and
       # SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS below are ONE BUDGET — all three
-      # are the same &max_parallel_tasks anchor (compose) / local (tofu), and
-      # tests/semaphore-parallel-tasks-contract.sh fails the two apart.
+      # are the same &max_parallel_tasks anchor (compose) / literal (tofu);
+      # compose and tofu have no common runtime source to read a single value
+      # from, so tofu/semaphore/tests/max_parallel_tasks_contract.tftest.hcl
+      # (run in this repo's own CI, not the shared org gate — see that test's
+      # comment) fails the two apart instead.
       # Worst-case peak per task (an "all"-scoped template at forks=12) is
       # ~250 MiB parent + 12 x 110 MiB workers =~ 1.53 GiB; raising this
       # without raising semaphore-runner's mem_limit trades a slow converge
@@ -470,7 +473,6 @@ services:
     logging: *logging
     image: semaphoreui/semaphore:${SEMAPHORE_VERSION}
     container_name: semaphore-runner
-    entrypoint: ["/usr/local/bin/semaphore-runner-entrypoint.sh"]
     command: ["semaphore", "runner", "start", "--no-config", "--register"]
     environment:
       # In-network address of the semaphore server (compose service name,
@@ -507,7 +509,23 @@ services:
         "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID", "SEMAPHORE_MAX_TASK_DURATION_SEC"]
       # Warm caches on the semaphore_runner_data volume (below) instead of the
       # container's writable layer, so a runner redeploy stays warm instead of
-      # paying full collection-install and fact-gathering cost again.
+      # paying full collection-install and fact-gathering cost again. None of
+      # the four paths below need a pre-created directory: each consumer
+      # creates its own, confirmed against ansible-core source (grep.app,
+      # ansible/ansible) rather than assumed —
+      #   - ANSIBLE_COLLECTIONS_PATH: lib/ansible/galaxy/collection/__init__.py
+      #     (_build_collection_dir -> os.makedirs(b_collection_output, ...);
+      #     tarball extraction -> os.makedirs(b_parent_path, exist_ok=True))
+      #   - ANSIBLE_CACHE_PLUGIN_CONNECTION: lib/ansible/plugins/cache/__init__.py
+      #     ("if not os.path.exists(self._cache_dir): os.makedirs(self._cache_dir)")
+      #   - ANSIBLE_SSH_CONTROL_PATH_DIR: lib/ansible/plugins/connection/ssh.py
+      #     ("makedirs_safe(b_cpdir, 0o700)" before the ControlPath is used)
+      #   - SEMAPHORE_TMP_PATH below: semaphoreui/semaphore db_lib/CmdGitClient.go
+      #     ("os.MkdirAll(cmd.Dir, 0755)" under util.Config.GetProjectTmpDir)
+      # A wrapper script whose only job was `mkdir -p` for paths every one of
+      # these already creates itself would be exactly the kind of fix-as-script
+      # this estate never commits when a native path exists.
+      #
       # ANSIBLE_ROLES_PATH is deliberately NOT set here: every ansible-*
       # repository's playbooks call `ansible-galaxy install -r
       # requirements.yml --roles-path roles` (scripts/semaphore-run-ansible.sh),
@@ -516,7 +534,9 @@ services:
       # /ansible/ansible-documentation); the installed ./roles directory is
       # also always searched by ansible-playbook regardless of roles_path,
       # since it sits relative to the playbook being run. Setting this var
-      # would be a no-op for this install pattern, not a cache.
+      # would be a no-op for this install pattern, not a cache — and moot
+      # either way now that SEMAPHORE_TMP_PATH keeps the checkout itself (and
+      # therefore ./roles) on this same volume across redeploys.
       ANSIBLE_COLLECTIONS_PATH: /var/lib/semaphore/ansible-cache/collections
       # Fact cache connection (a directory, for the jsonfile-family plugins
       # the ansible-* repos' own ansible.cfg selects); relocated here so the
@@ -526,6 +546,14 @@ services:
       # rollout to reuse across tasks instead of the connection plugin's
       # per-run default.
       ANSIBLE_SSH_CONTROL_PATH_DIR: /var/lib/semaphore/ansible-cache/ssh-control
+      # The repository-checkout cache (docs/admin-guide/configuration.md,
+      # /reference/configuration.md: "Path to directory where cloned
+      # repositories and generated files are stored", default /tmp/semaphore
+      # — the container's writable layer). Moved onto this volume so the
+      # checkout — and the galaxy-installed ./roles inside it, see
+      # ANSIBLE_ROLES_PATH above — survives a runner redeploy instead of
+      # re-cloning and re-installing on the next task.
+      SEMAPHORE_TMP_PATH: /var/lib/semaphore/tmp
     volumes:
       - semaphore_runner_data:/var/lib/semaphore
     # Ansible forks run here now: sized for K=3 (SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS)

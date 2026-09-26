@@ -60,13 +60,8 @@ COPY scripts/openbao-exec-env.sh /usr/local/bin/openbao-exec-env.sh
 # The git credential helper. Installed WITHOUT the .sh suffix because git
 # resolves `credential.helper openbao` to `git-credential-openbao` on PATH.
 COPY scripts/git-credential-openbao.sh /usr/local/bin/git-credential-openbao
-# semaphore-runner's entrypoint override (docker-compose.yml): creates the
-# Ansible warm-cache subdirectories under the semaphore_runner_data volume
-# before `semaphore runner start` — see the script for why this can't be a
-# build-time RUN mkdir.
-COPY scripts/semaphore-runner-entrypoint.sh /usr/local/bin/semaphore-runner-entrypoint.sh
 RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh /usr/local/bin/openbao-exec-env.sh \
-      /usr/local/bin/git-credential-openbao /usr/local/bin/semaphore-runner-entrypoint.sh
+      /usr/local/bin/git-credential-openbao
 
 # Every github.com clone — repositories and their submodules alike — gets an
 # ephemeral installation token minted per request instead of a stored

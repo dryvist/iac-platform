@@ -40,3 +40,30 @@ jobs:
           - '**.tfvars'
           - '**/.terraform.lock.hcl'
           - '.tflint.hcl'
+
+  # `_tofu-ci.yml` (the org reusable workflow the `gate` job above calls)
+  # deliberately never runs `tofu test` — "the one repo that needs it keeps
+  # that job local" (its own comment). This repo needs it: it's the only
+  # way to contract-test compose/docker-compose.yml's Semaphore budget
+  # values against tofu/semaphore's copies of them without a runtime-shared
+  # source (see tofu/semaphore/tests/max_parallel_tasks_contract.tftest.hcl).
+  # `-backend=false` skips the cloud backend, same as `gate`'s own
+  # init+validate step; test runs never touch a configured backend anyway.
+  tofu-test:
+    name: OpenTofu Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2
+        with:
+          tofu_wrapper: false
+      - name: tofu test
+        run: |
+          for dir in tofu/semaphore tofu/terrakube; do
+            echo "::group::$dir"
+            (cd "$dir" && tofu init -backend=false -input=false && tofu test)
+            echo "::endgroup::"
+          done
