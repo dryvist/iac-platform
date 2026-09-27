@@ -194,6 +194,34 @@ resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
   suppress_success_alerts     = false
 }
 
+# Mirrors dryvist/cc-* Cribl pack releases into object storage and publishes
+# the manifest cribl_packs installs from (Phase P, RustFS pack mirror).
+# Controller-only (hosts: localhost), same shape as openbao_rotate_scheduled
+# above, so it is declared apart from ansible_templates/schedule_crons too.
+resource "semaphoreui_project_template" "apps_sync_cribl_packs" {
+  project_id     = semaphoreui_project.homelab.id
+  repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
+  environment_id = semaphoreui_project_environment.homelab.id
+
+  # Deployed ref only: this one is scheduled, and nothing scheduled runs an
+  # unreleased ref.
+  view_id = semaphoreui_project_view.deployed.id
+
+  name        = "apps-sync-cribl-packs"
+  description = "Mirror the latest dryvist/cc-* Cribl pack releases into object storage and publish the manifest."
+
+  app      = "bash"
+  playbook = "semaphore-run-ansible.sh"
+  arguments = [
+    "./scripts/run-ansible.sh", "playbooks/sync-cribl-packs.yml",
+    "--limit", "localhost", "--diff",
+  ]
+
+  allow_override_args_in_task = false
+  suppress_success_alerts     = false
+}
+
 # One-shot seed of host secret-zero identities into the env document.
 # Manual only: no schedule reaches it. Same auth as the scheduled rotation.
 resource "semaphoreui_project_template" "openbao_seed_host_secret_zero" {

@@ -75,3 +75,15 @@ resource "semaphoreui_project_schedule" "openbao_rotate_scheduled" {
   cron_format = "13 3,15 * * *"
   enabled     = true
 }
+
+# Hourly, off the :00 mark: the manifest must stay within an hour of the
+# latest dryvist/cc-* release (Phase P). A read-only GitHub API list + one
+# release lookup per pack plus an RustFS mirror write — safe to run
+# unattended, same reasoning as the schedules above.
+resource "semaphoreui_project_schedule" "apps_sync_cribl_packs" {
+  project_id  = semaphoreui_project.homelab.id
+  template_id = semaphoreui_project_template.apps_sync_cribl_packs.id
+  name        = "apps-sync-cribl-packs"
+  cron_format = "23 * * * *"
+  enabled     = true
+}
