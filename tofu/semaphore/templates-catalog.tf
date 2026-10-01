@@ -24,19 +24,19 @@
 #   full-scope one, so narrowing this file can never narrow what an existing
 #   caller already gets.
 #
-#   `deployed_only` is currently a no-op: preview-branch (`@ <branch>`)
-#   templates were dropped when the project split landed (see
-#   repositories.tf) and have not been rebuilt on a per-project basis. Left
-#   on the entries that had it so restoring preview-branch support later
-#   does not silently un-flag them.
+#   `deployed_only` is optional. Set it on a template that must exist only
+#   for the repository's deployed ref: templates.tf then builds no
+#   `@ <branch>` preview variant of it, whatever preview branches the
+#   repository declares.
 #
-#   `project` names one of project.tf's semaphore_project_names. Required on
-#   every entry — repositories.tf, inventories.tf and templates.tf all key
-#   off it to resolve which project's checkout a template runs from.
+#   `project` is optional. Left out, the entry lands in its repository's
+#   project (project.tf repository_projects). Only openbao-tagged
+#   ansible-proxmox-apps entries set it, to "secrets" — templates.tf asserts it.
 
 locals {
   ansible_templates = merge(
     local.ansible_templates_apps,
+    local.ansible_templates_apps_site_split,
     local.ansible_templates_proxmox,
     local.ansible_templates_splunk,
     local.ansible_templates_ai,

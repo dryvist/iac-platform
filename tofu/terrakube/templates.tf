@@ -69,6 +69,24 @@ locals {
           step: 200
       EOF
     }
+    # Same flow as plan_and_apply, approval gated on the desired_state_apply team.
+    desired_state_apply = {
+      name        = "Desired state apply"
+      description = "Running Terraform plan and apply for the desired-state gated apply workload"
+      content     = <<-EOF
+        flow:
+          - type: "terraformPlan"
+            name: "Plan"
+            step: 100
+          - type: "approval"
+            name: "Approve Apply"
+            step: 150
+            team: "${terrakube_team.desired_state_apply.name}"
+          - type: "terraformApply"
+            name: "Apply"
+            step: 200
+      EOF
+    }
     cli_plan_destroy = {
       name        = "Terraform-Plan/Destroy-Cli"
       description = "Running Terraform destroy from Terraform CLI"

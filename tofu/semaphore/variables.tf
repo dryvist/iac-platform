@@ -30,7 +30,7 @@ variable "semaphore_api_base_url" {
 }
 
 variable "project_name" {
-  description = "The single Semaphore project holding every Ansible repository, inventory and template."
+  description = "Name prefix of the Semaphore projects; each is \"<prefix>-<project>\" (project.tf)."
   type        = string
   default     = "homelab"
 }
@@ -121,6 +121,35 @@ variable "openbao_address" {
   validation {
     condition     = can(regex("^https://openbao\\.[a-z0-9.-]+$", var.openbao_address))
     error_message = "openbao_address must be https://openbao.<domain> with no path or port — the Semaphore endpoint is derived from the domain inside it."
+  }
+}
+
+variable "max_parallel_tasks" {
+  description = <<-EOT
+    Semaphore's server-wide task concurrency ceiling. Each project's own cap
+    (project.tf) is asserted to stay at or below it.
+
+    Ansible's forks actually run in compose/docker-compose.yml's
+    semaphore-runner service, sized for K=3 at mem_limit 6144m: an
+    "all"-scoped template at forks=12 peaks around 250 MiB parent + 12 x 110
+    MiB workers =~ 1.53 GiB, so 3 concurrent tasks fit with room to spare.
+    This value and that mem_limit are one budget — raise this only in the
+    same change that raises mem_limit, and by the same ratio.
+
+    Compose and this tofu root have no common runtime source to share a
+    single value from (compose reads compose/.env at deploy time; this root
+    reads TF_VAR_* from the run environment), so the default below and
+    compose's own &max_parallel_tasks anchor are two literals by necessity.
+    tests/max_parallel_tasks_contract.tftest.hcl fails `tofu test` if they
+    drift; that test is wired into this repo's own CI (.github/workflows/ci-gate.yml,
+    a local job — the shared org gate deliberately never runs `tofu test`).
+  EOT
+  type        = number
+  default     = 3
+
+  validation {
+    condition     = var.max_parallel_tasks > 0
+    error_message = "max_parallel_tasks must be positive; Semaphore's own default (unset) is 9999, effectively unbounded, which is never what this project wants."
   }
 }
 

@@ -11,12 +11,9 @@ terraform {
       # namespace (azbuilder), tracking the same releases as
       # terrakube-io/terrakube on the Terraform registry.
       #
-      # Pinned below the RBAC-v2 releases (0.23+): those client versions
-      # unconditionally send planJob/approveJob/role team attributes that
-      # the deployed Terrakube server does not yet accept (server-side RBAC
-      # v2 support lags the client). 0.22.x is the newest release whose team
-      # resource still speaks the attribute set the deployed server expects.
-      # Bump once the server accepts the newer attributes.
+      # Pinned at 0.29.0; this repo's team resources still avoid the RBAC-v2
+      # planJob/approveJob/role attributes, whether or not the deployed
+      # server now accepts them.
       source  = "azbuilder/terrakube"
       version = "~> 0.29.0"
     }

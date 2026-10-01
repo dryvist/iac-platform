@@ -1,33 +1,37 @@
-# Five projects, aligned to Ansible repository checkouts rather than to a
-# domain label crossing repositories — a project gets exactly one checkout,
-# which is the whole point of splitting: a same-checkout race is what a
-# project's own max_parallel_tasks=1 prevents, and a race can only happen
-# between two runs sharing a working copy. "apps" and "secrets" both check
-# out ansible-proxmox-apps (secrets carries only the openbao-tagged,
-# privileged templates, kept out of the shared "apps" project so its cap
-# bounds ONLY openbao-tagged runs against each other); "pve", "observability"
-# and "ai" check out their own domain repository plus ansible-proxmox-apps a
-# second time, solely for its inventory/hosts.yml loader (every playbook
-# imports it as its first play — see inventories.tf).
+# One project per Ansible repository checkout: `pve` (ansible-proxmox), `apps`
+# (ansible-proxmox-apps), `secrets` (the openbao-tagged ansible-proxmox-apps
+# templates, kept apart so they only queue behind each other), `observability`
+# (ansible-splunk) and `ai` (ansible-proxmox-ai). A catalog entry lands in its
+# repository's project unless it names `project` itself (templates-catalog.tf).
 #
-# Cross-project overlap on the SAME host is accepted: apt/dpkg and similar
-# module-level locks are waited on, not raced. What per-project
-# max_parallel_tasks=1 exists to prevent is two tasks sharing one CHECKOUT —
-# a git operation racing another git operation in the same working directory
-# — which is a same-project, not a cross-project, hazard.
+# Two concurrency limits, deliberately different:
 #
-# The container this all runs in is still one shared memory budget
-# (compose/docker-compose.yml SEMAPHORE_MAX_PARALLEL_TASKS +
-# mem_limit) regardless of project count — see that file's comment for why
-# per-project caps alone are not sufficient.
-locals {
-  semaphore_project_names = toset(["pve", "apps", "secrets", "observability", "ai"])
-}
-
+#   * per project, max_parallel_tasks = 1 — two tasks in one project share a
+#     checkout, and a git operation racing another in the same working copy is
+#     the hazard this bounds;
+#   * server-wide, var.max_parallel_tasks — the shared memory budget of the
+#     runner (compose/docker-compose.yml &max_parallel_tasks, held equal by
+#     tests/max_parallel_tasks_contract.tftest.hcl). Cross-project overlap on
+#     one host is accepted: apt/dpkg locks are waited on, not raced.
+#
 # Declarative-drift audit (semaphoreui_project): the provider exposes exactly
 # five settable attributes — name, alert, alert_chat, max_parallel_tasks, and
 # (implicitly) nothing else; `id` and `created` are computed. All four settable
 # ones are declared below, so none of them can drift silently.
+locals {
+  semaphore_project_names = toset(["pve", "apps", "secrets", "observability", "ai"])
+
+  # Where a catalog entry lands when it does not name `project` itself.
+  repository_projects = {
+    ansible-proxmox      = "pve"
+    ansible-proxmox-apps = "apps"
+    ansible-splunk       = "observability"
+    ansible-proxmox-ai   = "ai"
+  }
+
+  project_max_parallel_tasks = 1
+}
+
 resource "semaphoreui_project" "each" {
   for_each = local.semaphore_project_names
 
@@ -40,11 +44,21 @@ resource "semaphoreui_project" "each" {
   alert      = false
   alert_chat = ""
 
-  # Bounds concurrency WITHIN this one project (one checkout, so this is the
-  # git-race guard). The server-wide ceiling across every project
-  # (SEMAPHORE_MAX_PARALLEL_TASKS, compose/docker-compose.yml) is the actual
-  # memory guard — see that file.
-  max_parallel_tasks = 1
+  max_parallel_tasks = local.project_max_parallel_tasks
+
+  lifecycle {
+    precondition {
+      condition     = local.project_max_parallel_tasks <= var.max_parallel_tasks
+      error_message = "A project's own cap cannot exceed the server-wide max_parallel_tasks budget."
+    }
+  }
+}
+
+# The original single project becomes `apps`, so it keeps its id and the apps
+# templates move in place instead of being recreated.
+moved {
+  from = semaphoreui_project.homelab
+  to   = semaphoreui_project.each["apps"]
 }
 
 # Repositories and inventories both REQUIRE an ssh_key_id even when no
@@ -59,10 +73,15 @@ resource "semaphoreui_project" "each" {
 # chosen and the other two are deliberately absent — setting any of them would
 # mean a credential lives in Semaphore, which is what the certificate path
 # exists to avoid.
-resource "semaphoreui_project_key" "each" {
+resource "semaphoreui_project_key" "none" {
   for_each = local.semaphore_project_names
 
   project_id = semaphoreui_project.each[each.value].id
   name       = "none"
   none       = {}
+}
+
+moved {
+  from = semaphoreui_project_key.none
+  to   = semaphoreui_project_key.none["apps"]
 }

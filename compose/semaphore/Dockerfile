@@ -1,12 +1,12 @@
 # Adds the tools scripts/run-ansible.sh needs (an ephemeral OpenBao-signed SSH
 # cert, ansible-playbook is invoked from the checked-out Ansible repo itself)
 # on top of the upstream Semaphore image. SEMAPHORE_VERSION is a build arg
-# fed from compose/.env by docker-compose.yml (build.args), so the version is
-# tracked once, by the existing renovate customManager — not duplicated here.
-# Default mirrors compose/.env.example's SEMAPHORE_VERSION so a bare
-# `docker build` (no --build-arg) still resolves to a real image; compose
-# always passes the live pin via build.args, keeping the two in step.
-ARG SEMAPHORE_VERSION=v2.19.14
+# fed from compose/.env.example by docker-compose.yml (build.args), so the
+# version is tracked in exactly one place (the renovate-managed pin), not
+# duplicated here as a second literal that can drift from it. No default: a
+# bare `docker build` without --build-arg fails instead of silently
+# resolving to a stale image.
+ARG SEMAPHORE_VERSION
 FROM semaphoreui/semaphore:${SEMAPHORE_VERSION}
 
 # The OpenBao CLI scripts/run-ansible.sh uses to log in and mint the SSH cert.
@@ -26,10 +26,13 @@ USER root
 #   proxmoxer   the guest start/verify modules
 #   hvac        secret-store access
 #   paramiko    the container connection transport
+#   opentelemetry-{api,sdk,exporter-otlp}
+#               the community.general.opentelemetry callback plugin's run
+#               tracing (ansible-proxmox-ai ansible.cfg)
 # Verified present in the base image and therefore NOT repeated here:
 # boto3/botocore, jmespath, cryptography, passlib, gpg/gpgv.
 RUN apk add --no-cache curl jq openssh-client git bash py3-pip py3-requests aws-cli openssl bind-tools \
-    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko netaddr proxmoxer || true; done \
+    && for venv in /opt/semaphore/apps/ansible/*/venv; do [ -d "$venv" ] && "$venv/bin/pip" install --no-cache-dir hvac paramiko netaddr proxmoxer opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp || true; done \
     && mkdir -p /usr/lib/python3.12/site-packages \
     && echo "/opt/semaphore/apps/ansible/13.5.0/venv/lib/python3.12/site-packages" > /usr/lib/python3.12/site-packages/venv.pth
 
@@ -68,6 +71,19 @@ RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh /usr/local/bin/openbao-exec
 # too, so a partial read still authenticates.
 RUN git config --system credential.https://github.com.helper openbao \
     && git config --system credential.https://github.com.username x-access-token
+
+# hermes_agent's content-bundle build runs on THIS controller, never on a
+# target guest (roles/hermes_agent/tasks/assert_curriculum_and_policy.yml
+# asserts `nix --version` before any config deploys, delegate_to: localhost).
+# Without this, that assert fails on every hermes_agent/hermes_ui_docker
+# converge. Alpine's own community repo ships nix natively for musl (no
+# glibc-only installer needed) — install it in single-user mode: no daemon,
+# no nixbld build users, /nix owned by the unprivileged runtime user.
+RUN apk add --no-cache nix \
+    && mkdir -p /etc/nix \
+    && printf 'sandbox = false\nexperimental-features = nix-command flakes\n' > /etc/nix/nix.conf \
+    && mkdir -p /nix \
+    && chown -R semaphore:root /nix /etc/nix
 
 # Drop back to the image's own unprivileged user for runtime.
 USER semaphore

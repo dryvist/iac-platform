@@ -4,7 +4,6 @@ locals {
   ansible_templates_ai = {
     ai-site = {
       repository  = "ansible-proxmox-ai"
-      project     = "ai"
       playbook    = "playbooks/site.yml"
       limit       = "all"
       mutating    = true
@@ -20,7 +19,6 @@ locals {
     # select the fragment's plays from there.
     ai-llm-serving = {
       repository = "ansible-proxmox-ai"
-      project    = "ai"
       playbook   = "playbooks/site.yml"
       limit      = "all"
       # Exactly the four plays llm-serving.yml contains: the two llama.cpp
@@ -33,7 +31,6 @@ locals {
 
     ai-llm-router = {
       repository = "ansible-proxmox-ai"
-      project    = "ai"
       playbook   = "playbooks/site.yml"
       limit      = "llm_router_group"
       tags       = "llm_router"
@@ -47,6 +44,26 @@ locals {
       # but a rolling restart is still a restart.
       mutating    = true
       description = "LiteLLM router converge only, scoped by tag and limit."
+    }
+
+    ai-llm-router-rebuild = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/site.yml"
+      limit            = "llm_router_group"
+      tags             = "llm_router"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = ["--extra-vars", "llm_router_seed_mode=rebuild"]
+      description      = "LiteLLM router converge with llm_router_seed_mode=rebuild: re-seeds roles, fallbacks and router_settings from git."
+    }
+
+    ai-hermes-agent = {
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/site.yml"
+      limit       = "hermes_agent_group"
+      tags        = "hermes_agent"
+      mutating    = true
+      description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
     }
   }
 }

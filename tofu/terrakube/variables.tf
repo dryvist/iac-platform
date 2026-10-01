@@ -52,3 +52,14 @@ variable "openbao_workload_auth_path" {
   type        = string
   default     = "terrakube"
 }
+
+variable "desired_state_repo" {
+  description = "owner/repo whose GitHub Actions OIDC token the desired-state federated credential trusts. Set directly on the iac-platform workspace (not IaC-managed here) — a public repo must not name a private one."
+  type        = string
+}
+
+variable "desired_state_ref" {
+  description = "Git ref claim required in the trusted token."
+  type        = string
+  default     = "refs/heads/main"
+}

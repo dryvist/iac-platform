@@ -1,4 +1,4 @@
-# One template per (project, playbook) Semaphore may run.
+# One template per playbook Semaphore may run.
 #
 # Every Ansible template is a `bash` template invoking the recap wrapper, never
 # `ansible-playbook` and never run-ansible.sh directly:
@@ -28,20 +28,50 @@
 # vaults blocks. Declared below: the identity and wiring fields, app, playbook,
 # arguments, description, allow_override_args_in_task and
 # suppress_success_alerts and view_id. Deliberately absent: git_branch (the
-# repository's own branch governs), build and deploy (artifact templates,
-# unused), survey_vars (a prompt is a manual input, which is the thing this
-# root exists to remove), task_params and vaults.
+# repository's own branch governs — an override here would silently run a
+# different ref than the one declared in repositories.tf; running a second ref
+# is expressed instead by a second repository entry, which puts the ref in the
+# repository name, the template name and the view), build and deploy (artifact
+# templates, unused), survey_vars (a prompt is a manual input, which is the
+# thing this root exists to remove), task_params and vaults.
+
+# The catalog itself (local.ansible_templates) lives in templates-catalog.tf.
+
+# Cross the playbooks with the refs their repository may be run from.
 #
-# `project_id` is ForceNew on this resource: moving a template from one
-# project to another (this file's split) is a destroy-and-recreate, not an
-# in-place move — every template here gets a NEW numeric id on apply. Nothing
-# that dispatches by numeric id (the reconcile-token API path,
-# ~/git/AGENTS.local.d/semaphore-dispatch.md) survives this apply unchanged;
-# the id map needs republishing there after.
+# The deployed ref keeps the bare template key, so its resource address, its
+# name in the UI and every schedule that reaches it are all unchanged — this
+# adds templates, it does not renumber the existing ones. `project_id` is
+# ForceNew, though: a template whose project is not `apps` (the original single
+# project, project.tf) is recreated with a new numeric id on the apply that
+# introduces the split. A preview ref gets
+# `<template> @ <branch>`, which is what the run history will show.
 #
-# The catalog itself (local.ansible_templates) lives in templates-catalog*.tf,
-# and now carries a `project` field per entry — see repositories.tf for what
-# that field drives.
+# `deployed` rides along because schedules.tf must be able to assert that
+# nothing unattended reaches a preview ref, and asserting on a substring of the
+# key would be a naming convention pretending to be a control.
+#
+# A template marked `deployed_only` gets no preview variant at all: removing
+# the flag is the only way to bring one back, so it cannot reappear by adding a
+# preview branch to the repository.
+locals {
+  ansible_template_refs = {
+    for pair in flatten([
+      for tname, t in local.ansible_templates : [
+        for rkey, r in local.project_repository_refs : {
+          key = r.deployed ? tname : "${tname} @ ${r.branch}"
+          value = merge(t, {
+            project        = r.project
+            repository_key = rkey
+            branch         = r.branch
+            deployed       = r.deployed
+            template       = tname
+          })
+        } if r.project == try(t.project, local.repository_projects[t.repository]) && r.repo == t.repository && (r.deployed || !try(t.deployed_only, false))
+      ]
+    ]) : pair.key => pair.value
+  }
+}
 
 # A limit that already names localhost would produce `localhost,localhost`, and
 # an empty one would drop the real hosts entirely — the exact footgun the
@@ -55,25 +85,35 @@ resource "terraform_data" "limit_guard" {
       ])
       error_message = "Every ansible_templates entry needs a non-empty limit that does not itself name localhost; the argument list appends it."
     }
+    # `secrets` holds only the openbao-tagged ansible-proxmox-apps runs.
     precondition {
       condition = alltrue([
-        for k, t in local.ansible_templates : contains(local.semaphore_project_names, t.project)
+        for t in local.ansible_templates : try(t.project, local.repository_projects[t.repository]) != "secrets" || (
+          t.repository == "ansible-proxmox-apps" && contains(split(",", try(t.tags, "")), "openbao")
+        )
       ])
-      error_message = "Every ansible_templates entry needs a project naming one of the declared semaphore_project_names (project.tf)."
+      error_message = "Only openbao-tagged ansible-proxmox-apps templates may name project = \"secrets\"."
     }
   }
 }
 
 resource "semaphoreui_project_template" "ansible" {
-  for_each = local.ansible_templates
+  for_each = local.ansible_template_refs
 
   project_id     = semaphoreui_project.each[each.value.project].id
-  repository_id  = semaphoreui_project_repository.each["${each.value.project}/${each.value.repository}"].id
+  repository_id  = semaphoreui_project_repository.ansible[each.value.repository_key].id
   inventory_id   = semaphoreui_project_inventory.homelab_tofu[each.value.project].id
-  environment_id = semaphoreui_project_environment.each[each.value.project].id
+  environment_id = semaphoreui_project_environment.homelab[each.value.project].id
 
-  name        = each.key
-  description = each.value.description
+  # Deployed templates sit on the first tab; a preview ref gets its own, so
+  # picking one is a deliberate act rather than a misread of a list.
+  view_id = semaphoreui_project_view.each["${each.value.project}/${each.value.deployed ? "deployed" : each.value.branch}"].id
+
+  name = each.key
+  description = each.value.deployed ? each.value.description : join(" ", [
+    each.value.description,
+    "Runs the ${each.value.branch} ref — unreleased, on demand only, never scheduled.",
+  ])
 
   app      = "bash"
   playbook = "semaphore-run-ansible.sh"
@@ -84,10 +124,19 @@ resource "semaphoreui_project_template" "ansible" {
     try(each.value.extra_args, []),
   )
 
-  # The argument list is the contract. Letting a task edit it at launch would
-  # allow --check, a dropped localhost, or a different playbook entirely —
-  # every guard above, bypassable from the UI.
-  allow_override_args_in_task = false
+  # Allows a task launch (UI or API) to replace `arguments` — the terraform
+  # provider's only lever for a per-task override, per its own docs (Terraform
+  # SemaphoreUI Provider, resource/project_template.md, via Context7
+  # /semaphoreui/semaphore-terraform-provider): there is no separate
+  # limit/tags override, since limit and tags ARE arguments here. This is what
+  # lets a scoped rerun after a budget-gate stop (the failed hosts as
+  # --limit, remaining stages as --tags) run as its own task instead of
+  # re-running the whole template. limit_guard above still catches an empty or
+  # localhost-only limit at PLAN time for the declared arguments; it cannot
+  # see an override supplied at launch, so a caller minting one of these tasks
+  # is trusted to keep the same --limit ...,localhost --diff shape this
+  # resource declares, not to strip it.
+  allow_override_args_in_task = true
 
   # Success is not silent: outcomes reach Splunk through the converge-telemetry
   # callback and the run output through the container log pipeline.
@@ -101,13 +150,19 @@ resource "semaphoreui_project_template" "ansible" {
 # drift, which is what makes it safe to schedule — see schedules.tf. It runs
 # through the same wrapper as every other template, so the run environment
 # carries nothing for it. Declared apart from ansible_templates because it has
-# no host pattern: the play names localhost itself. Lives in the "apps"
-# project only — see inventories.tf.
+# no host pattern: the play names localhost itself.
+#
+# It is bound to the Nautobot inventory rather than the tofu one so that the
+# scheduled job exercises the same resolution path a future cutover would use.
 resource "semaphoreui_project_template" "nautobot_drift" {
   project_id     = semaphoreui_project.each["apps"].id
-  repository_id  = semaphoreui_project_repository.each["apps/ansible-proxmox-apps"].id
+  repository_id  = semaphoreui_project_repository.ansible["apps/ansible-proxmox-apps"].id
   inventory_id   = semaphoreui_project_inventory.homelab_nautobot.id
-  environment_id = semaphoreui_project_environment.each["apps"].id
+  environment_id = semaphoreui_project_environment.homelab["apps"].id
+
+  # Deployed ref only: this one is scheduled, and nothing scheduled runs an
+  # unreleased ref.
+  view_id = semaphoreui_project_view.each["apps/deployed"].id
 
   name        = "nautobot-drift-report"
   description = "Read-only report comparing Nautobot against the published inventory."
@@ -117,6 +172,58 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   arguments = [
     "./scripts/run-ansible.sh", "playbooks/nautobot-drift.yml",
     "--limit", "localhost",
+  ]
+
+  allow_override_args_in_task = false
+  suppress_success_alerts     = false
+}
+
+# Every 12h: rotate openbao_secrets domain AppRole secret_ids. Declared
+# apart from ansible_templates: no host pattern, the play names localhost
+# itself.
+# Auth: the scheduled AppRole pair from the platform env document the
+# wrapper exports.
+resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
+  project_id     = semaphoreui_project.each["secrets"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
+  environment_id = semaphoreui_project_environment.homelab["secrets"].id
+
+  # Deployed ref only: this one is scheduled, and nothing scheduled runs an
+  # unreleased ref.
+  view_id = semaphoreui_project_view.each["secrets/deployed"].id
+
+  name        = "openbao-rotate-approles-scheduled"
+  description = "Scheduled rotation of openbao_secrets domain AppRole secret_ids."
+
+  app      = "bash"
+  playbook = "semaphore-run-ansible.sh"
+  arguments = [
+    "./scripts/run-ansible.sh", "playbooks/openbao-rotate-approles.yml",
+    "--limit", "localhost", "--diff",
+  ]
+
+  allow_override_args_in_task = false
+  suppress_success_alerts     = false
+}
+
+# One-shot seed of host secret-zero identities into the env document.
+# Manual only: no schedule reaches it. Same auth as the scheduled rotation.
+resource "semaphoreui_project_template" "openbao_seed_host_secret_zero" {
+  project_id     = semaphoreui_project.each["secrets"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps@develop"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
+  environment_id = semaphoreui_project_environment.homelab["secrets"].id
+  view_id        = semaphoreui_project_view.each["secrets/develop"].id
+
+  name        = "openbao-seed-host-secret-zero @ develop"
+  description = "Seeds host secret-zero AppRole pairs into the env document; skips any already present. Runs the develop ref, on demand only."
+
+  app      = "bash"
+  playbook = "semaphore-run-ansible.sh"
+  arguments = [
+    "./scripts/run-ansible.sh", "playbooks/openbao-seed-host-secret-zero.yml",
+    "--limit", "localhost", "--diff",
   ]
 
   allow_override_args_in_task = false
