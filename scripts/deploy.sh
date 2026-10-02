@@ -162,62 +162,87 @@ if [ "${1:-}" = "--inner" ]; then
   # already migrated and serving.
   DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh"
 
-  # Inject runtime credentials into Semaphore Project 1 Environment 1 so task
-  # worker processes inherit them (Semaphore LocalJob does not inherit container
-  # os.Environ unless mapped in the project environment template).
+  # Inject runtime credentials into every project's "homelab" environment so
+  # task worker processes inherit them (Semaphore LocalJob does not inherit
+  # container os.Environ unless mapped in the project environment template).
+  # tofu/semaphore/project.tf declares five projects, not one, so this loops
+  # over all of them by NAME rather than assuming project/environment id 1 —
+  # tofu/semaphore's project_id is ForceNew, so ids are not stable across an
+  # apply that changes project membership, and this script has no tofu state
+  # access to read them from anyway. Discovered through the same API this
+  # block already authenticates against.
   sem_token="$(docker --host "$host" exec semaphore semaphore users token create --login "${SEMAPHORE_ADMIN:-admin}" --name deploy-env-sync 2>&1 | tail -n 1 | tr -d '\r\n')" || true
   if [ -n "$sem_token" ]; then
-    # Secret-zero only. Everything a playbook, callback or inventory plugin reads
-    # is exported from OpenBao before the run starts; the one template that is
-    # not an Ansible run wraps itself the same way (scripts/nautobot-drift.sh in
-    # its repository). The address is here too because the exporter gates on it
-    # before it can read anything.
-    payload="$(jq -nc \
-      --arg bao "$BAO_ADDR" \
-      --arg sem_role "$OPENBAO_APPROLE_SEMAPHORE_ROLE_ID" \
-      --arg sem_secret "$OPENBAO_APPROLE_SEMAPHORE_SECRET_ID" \
-      '{
-        id: 1,
-        project_id: 1,
-        name: "homelab",
-        env: ({
-          BAO_ADDR: $bao,
-          OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: $sem_role,
-          OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret
-        } | tojson),
-        json: "{}"
-      }')"
-    # This PUT is the only writer of that environment: a failed write leaves
-    # whatever was there before, so it fails the deploy instead of reporting a
-    # sync that did not happen. The response body echoes the environment and
-    # is never printed.
-    put_status="$(docker --host "$host" exec -i semaphore curl -s -o /dev/null -w '%{http_code}' -X PUT \
+    projects_json="$(docker --host "$host" exec semaphore curl -sf \
       -H "Authorization: Bearer $sem_token" \
-      -H "Content-Type: application/json" \
-      -d "$payload" \
-      http://127.0.0.1:3000/api/project/1/environment/1 2>/dev/null)" || put_status="000"
-    case "$put_status" in
-      2*) echo "Synced runtime credentials to Semaphore project environment (HTTP $put_status)." ;;
-      *)
-        echo "ERROR: Semaphore project environment sync failed (HTTP $put_status); the live environment is unchanged." >&2
-        docker --host "$host" exec semaphore curl -sf -X DELETE \
-          -H "Authorization: Bearer $sem_token" \
-          "http://127.0.0.1:3000/api/user/tokens/$sem_token" >/dev/null 2>&1 \
-          || echo "WARNING: could not revoke the deploy-env-sync API token; revoke it by hand." >&2
-        exit 1
-        ;;
-    esac
-    # This block mints a fresh API token on every deploy, so it revokes the one
-    # it minted. A Semaphore API token does not expire on its own and is not
-    # scoped below its owner, which makes an unrevoked one a standing
-    # credential rather than a deploy-time detail. Revoke through the same
-    # in-container API call the PUT above uses — such a token is its own id.
+      http://127.0.0.1:3000/api/projects 2>/dev/null)" || projects_json=""
+    sync_failed=0
+    for suffix in pve apps secrets observability ai; do
+      project_id="$(printf '%s' "$projects_json" | jq -r --arg name "homelab-$suffix" '.[] | select(.name == $name) | .id')"
+      if [ -z "$project_id" ]; then
+        echo "ERROR: no Semaphore project named homelab-$suffix; the environment sync cannot proceed until tofu/semaphore has been applied." >&2
+        sync_failed=1
+        continue
+      fi
+      environments_json="$(docker --host "$host" exec semaphore curl -sf \
+        -H "Authorization: Bearer $sem_token" \
+        "http://127.0.0.1:3000/api/project/$project_id/environment" 2>/dev/null)" || environments_json=""
+      environment_id="$(printf '%s' "$environments_json" | jq -r '.[] | select(.name == "homelab") | .id')"
+      if [ -z "$environment_id" ]; then
+        echo "ERROR: project homelab-$suffix has no 'homelab' environment yet; the environment sync cannot proceed until tofu/semaphore has been applied." >&2
+        sync_failed=1
+        continue
+      fi
+      # Secret-zero only. Everything a playbook, callback or inventory plugin
+      # reads is exported from OpenBao before the run starts; the one
+      # template that is not an Ansible run wraps itself the same way
+      # (scripts/nautobot-drift.sh in its repository). The address is here
+      # too because the exporter gates on it before it can read anything.
+      payload="$(jq -nc \
+        --argjson id "$environment_id" \
+        --argjson project_id "$project_id" \
+        --arg bao "$BAO_ADDR" \
+        --arg sem_role "$OPENBAO_APPROLE_SEMAPHORE_ROLE_ID" \
+        --arg sem_secret "$OPENBAO_APPROLE_SEMAPHORE_SECRET_ID" \
+        '{
+          id: $id,
+          project_id: $project_id,
+          name: "homelab",
+          env: ({
+            BAO_ADDR: $bao,
+            OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: $sem_role,
+            OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret
+          } | tojson),
+          json: "{}"
+        }')"
+      # This PUT is the only writer of that environment: a failed write
+      # leaves whatever was there before, so it fails the deploy instead of
+      # reporting a sync that did not happen. The response body echoes the
+      # environment and is never printed.
+      put_status="$(docker --host "$host" exec -i semaphore curl -s -o /dev/null -w '%{http_code}' -X PUT \
+        -H "Authorization: Bearer $sem_token" \
+        -H "Content-Type: application/json" \
+        -d "$payload" \
+        "http://127.0.0.1:3000/api/project/$project_id/environment/$environment_id" 2>/dev/null)" || put_status="000"
+      case "$put_status" in
+        2*) echo "Synced runtime credentials to Semaphore project homelab-$suffix (HTTP $put_status)." ;;
+        *)
+          echo "ERROR: Semaphore project homelab-$suffix environment sync failed (HTTP $put_status); that project's environment is unchanged." >&2
+          sync_failed=1
+          ;;
+      esac
+    done
+    # This block mints a fresh API token on every deploy, so it revokes the
+    # one it minted regardless of loop outcome. A Semaphore API token does
+    # not expire on its own and is not scoped below its owner, which makes an
+    # unrevoked one a standing credential rather than a deploy-time detail.
     docker --host "$host" exec semaphore curl -sf -X DELETE \
       -H "Authorization: Bearer $sem_token" \
       "http://127.0.0.1:3000/api/user/tokens/$sem_token" >/dev/null 2>&1 \
       || echo "WARNING: could not revoke the deploy-env-sync API token; revoke it by hand."
+    [ "$sync_failed" -eq 0 ] || exit 1
   else
-    echo "ERROR: could not mint a Semaphore API token, so the project environment was not synced." >&2
+    echo "ERROR: could not mint a Semaphore API token, so no project environment was synced." >&2
     exit 1
   fi
 

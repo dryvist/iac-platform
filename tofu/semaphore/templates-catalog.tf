@@ -28,6 +28,10 @@
 #   for the repository's deployed ref: templates.tf then builds no
 #   `@ <branch>` preview variant of it, whatever preview branches the
 #   repository declares.
+#
+#   `project` is optional. Left out, the entry lands in its repository's
+#   project (project.tf repository_projects). Only openbao-tagged
+#   ansible-proxmox-apps entries set it, to "secrets" — templates.tf asserts it.
 
 locals {
   ansible_templates = merge(

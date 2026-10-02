@@ -2,7 +2,8 @@
 # the only grouping the product offers — there are no tags — so they are how a
 # ref becomes visible before a run rather than after it.
 #
-# Two tabs, and the order matters: the deployed ref is position 0, so it is what
+# Per project: a deployed tab, then one per preview ref of that project's
+# template repositories. The order matters: the deployed ref is position 0, so it is what
 # opens by default and what someone reaching for "run the converge" gets without
 # choosing anything. Preview refs sit behind it.
 #
@@ -12,33 +13,44 @@
 #
 # Declarative-drift audit (semaphoreui_project_view): the settable attributes
 # are project_id, title and position. All three are declared. `project_id` is
-# ForceNew, harmless for the same reason as elsewhere in this root.
+# ForceNew, the same as elsewhere in this root.
 
 locals {
-  # Every distinct preview ref across all repositories, so adding a repository
-  # on a new branch produces its tab without another edit here.
-  preview_branches = distinct(flatten([
-    for r in var.ansible_repositories : r.preview_branches
-  ]))
+  # Every distinct preview ref per project, so adding a repository on a new
+  # branch produces its tab without another edit here.
+  project_preview_branches = {
+    for p in local.semaphore_project_names : p => sort(distinct(flatten([
+      for repo in local.project_template_repos[p] : var.ansible_repositories[repo].preview_branches
+    ])))
+  }
 
   # position 0 is the deployed tab; previews follow in a stable, sorted order so
-  # adding one never renumbers the others.
-  view_positions = merge(
-    { deployed = 0 },
-    { for i, b in sort(local.preview_branches) : b => i + 1 },
+  # adding one never renumbers the others. Keyed `<project>/deployed` and
+  # `<project>/<branch>`.
+  project_views = merge(
+    { for p in local.semaphore_project_names : "${p}/deployed" => { project = p, title = "Deployed", position = 0 } },
+    merge([
+      for p, branches in local.project_preview_branches : {
+        for i, b in branches : "${p}/${b}" => { project = p, title = "Preview — ${b}", position = i + 1 }
+      }
+    ]...),
   )
 }
 
-resource "semaphoreui_project_view" "deployed" {
-  project_id = semaphoreui_project.homelab.id
-  title      = "Deployed"
-  position   = local.view_positions["deployed"]
+resource "semaphoreui_project_view" "each" {
+  for_each = local.project_views
+
+  project_id = semaphoreui_project.each[each.value.project].id
+  title      = each.value.title
+  position   = each.value.position
 }
 
-resource "semaphoreui_project_view" "preview" {
-  for_each = toset(local.preview_branches)
+moved {
+  from = semaphoreui_project_view.deployed
+  to   = semaphoreui_project_view.each["apps/deployed"]
+}
 
-  project_id = semaphoreui_project.homelab.id
-  title      = "Preview — ${each.value}"
-  position   = local.view_positions[each.value]
+moved {
+  from = semaphoreui_project_view.preview["develop"]
+  to   = semaphoreui_project_view.each["apps/develop"]
 }

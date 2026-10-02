@@ -30,7 +30,7 @@ variable "semaphore_api_base_url" {
 }
 
 variable "project_name" {
-  description = "The single Semaphore project holding every Ansible repository, inventory and template."
+  description = "Name prefix of the Semaphore projects; each is \"<prefix>-<project>\" (project.tf)."
   type        = string
   default     = "homelab"
 }
@@ -126,7 +126,8 @@ variable "openbao_address" {
 
 variable "max_parallel_tasks" {
   description = <<-EOT
-    Semaphore's server-wide task concurrency ceiling (semaphoreui_project.homelab).
+    Semaphore's server-wide task concurrency ceiling. Each project's own cap
+    (project.tf) is asserted to stay at or below it.
 
     Ansible's forks actually run in compose/docker-compose.yml's
     semaphore-runner service, sized for K=3 at mem_limit 6144m: an

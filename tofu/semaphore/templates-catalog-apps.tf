@@ -65,6 +65,7 @@ locals {
     # (undeclared drift) — see the import block in templates.tf.
     apps-openbao-tagged = {
       repository       = "ansible-proxmox-apps"
+      project          = "secrets"
       playbook         = "playbooks/site.yml"
       limit            = "all"
       tags             = "openbao"

@@ -42,7 +42,7 @@ resource "terraform_data" "schedule_guard" {
 resource "semaphoreui_project_schedule" "scheduled" {
   for_each = local.schedule_crons
 
-  project_id  = semaphoreui_project.homelab.id
+  project_id  = semaphoreui_project_template.ansible[each.key].project_id
   template_id = semaphoreui_project_template.ansible[each.key].id
   name        = each.key
   cron_format = each.value
@@ -59,7 +59,7 @@ moved {
 # reason: the script writes nothing and returns non-zero only on an API or IO
 # error, so drift produces a report rather than a red run.
 resource "semaphoreui_project_schedule" "nautobot_drift" {
-  project_id  = semaphoreui_project.homelab.id
+  project_id  = semaphoreui_project_template.nautobot_drift.project_id
   template_id = semaphoreui_project_template.nautobot_drift.id
   name        = "nautobot-drift-report"
   cron_format = "47 6 * * *"
@@ -69,7 +69,7 @@ resource "semaphoreui_project_schedule" "nautobot_drift" {
 # Every 12h, off the :00/:30 mark. Declared apart from
 # schedule_crons/scheduled_templates, same as nautobot_drift's schedule above.
 resource "semaphoreui_project_schedule" "openbao_rotate_scheduled" {
-  project_id  = semaphoreui_project.homelab.id
+  project_id  = semaphoreui_project_template.openbao_rotate_scheduled.project_id
   template_id = semaphoreui_project_template.openbao_rotate_scheduled.id
   name        = "openbao-rotate-approles-scheduled"
   cron_format = "13 3,15 * * *"

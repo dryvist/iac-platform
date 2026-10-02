@@ -1,4 +1,4 @@
-# One repository entry per (repo, ref) Semaphore may run.
+# One repository entry per (project, repo, ref) Semaphore may run.
 #
 # Semaphore binds a ref to the REPOSITORY, not to the run: a template inherits
 # whichever branch its repository names, and the task list shows the commit it
@@ -11,14 +11,16 @@
 # overrides the repository's branch invisibly. It is deliberately unused — see
 # the drift audit at the top of templates.tf.
 #
-# Keys: the deployed ref keeps the bare repository name, so every existing
-# reference (inventories.tf, the Nautobot template) resolves unchanged and no
-# entry is replaced. Preview refs are keyed `<repo>@<branch>`.
+# Keys: `<project>/<repo>` for the deployed ref, `<project>/<repo>@<branch>`
+# for a preview ref. A project carries every ref of the repositories its
+# templates run from, plus the deployed ansible-proxmox-apps ref whatever its
+# templates are: that checkout holds inventory/hosts.yml, which every
+# project's inventory points at (inventories.tf).
 #
 # Declarative-drift audit (semaphoreui_project_repository): the settable
 # attributes are name, project_id, url, branch and ssh_key_id. All five are
-# declared. `project_id` is ForceNew, which is harmless here — the project is
-# created once and never renamed in a way that would replace it.
+# declared. `project_id` is ForceNew: an entry that changes project is
+# recreated, and so is every template built on it (templates.tf).
 
 locals {
   # Flattened (repo, ref) pairs. `deployed` is the safety property this file
@@ -50,6 +52,22 @@ locals {
       }
     },
   )
+
+  project_template_repos = {
+    for p in local.semaphore_project_names : p => distinct([
+      for t in local.ansible_templates : t.repository
+      if try(t.project, local.repository_projects[t.repository]) == p
+    ])
+  }
+
+  project_repository_refs = {
+    for pair in flatten([
+      for p in local.semaphore_project_names : [
+        for rkey, r in local.repository_refs : merge(r, { key = "${p}/${rkey}", project = p })
+        if contains(local.project_template_repos[p], r.repo) || rkey == "ansible-proxmox-apps"
+      ]
+    ]) : pair.key => pair
+  }
 }
 
 # The url validation on the variable covers what is declared here. It cannot
@@ -69,9 +87,9 @@ resource "terraform_data" "repository_origin_guard" {
 }
 
 resource "semaphoreui_project_repository" "ansible" {
-  for_each = local.repository_refs
+  for_each = local.project_repository_refs
 
-  project_id = semaphoreui_project.homelab.id
+  project_id = semaphoreui_project.each[each.value.project].id
 
   # The ref is part of the display name, so the repository picker cannot be
   # read as ambiguous.
@@ -80,5 +98,16 @@ resource "semaphoreui_project_repository" "ansible" {
   branch = each.value.branch
 
   # Public HTTPS clone — see the None key rationale in project.tf.
-  ssh_key_id = semaphoreui_project_key.none.id
+  ssh_key_id = semaphoreui_project_key.none[each.value.project].id
+}
+
+# The single project's entries are the apps project's now (project.tf).
+moved {
+  from = semaphoreui_project_repository.ansible["ansible-proxmox-apps"]
+  to   = semaphoreui_project_repository.ansible["apps/ansible-proxmox-apps"]
+}
+
+moved {
+  from = semaphoreui_project_repository.ansible["ansible-proxmox-apps@develop"]
+  to   = semaphoreui_project_repository.ansible["apps/ansible-proxmox-apps@develop"]
 }

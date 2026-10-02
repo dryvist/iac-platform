@@ -41,7 +41,10 @@
 #
 # The deployed ref keeps the bare template key, so its resource address, its
 # name in the UI and every schedule that reaches it are all unchanged — this
-# adds templates, it does not renumber the existing ones. A preview ref gets
+# adds templates, it does not renumber the existing ones. `project_id` is
+# ForceNew, though: a template whose project is not `apps` (the original single
+# project, project.tf) is recreated with a new numeric id on the apply that
+# introduces the split. A preview ref gets
 # `<template> @ <branch>`, which is what the run history will show.
 #
 # `deployed` rides along because schedules.tf must be able to assert that
@@ -55,15 +58,16 @@ locals {
   ansible_template_refs = {
     for pair in flatten([
       for tname, t in local.ansible_templates : [
-        for rkey, r in local.repository_refs : {
+        for rkey, r in local.project_repository_refs : {
           key = r.deployed ? tname : "${tname} @ ${r.branch}"
           value = merge(t, {
+            project        = r.project
             repository_key = rkey
             branch         = r.branch
             deployed       = r.deployed
             template       = tname
           })
-        } if r.repo == t.repository && (r.deployed || !try(t.deployed_only, false))
+        } if r.project == try(t.project, local.repository_projects[t.repository]) && r.repo == t.repository && (r.deployed || !try(t.deployed_only, false))
       ]
     ]) : pair.key => pair.value
   }
@@ -81,20 +85,29 @@ resource "terraform_data" "limit_guard" {
       ])
       error_message = "Every ansible_templates entry needs a non-empty limit that does not itself name localhost; the argument list appends it."
     }
+    # `secrets` holds only the openbao-tagged ansible-proxmox-apps runs.
+    precondition {
+      condition = alltrue([
+        for t in local.ansible_templates : try(t.project, local.repository_projects[t.repository]) != "secrets" || (
+          t.repository == "ansible-proxmox-apps" && contains(split(",", try(t.tags, "")), "openbao")
+        )
+      ])
+      error_message = "Only openbao-tagged ansible-proxmox-apps templates may name project = \"secrets\"."
+    }
   }
 }
 
 resource "semaphoreui_project_template" "ansible" {
   for_each = local.ansible_template_refs
 
-  project_id     = semaphoreui_project.homelab.id
+  project_id     = semaphoreui_project.each[each.value.project].id
   repository_id  = semaphoreui_project_repository.ansible[each.value.repository_key].id
-  inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
-  environment_id = semaphoreui_project_environment.homelab.id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu[each.value.project].id
+  environment_id = semaphoreui_project_environment.homelab[each.value.project].id
 
   # Deployed templates sit on the first tab; a preview ref gets its own, so
   # picking one is a deliberate act rather than a misread of a list.
-  view_id = each.value.deployed ? semaphoreui_project_view.deployed.id : semaphoreui_project_view.preview[each.value.branch].id
+  view_id = semaphoreui_project_view.each["${each.value.project}/${each.value.deployed ? "deployed" : each.value.branch}"].id
 
   name = each.key
   description = each.value.deployed ? each.value.description : join(" ", [
@@ -142,14 +155,14 @@ resource "semaphoreui_project_template" "ansible" {
 # It is bound to the Nautobot inventory rather than the tofu one so that the
 # scheduled job exercises the same resolution path a future cutover would use.
 resource "semaphoreui_project_template" "nautobot_drift" {
-  project_id     = semaphoreui_project.homelab.id
-  repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
+  project_id     = semaphoreui_project.each["apps"].id
+  repository_id  = semaphoreui_project_repository.ansible["apps/ansible-proxmox-apps"].id
   inventory_id   = semaphoreui_project_inventory.homelab_nautobot.id
-  environment_id = semaphoreui_project_environment.homelab.id
+  environment_id = semaphoreui_project_environment.homelab["apps"].id
 
   # Deployed ref only: this one is scheduled, and nothing scheduled runs an
   # unreleased ref.
-  view_id = semaphoreui_project_view.deployed.id
+  view_id = semaphoreui_project_view.each["apps/deployed"].id
 
   name        = "nautobot-drift-report"
   description = "Read-only report comparing Nautobot against the published inventory."
@@ -171,14 +184,14 @@ resource "semaphoreui_project_template" "nautobot_drift" {
 # Auth: the scheduled AppRole pair from the platform env document the
 # wrapper exports.
 resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
-  project_id     = semaphoreui_project.homelab.id
-  repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
-  inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
-  environment_id = semaphoreui_project_environment.homelab.id
+  project_id     = semaphoreui_project.each["secrets"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
+  environment_id = semaphoreui_project_environment.homelab["secrets"].id
 
   # Deployed ref only: this one is scheduled, and nothing scheduled runs an
   # unreleased ref.
-  view_id = semaphoreui_project_view.deployed.id
+  view_id = semaphoreui_project_view.each["secrets/deployed"].id
 
   name        = "openbao-rotate-approles-scheduled"
   description = "Scheduled rotation of openbao_secrets domain AppRole secret_ids."
@@ -197,11 +210,11 @@ resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
 # One-shot seed of host secret-zero identities into the env document.
 # Manual only: no schedule reaches it. Same auth as the scheduled rotation.
 resource "semaphoreui_project_template" "openbao_seed_host_secret_zero" {
-  project_id     = semaphoreui_project.homelab.id
-  repository_id  = semaphoreui_project_repository.ansible["ansible-proxmox-apps@develop"].id
-  inventory_id   = semaphoreui_project_inventory.homelab_tofu.id
-  environment_id = semaphoreui_project_environment.homelab.id
-  view_id        = semaphoreui_project_view.preview["develop"].id
+  project_id     = semaphoreui_project.each["secrets"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps@develop"].id
+  inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
+  environment_id = semaphoreui_project_environment.homelab["secrets"].id
+  view_id        = semaphoreui_project_view.each["secrets/develop"].id
 
   name        = "openbao-seed-host-secret-zero @ develop"
   description = "Seeds host secret-zero AppRole pairs into the env document; skips any already present. Runs the develop ref, on demand only."

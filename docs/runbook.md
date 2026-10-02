@@ -113,11 +113,14 @@ on anything else.
 Which git ref a run uses, and how to start a run from a preview ref:
 [semaphore-refs.md](semaphore-refs.md).
 
-**Nothing is created in the Semaphore UI.** The project, repositories,
-inventories, environment, templates and schedules are declared in
+**Nothing is created in the Semaphore UI.** The projects (one per Ansible
+repository, listed in `tofu/semaphore/project.tf`), repositories,
+inventories, environments, templates and schedules are declared in
 `tofu/semaphore/` and applied as a Terrakube job, the same way `tofu/terrakube/`
 declares Terrakube's own organization and workspaces. Creating any of these by
 hand produces an object OpenTofu does not manage and will not reconcile.
+A template that changes project gets a new numeric id on apply, so anything
+that dispatches by template id needs its id map republished after that apply.
 
 Two things that are *not* in that root, each for a stated reason:
 

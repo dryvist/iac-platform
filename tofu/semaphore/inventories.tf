@@ -23,16 +23,24 @@
 # The current path. inventory/hosts.yml deliberately contains no hosts: every
 # host is added by load_tofu.yml, which each playbook imports as its first play.
 # So this is a pointer to the loader, not a second copy of the published
-# ansible_inventory artifact.
+# ansible_inventory artifact. One per project, each on that project's own
+# deployed ansible-proxmox-apps checkout.
 resource "semaphoreui_project_inventory" "homelab_tofu" {
-  project_id = semaphoreui_project.homelab.id
+  for_each = local.semaphore_project_names
+
+  project_id = semaphoreui_project.each[each.value].id
   name       = "homelab-tofu"
-  ssh_key_id = semaphoreui_project_key.none.id
+  ssh_key_id = semaphoreui_project_key.none[each.value].id
 
   file = {
     path          = "inventory/hosts.yml"
-    repository_id = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
+    repository_id = semaphoreui_project_repository.ansible["${each.value}/ansible-proxmox-apps"].id
   }
+}
+
+moved {
+  from = semaphoreui_project_inventory.homelab_tofu
+  to   = semaphoreui_project_inventory.homelab_tofu["apps"]
 }
 
 # The parallel Nautobot-sourced inventory. inventory/nautobot.yml is the
@@ -44,14 +52,15 @@ resource "semaphoreui_project_inventory" "homelab_tofu" {
 #
 # Nothing references this inventory yet — cutting a converge over to it is a
 # separate, deliberate decision. It exists so the drift report can exercise the
-# same path a cutover would use.
+# same path a cutover would use. One read-only comparison, so it lives in the
+# apps project only.
 resource "semaphoreui_project_inventory" "homelab_nautobot" {
-  project_id = semaphoreui_project.homelab.id
+  project_id = semaphoreui_project.each["apps"].id
   name       = "homelab-nautobot"
-  ssh_key_id = semaphoreui_project_key.none.id
+  ssh_key_id = semaphoreui_project_key.none["apps"].id
 
   file = {
     path          = "inventory/nautobot.yml"
-    repository_id = semaphoreui_project_repository.ansible["ansible-proxmox-apps"].id
+    repository_id = semaphoreui_project_repository.ansible["apps/ansible-proxmox-apps"].id
   }
 }
