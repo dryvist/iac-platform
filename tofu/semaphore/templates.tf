@@ -120,7 +120,8 @@ resource "semaphoreui_project_template" "ansible" {
   arguments = concat(
     ["./scripts/run-ansible.sh", each.value.playbook],
     try(each.value.tags, null) != null ? ["--tags", each.value.tags] : [],
-    ["--limit", "${each.value.limit},localhost", "--diff"],
+    ["--limit", "${each.value.limit},localhost"],
+    try(each.value.diff, true) ? ["--diff"] : [],
     try(each.value.extra_args, []),
   )
 

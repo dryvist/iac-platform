@@ -57,12 +57,15 @@ locals {
       description      = "LiteLLM router converge with llm_router_seed_mode=rebuild: re-seeds roles, fallbacks and router_settings from git."
     }
 
+    # diff = false: the role syncs a full source tree, and its --diff output
+    # is too large to store as task output.
     ai-hermes-agent = {
       repository  = "ansible-proxmox-ai"
       playbook    = "playbooks/site.yml"
       limit       = "hermes_agent_group"
       tags        = "hermes_agent"
       mutating    = true
+      diff        = false
       description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
     }
   }
