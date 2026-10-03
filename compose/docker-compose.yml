@@ -450,9 +450,12 @@ services:
       - semaphore_data:/var/lib/semaphore
     ports:
       - "${PORT_SEMAPHORE}:3000"
-    # No task forking here anymore; sized like the other small services below
-    # (terrakube-executor 1536m, postgresql-service 512m).
-    mem_limit: 1024m
+    # No task forking here, but the server decodes each runner progress report
+    # (PUT /api/internal/runners) whole, and the runner re-sends every
+    # unacknowledged log line in one report. A task with large output needs
+    # that report to fit in memory. Semaphore has no setting that caps report
+    # or task-output size.
+    mem_limit: 2048m
     restart: unless-stopped
     depends_on:
       postgresql-service:
