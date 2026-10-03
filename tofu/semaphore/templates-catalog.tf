@@ -32,6 +32,11 @@
 #   `project` is optional. Left out, the entry lands in its repository's
 #   project (project.tf repository_projects). Only openbao-tagged
 #   ansible-proxmox-apps entries set it, to "secrets" — templates.tf asserts it.
+#
+#   `diff` is optional and defaults to true, which appends `--diff`. Set it to
+#   false only on an entry whose diffs are too large to store as task output,
+#   such as a role that syncs a whole source tree. Never replace it with
+#   `--check`.
 
 locals {
   ansible_templates = merge(
