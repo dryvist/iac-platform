@@ -83,6 +83,19 @@ locals {
       description      = "Notifications and core apps converge (mailpit, ntfy, healthchecks, deadman, mssql, postgres, nautobot, n8n, openproject, ...), via --tags mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker."
     }
 
+    # Dedicated narrow task: the play, block, and dynamic role include carry
+    # this tag, and only the credential import inside the role is tagged.
+    apps-agent-sandbox-credentials = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "agent_sandbox_host"
+      tags             = "agent_sandbox_credentials"
+      mutating         = true
+      schedule_enabled = true
+      extra_args       = []
+      description      = "Agent sandbox credential refresh only, via --tags agent_sandbox_credentials."
+    }
+
     # site/04-secrets-and-collab-apps.yml, minus openbao (apps-openbao-tagged),
     # zammad, vikunja, authelia and grafana, which already have their own
     # scoped templates in templates-catalog-apps.tf.

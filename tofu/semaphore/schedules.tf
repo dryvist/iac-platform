@@ -4,6 +4,7 @@ locals {
   }
 
   schedule_crons = {
+    apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"
     splunk-validate                = "37 6 * * *"
     splunk-weekly-update           = "17 22 * * 4"
@@ -22,9 +23,11 @@ resource "terraform_data" "schedule_guard" {
     }
     precondition {
       condition = alltrue([
-        for k, t in local.scheduled_templates : !t.mutating || k == "splunk-weekly-update"
+        for k, t in local.scheduled_templates : !t.mutating || contains(
+          ["splunk-weekly-update", "apps-agent-sandbox-credentials"], k
+        )
       ])
-      error_message = "Only splunk-weekly-update may be both mutating and scheduled."
+      error_message = "Only splunk-weekly-update and apps-agent-sandbox-credentials may be both mutating and scheduled."
     }
     # Nothing unattended may run an unreleased ref. This asserts on the
     # `deployed` flag carried through from repositories.tf rather than on the
