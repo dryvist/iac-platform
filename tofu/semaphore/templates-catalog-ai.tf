@@ -29,6 +29,28 @@ locals {
       description = "GPU inference serving stack converge (llama.cpp, LiteLLM proxy, Redis spend store)."
     }
 
+    ai-llm-profile = {
+      repository = "ansible-proxmox-ai"
+      playbook   = "playbooks/site.yml"
+      limit      = "all"
+      tags       = "llm_gpu_serving"
+      mutating   = true
+      survey_vars = [{
+        name        = "llm_active_profile"
+        title       = "profile"
+        description = "Select the active LLM GPU serving profile."
+        required    = true
+        type        = "enum"
+        enum_values = {
+          small      = "small"
+          "medium-a" = "medium-a"
+          "medium-b" = "medium-b"
+          max        = "max"
+        }
+      }]
+      description = "Select and apply the active LLM GPU serving profile."
+    }
+
     ai-llm-router = {
       repository = "ansible-proxmox-ai"
       playbook   = "playbooks/site.yml"
