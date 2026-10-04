@@ -162,34 +162,43 @@ if [ "${1:-}" = "--inner" ]; then
   # already migrated and serving.
   DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh"
 
-  # Inject runtime credentials into every project's "homelab" environment so
+  # Inject runtime credentials into each project's "homelab" environment so
   # task worker processes inherit them (Semaphore LocalJob does not inherit
   # container os.Environ unless mapped in the project environment template).
-  # tofu/semaphore/project.tf declares five projects, not one, so this loops
-  # over all of them by NAME rather than assuming project/environment id 1 —
-  # tofu/semaphore's project_id is ForceNew, so ids are not stable across an
-  # apply that changes project membership, and this script has no tofu state
-  # access to read them from anyway. Discovered through the same API this
-  # block already authenticates against.
+  # Discover current projects by API: ids and membership depend on Tofu state.
   sem_token="$(docker --host "$host" exec semaphore semaphore users token create --login "${SEMAPHORE_ADMIN:-admin}" --name deploy-env-sync 2>&1 | tail -n 1 | tr -d '\r\n')" || true
   if [ -n "$sem_token" ]; then
-    projects_json="$(docker --host "$host" exec semaphore curl -sf \
-      -H "Authorization: Bearer $sem_token" \
-      http://127.0.0.1:3000/api/projects 2>/dev/null)" || projects_json=""
+    if [ "${#sem_token}" -lt 16 ] || printf '%s' "$sem_token" | grep -qiE 'error|usage|not found'; then
+      echo "ERROR: Semaphore did not return a usable API token for environment sync." >&2
+      exit 1
+    fi
     sync_failed=0
-    for suffix in pve apps secrets observability ai; do
-      project_id="$(printf '%s' "$projects_json" | jq -r --arg name "homelab-$suffix" '.[] | select(.name == $name) | .id')"
-      if [ -z "$project_id" ]; then
-        echo "ERROR: no Semaphore project named homelab-$suffix; the environment sync cannot proceed until tofu/semaphore has been applied." >&2
-        sync_failed=1
-        continue
-      fi
+    projects_json=""
+    for _ in {1..15}; do
+      projects_json="$(docker --host "$host" exec semaphore curl -sf --max-time 5 \
+        -H "Authorization: Bearer $sem_token" \
+        http://127.0.0.1:3000/api/projects 2>/dev/null)" || projects_json=""
+      printf '%s' "$projects_json" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1 && break
+      sleep 2
+    done
+    if ! printf '%s' "$projects_json" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
+      echo "ERROR: Semaphore API returned no projects; the environment sync cannot proceed." >&2
+      sync_failed=1
+    fi
+    project_ids="$(printf '%s' "$projects_json" | jq -r 'if type == "array" then .[].id | select(type == "number") else empty end' 2>/dev/null || true)"
+    if [ -z "$project_ids" ]; then
+      echo "ERROR: Semaphore API returned no project ids; the environment sync cannot proceed." >&2
+      sync_failed=1
+    fi
+    while IFS= read -r project_id; do
+      [ -n "$project_id" ] || continue
+      project_name="$(printf '%s' "$projects_json" | jq -r --argjson id "$project_id" '.[] | select(.id == $id) | .name')"
       environments_json="$(docker --host "$host" exec semaphore curl -sf \
         -H "Authorization: Bearer $sem_token" \
         "http://127.0.0.1:3000/api/project/$project_id/environment" 2>/dev/null)" || environments_json=""
-      environment_id="$(printf '%s' "$environments_json" | jq -r '.[] | select(.name == "homelab") | .id')"
+      environment_id="$(printf '%s' "$environments_json" | jq -r '.[] | select(.name == "homelab") | .id' 2>/dev/null || true)"
       if [ -z "$environment_id" ]; then
-        echo "ERROR: project homelab-$suffix has no 'homelab' environment yet; the environment sync cannot proceed until tofu/semaphore has been applied." >&2
+        echo "ERROR: project '$project_name' has no 'homelab' environment; the environment sync cannot proceed." >&2
         sync_failed=1
         continue
       fi
@@ -227,13 +236,13 @@ if [ "${1:-}" = "--inner" ]; then
         -d "$payload" \
         "http://127.0.0.1:3000/api/project/$project_id/environment/$environment_id" 2>/dev/null)" || put_status="000"
       case "$put_status" in
-        2*) echo "Synced runtime credentials to Semaphore project homelab-$suffix (HTTP $put_status)." ;;
+        2*) echo "Synced runtime credentials to Semaphore project '$project_name' (HTTP $put_status)." ;;
         *)
-          echo "ERROR: Semaphore project homelab-$suffix environment sync failed (HTTP $put_status); that project's environment is unchanged." >&2
+          echo "ERROR: Semaphore project '$project_name' environment sync failed (HTTP $put_status); that project's environment is unchanged." >&2
           sync_failed=1
           ;;
       esac
-    done
+    done <<< "$project_ids"
     # This block mints a fresh API token on every deploy, so it revokes the
     # one it minted regardless of loop outcome. A Semaphore API token does
     # not expire on its own and is not scoped below its owner, which makes an
