@@ -204,6 +204,7 @@ if [ "${1:-}" = "--inner" ]; then
         --arg bao "$BAO_ADDR" \
         --arg sem_role "$OPENBAO_APPROLE_SEMAPHORE_ROLE_ID" \
         --arg sem_secret "$OPENBAO_APPROLE_SEMAPHORE_SECRET_ID" \
+        --arg issues_channel "C0B42KTRF6G" \
         '{
           id: $id,
           project_id: $project_id,
@@ -211,7 +212,8 @@ if [ "${1:-}" = "--inner" ]; then
           env: ({
             BAO_ADDR: $bao,
             OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: $sem_role,
-            OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret
+            OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret,
+            SLACK_HERMES_ISSUES_CHANNEL: $issues_channel
           } | tojson),
           json: "{}"
         }')"
