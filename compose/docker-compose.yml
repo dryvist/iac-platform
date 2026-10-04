@@ -335,6 +335,7 @@ services:
     build:
       context: ..
       dockerfile: compose/semaphore/Dockerfile
+      pull: true
       args:
         SEMAPHORE_VERSION: ${SEMAPHORE_VERSION}
     container_name: semaphore
