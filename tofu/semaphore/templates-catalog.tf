@@ -15,9 +15,9 @@
 #
 #   `tags` is optional and omitted by almost every entry. Set it only when a
 #   playbook must be run for some of its plays rather than in full, and only
-#   after confirming each tag is carried by the play itself with a static
-#   `roles:` list — `--tags` never reaches inside an untagged `include_role`,
-#   and a tag that matches nothing yields a converge that runs cleanly,
+#   after confirming each tag is carried by the play and every dynamic
+#   `include_role` on its path — `--tags` never reaches inside an untagged
+#   include, and a tag that matches nothing yields a converge that runs cleanly,
 #   changes nothing and reports success. A scoped entry still names the ENTRY
 #   playbook (the one whose preamble loads the inventory), never an imported
 #   fragment of it. A scoped entry is a second template, never an edit to the
