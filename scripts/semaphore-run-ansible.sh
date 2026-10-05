@@ -47,11 +47,33 @@ if [ -f requirements.yml ]; then
   ansible-galaxy collection install -r requirements.yml || true
 fi
 
+# Semaphore's bash templates append survey variables as name=value script
+# arguments. Translate the profile selector into the Ansible extra-var expected
+# by the site playbook, and reject anything outside the template's enum.
+run_args=()
+active_profile=""
+for arg in "$@"; do
+  case "$arg" in
+    llm_active_profile=*)
+      [ -z "$active_profile" ] || { echo "semaphore-run-ansible.sh: duplicate llm_active_profile survey variable" >&2; exit 2; }
+      active_profile="${arg#*=}"
+      case "$active_profile" in
+        small|medium-a|medium-b|max) ;;
+        *) echo "semaphore-run-ansible.sh: invalid llm_active_profile survey value" >&2; exit 2 ;;
+      esac
+      ;;
+    *) run_args+=("$arg") ;;
+  esac
+done
+if [ -n "$active_profile" ]; then
+  run_args+=(--extra-vars "llm_active_profile=$active_profile")
+fi
+
 log="$(mktemp)"
 trap 'rm -f "$log"' EXIT
 
 set +e
-"$@" 2>&1 | tee "$log"
+"${run_args[@]}" 2>&1 | tee "$log"
 rc="${PIPESTATUS[0]}"
 set -e
 
@@ -71,7 +93,7 @@ fi
 
 limit=""
 prev=""
-for a in "$@"; do
+for a in "${run_args[@]}"; do
   { [ "$prev" = "--limit" ] || [ "$prev" = "-l" ]; } && limit="$a"
   case "$a" in --limit=*) limit="${a#--limit=}" ;; esac
   prev="$a"

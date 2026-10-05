@@ -26,14 +26,14 @@
 # arguments, description, git_branch, view_id, allow_override_args_in_task,
 # suppress_success_alerts, and the build / deploy / survey_vars / task_params /
 # vaults blocks. Declared below: the identity and wiring fields, app, playbook,
-# arguments, description, allow_override_args_in_task and
-# suppress_success_alerts and view_id. Deliberately absent: git_branch (the
+# arguments, description, allow_override_args_in_task, suppress_success_alerts,
+# survey_vars and view_id. Deliberately absent: git_branch (the
 # repository's own branch governs — an override here would silently run a
 # different ref than the one declared in repositories.tf; running a second ref
 # is expressed instead by a second repository entry, which puts the ref in the
 # repository name, the template name and the view), build and deploy (artifact
-# templates, unused), survey_vars (a prompt is a manual input, which is the
-# thing this root exists to remove), task_params and vaults.
+# templates, unused), task_params and vaults. survey_vars is optional and is
+# declared only on a template that needs a typed run-time selection.
 
 # The catalog itself (local.ansible_templates) lives in templates-catalog.tf.
 
@@ -124,6 +124,8 @@ resource "semaphoreui_project_template" "ansible" {
     try(each.value.diff, true) ? ["--diff"] : [],
     try(each.value.extra_args, []),
   )
+
+  survey_vars = try(each.value.survey_vars, null)
 
   # Allows a task launch (UI or API) to replace `arguments` — the terraform
   # provider's only lever for a per-task override, per its own docs (Terraform
