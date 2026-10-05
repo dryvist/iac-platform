@@ -41,17 +41,30 @@ if [ -z "${SEMAPHORE_RUN_ENV_LOADED:-}" ] && [ -n "${BAO_ADDR:-}" ]; then
     bash "$0" "$@"
 fi
 
-if [ -f requirements.yml ]; then
-  echo "Installing Ansible requirements..."
-  ansible-galaxy install -r requirements.yml --roles-path roles || true
-  ansible-galaxy collection install -r requirements.yml || true
-fi
-
 # Semaphore's bash templates append survey variables as name=value script
 # arguments. Translate the profile selector into the Ansible extra-var expected
-# by the site playbook, and reject anything outside the template's enum.
+# by the site playbook. Benchmark survey values are validated here, encoded as
+# JSON (including numeric lists), and validated against the selected config by
+# its playbook before any benchmark command runs.
 run_args=()
 active_profile=""
+benchmark_seen=0
+benchmark_config=""
+benchmark_machine=""
+benchmark_engine=""
+benchmark_model_size=""
+benchmark_concurrency_list=""
+benchmark_context_list=""
+benchmark_power_cap_w=""
+benchmark_endpoint_root=""
+benchmark_cache_path=""
+
+survey_value() {
+  local name="$1" value="$2" current="$3"
+  [ -z "$current" ] || { echo "semaphore-run-ansible.sh: duplicate $name survey variable" >&2; exit 2; }
+  [ -n "$value" ] || { echo "semaphore-run-ansible.sh: empty $name survey value" >&2; exit 2; }
+}
+
 for arg in "$@"; do
   case "$arg" in
     llm_active_profile=*)
@@ -62,11 +75,137 @@ for arg in "$@"; do
         *) echo "semaphore-run-ansible.sh: invalid llm_active_profile survey value" >&2; exit 2 ;;
       esac
       ;;
+    config_name=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value config_name "$value" "$benchmark_config"
+      benchmark_config="$value"
+      ;;
+    machine=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value machine "$value" "$benchmark_machine"
+      benchmark_machine="$value"
+      ;;
+    benchmark_endpoint_root=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value benchmark_endpoint_root "$value" "$benchmark_endpoint_root"
+      benchmark_endpoint_root="$value"
+      ;;
+    benchmark_cache_path=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value benchmark_cache_path "$value" "$benchmark_cache_path"
+      benchmark_cache_path="$value"
+      ;;
+    engine=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value engine "$value" "$benchmark_engine"
+      benchmark_engine="$value"
+      ;;
+    model_size=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value model_size "$value" "$benchmark_model_size"
+      benchmark_model_size="$value"
+      ;;
+    concurrency_list=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value concurrency_list "$value" "$benchmark_concurrency_list"
+      benchmark_concurrency_list="$value"
+      ;;
+    context_list=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value context_list "$value" "$benchmark_context_list"
+      benchmark_context_list="$value"
+      ;;
+    power_cap_w=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value power_cap_w "$value" "$benchmark_power_cap_w"
+      benchmark_power_cap_w="$value"
+      ;;
     *) run_args+=("$arg") ;;
   esac
 done
+
+if [ "$benchmark_seen" -eq 1 ]; then
+  [ -n "$benchmark_config" ] || { echo "semaphore-run-ansible.sh: missing config_name survey variable" >&2; exit 2; }
+  [ -n "$benchmark_machine" ] || { echo "semaphore-run-ansible.sh: missing machine survey variable" >&2; exit 2; }
+  [ -n "$benchmark_engine" ] || { echo "semaphore-run-ansible.sh: missing engine survey variable" >&2; exit 2; }
+  [ -n "$benchmark_model_size" ] || { echo "semaphore-run-ansible.sh: missing model_size survey variable" >&2; exit 2; }
+  [ -n "$benchmark_concurrency_list" ] || { echo "semaphore-run-ansible.sh: missing concurrency_list survey variable" >&2; exit 2; }
+  [ -n "$benchmark_context_list" ] || { echo "semaphore-run-ansible.sh: missing context_list survey variable" >&2; exit 2; }
+  [ -n "$benchmark_power_cap_w" ] || { echo "semaphore-run-ansible.sh: missing power_cap_w survey variable (use 0 for no cap)" >&2; exit 2; }
+  [ -n "$benchmark_endpoint_root" ] || { echo "semaphore-run-ansible.sh: missing benchmark_endpoint_root survey variable" >&2; exit 2; }
+  [ -n "$benchmark_cache_path" ] || { echo "semaphore-run-ansible.sh: missing benchmark_cache_path survey variable" >&2; exit 2; }
+
+  case "$benchmark_config" in
+    llama-cpp/cross-card|vllm/cross-card|mlx/cross-card|lm-eval/quick-intelligence) ;;
+    *) echo "semaphore-run-ansible.sh: invalid config_name survey value" >&2; exit 2 ;;
+  esac
+  [[ "$benchmark_machine" =~ ^[A-Za-z][A-Za-z0-9_-]*$ ]] || {
+    echo "semaphore-run-ansible.sh: machine must be an inventory alias, not a hostname or address" >&2
+    exit 2
+  }
+  [[ "$benchmark_endpoint_root" =~ ^https://[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$ ]] || {
+    echo "semaphore-run-ansible.sh: benchmark_endpoint_root must be an HTTPS inventory FQDN origin" >&2
+    exit 2
+  }
+  [[ "$benchmark_cache_path" == /* && "$benchmark_cache_path" != *$'\n'* && "$benchmark_cache_path" != *$'\r'* ]] || {
+    echo "semaphore-run-ansible.sh: benchmark_cache_path must be an absolute target path" >&2
+    exit 2
+  }
+  [[ ! "$benchmark_cache_path" =~ (^|/)\.\.(/|$) ]] || {
+    echo "semaphore-run-ansible.sh: benchmark_cache_path must not traverse parent directories" >&2
+    exit 2
+  }
+  for value in "$benchmark_engine" "$benchmark_model_size"; do
+    [[ "$value" =~ ^[A-Za-z0-9][A-Za-z0-9_-]*$ ]] || {
+      echo "semaphore-run-ansible.sh: engine and model_size must be simple selectors" >&2
+      exit 2
+    }
+  done
+  [[ "$benchmark_concurrency_list" =~ ^[1-9][0-9]*(,[1-9][0-9]*)*$ ]] || {
+    echo "semaphore-run-ansible.sh: concurrency_list must be comma-separated positive integers" >&2
+    exit 2
+  }
+  [[ "$benchmark_context_list" =~ ^[1-9][0-9]*(,[1-9][0-9]*)*$ ]] || {
+    echo "semaphore-run-ansible.sh: context_list must be comma-separated positive token counts" >&2
+    exit 2
+  }
+  [[ "$benchmark_power_cap_w" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
+    echo "semaphore-run-ansible.sh: power_cap_w must be a non-negative number; use 0 for no cap" >&2
+    exit 2
+  }
+  benchmark_json="$(jq -cn \
+    --arg config_name "$benchmark_config" \
+    --arg machine "$benchmark_machine" \
+    --arg engine "$benchmark_engine" \
+    --arg model_size "$benchmark_model_size" \
+    --arg concurrency_list "$benchmark_concurrency_list" \
+    --arg context_list "$benchmark_context_list" \
+    --arg power_cap_w "$benchmark_power_cap_w" \
+    --arg benchmark_endpoint_root "$benchmark_endpoint_root" \
+    --arg benchmark_cache_path "$benchmark_cache_path" \
+    '{config_name: $config_name, machine: $machine, engine: $engine, model_size: $model_size,
+      concurrency_list: $concurrency_list, context_list: $context_list, power_cap_w: $power_cap_w,
+      benchmark_endpoint_root: $benchmark_endpoint_root, benchmark_cache_path: $benchmark_cache_path}')"
+  run_args+=(--extra-vars "$benchmark_json")
+fi
+
 if [ -n "$active_profile" ]; then
   run_args+=(--extra-vars "llm_active_profile=$active_profile")
+fi
+
+if [ -f requirements.yml ]; then
+  echo "Installing Ansible requirements..."
+  ansible-galaxy install -r requirements.yml --roles-path roles || true
+  ansible-galaxy collection install -r requirements.yml || true
 fi
 
 log="$(mktemp)"

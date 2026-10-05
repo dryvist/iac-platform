@@ -51,6 +51,89 @@ locals {
       description = "Select and apply the active LLM GPU serving profile."
     }
 
+    # The AI repository imports playbooks/llm-model-campaign.yml from site.yml
+    # with the model_campaign tag; this template runs that tagged entry path.
+    ai-llm-model-campaign = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/site.yml"
+      limit            = "all"
+      tags             = "model_campaign"
+      mutating         = true
+      schedule_enabled = false
+      survey_vars = [
+        {
+          name        = "config_name"
+          title       = "Benchmark config"
+          description = "Named TOML under configs/<tool>/; omit the .toml suffix."
+          required    = true
+          type        = "enum"
+          enum_values = {
+            "llama-cpp/cross-card"       = "llama-cpp/cross-card"
+            "vllm/cross-card"            = "vllm/cross-card"
+            "mlx/cross-card"             = "mlx/cross-card"
+            "lm-eval/quick-intelligence" = "lm-eval/quick-intelligence"
+          }
+        },
+        {
+          name        = "machine"
+          title       = "Benchmark target inventory alias"
+          description = "Benchmark target inventory alias."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "benchmark_endpoint_root"
+          title       = "Serving endpoint origin"
+          description = "HTTPS FQDN origin declared for the selected target; no path or address."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "benchmark_cache_path"
+          title       = "Model cache path"
+          description = "Existing target-local writable cache directory from its inventory."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "engine"
+          title       = "Engine"
+          description = "Engine selector supported by the chosen config."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "model_size"
+          title       = "Model size"
+          description = "AI registry size key; do not enter a model ID or quantization."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "concurrency_list"
+          title       = "Concurrency list"
+          description = "Comma-separated positive integers supported by the config."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "context_list"
+          title       = "Context list"
+          description = "Comma-separated positive prompt-token targets supported by the config."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "power_cap_w"
+          title       = "Power cap (W)"
+          description = "Positive watts, or 0 when no cap applies."
+          required    = true
+          type        = "string"
+        },
+      ]
+      description = "Run a named LLM benchmark config with target inventory and model-registry validated parameters."
+    }
+
     ai-llm-router = {
       repository = "ansible-proxmox-ai"
       playbook   = "playbooks/site.yml"

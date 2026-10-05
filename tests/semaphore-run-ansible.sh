@@ -66,4 +66,22 @@ else
 fi
 check "invalid profile survey value fails" 2 "$real" playbooks/site.yml --limit web_group,localhost llm_active_profile=unknown
 
+check "benchmark survey parameters are accepted" 0 "$real" playbooks/llm-model-campaign.yml \
+  config_name=mlx/cross-card machine=benchmark_target engine=mlx_lm model_size=small \
+  concurrency_list=1,2 context_list=8192 power_cap_w=0 \
+  benchmark_endpoint_root=https://benchmark-target.invalid benchmark_cache_path=/MODEL_CACHE
+benchmark_json="$(tail -n 1 "$STUB_ARGS")"
+if printf '%s' "$benchmark_json" | jq -e \
+  '.benchmark_endpoint_root == "https://benchmark-target.invalid" and
+   .benchmark_cache_path == "/MODEL_CACHE" and .power_cap_w == "0"' >/dev/null; then
+  echo "ok   benchmark endpoint, cache and power values are passed as parameters"
+else
+  echo "FAIL benchmark endpoint, cache and power values are passed as parameters"
+  FAIL=1
+fi
+
+check "benchmark survey requires an endpoint and cache parameter" 2 "$real" \
+  playbooks/llm-model-campaign.yml config_name=mlx/cross-card machine=benchmark_target \
+  engine=mlx_lm model_size=small concurrency_list=1 context_list=8192 power_cap_w=0
+
 exit "$FAIL"
