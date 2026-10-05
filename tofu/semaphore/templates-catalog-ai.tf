@@ -76,8 +76,22 @@ locals {
         },
         {
           name        = "machine"
-          title       = "Machine selector"
-          description = "Inventory-backed alias; do not enter a hostname or address."
+          title       = "Benchmark target inventory alias"
+          description = "Benchmark target inventory alias."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "benchmark_endpoint_root"
+          title       = "Serving endpoint origin"
+          description = "HTTPS FQDN origin declared for the selected target; no path or address."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "benchmark_cache_path"
+          title       = "Model cache path"
+          description = "Existing target-local writable cache directory from its inventory."
           required    = true
           type        = "string"
         },
@@ -117,7 +131,7 @@ locals {
           type        = "string"
         },
       ]
-      description = "Run a named LLM benchmark config with inventory and model-registry validated survey parameters."
+      description = "Run a named LLM benchmark config with target inventory and model-registry validated parameters."
     }
 
     ai-llm-router = {

@@ -56,6 +56,8 @@ benchmark_model_size=""
 benchmark_concurrency_list=""
 benchmark_context_list=""
 benchmark_power_cap_w=""
+benchmark_endpoint_root=""
+benchmark_cache_path=""
 
 survey_value() {
   local name="$1" value="$2" current="$3"
@@ -84,6 +86,18 @@ for arg in "$@"; do
       value="${arg#*=}"
       survey_value machine "$value" "$benchmark_machine"
       benchmark_machine="$value"
+      ;;
+    benchmark_endpoint_root=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value benchmark_endpoint_root "$value" "$benchmark_endpoint_root"
+      benchmark_endpoint_root="$value"
+      ;;
+    benchmark_cache_path=*)
+      benchmark_seen=1
+      value="${arg#*=}"
+      survey_value benchmark_cache_path "$value" "$benchmark_cache_path"
+      benchmark_cache_path="$value"
       ;;
     engine=*)
       benchmark_seen=1
@@ -127,6 +141,8 @@ if [ "$benchmark_seen" -eq 1 ]; then
   [ -n "$benchmark_concurrency_list" ] || { echo "semaphore-run-ansible.sh: missing concurrency_list survey variable" >&2; exit 2; }
   [ -n "$benchmark_context_list" ] || { echo "semaphore-run-ansible.sh: missing context_list survey variable" >&2; exit 2; }
   [ -n "$benchmark_power_cap_w" ] || { echo "semaphore-run-ansible.sh: missing power_cap_w survey variable (use 0 for no cap)" >&2; exit 2; }
+  [ -n "$benchmark_endpoint_root" ] || { echo "semaphore-run-ansible.sh: missing benchmark_endpoint_root survey variable" >&2; exit 2; }
+  [ -n "$benchmark_cache_path" ] || { echo "semaphore-run-ansible.sh: missing benchmark_cache_path survey variable" >&2; exit 2; }
 
   case "$benchmark_config" in
     llama-cpp/cross-card|vllm/cross-card|mlx/cross-card|lm-eval/quick-intelligence) ;;
@@ -134,6 +150,18 @@ if [ "$benchmark_seen" -eq 1 ]; then
   esac
   [[ "$benchmark_machine" =~ ^[A-Za-z][A-Za-z0-9_-]*$ ]] || {
     echo "semaphore-run-ansible.sh: machine must be an inventory alias, not a hostname or address" >&2
+    exit 2
+  }
+  [[ "$benchmark_endpoint_root" =~ ^https://[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$ ]] || {
+    echo "semaphore-run-ansible.sh: benchmark_endpoint_root must be an HTTPS inventory FQDN origin" >&2
+    exit 2
+  }
+  [[ "$benchmark_cache_path" == /* && "$benchmark_cache_path" != *$'\n'* && "$benchmark_cache_path" != *$'\r'* ]] || {
+    echo "semaphore-run-ansible.sh: benchmark_cache_path must be an absolute target path" >&2
+    exit 2
+  }
+  [[ ! "$benchmark_cache_path" =~ (^|/)\.\.(/|$) ]] || {
+    echo "semaphore-run-ansible.sh: benchmark_cache_path must not traverse parent directories" >&2
     exit 2
   }
   for value in "$benchmark_engine" "$benchmark_model_size"; do
@@ -154,9 +182,19 @@ if [ "$benchmark_seen" -eq 1 ]; then
     echo "semaphore-run-ansible.sh: power_cap_w must be a non-negative number; use 0 for no cap" >&2
     exit 2
   }
-  benchmark_json="$(printf '{\"config_name\":\"%s\",\"machine\":\"%s\",\"engine\":\"%s\",\"model_size\":\"%s\",\"concurrency_list\":\"%s\",\"context_list\":\"%s\",\"power_cap_w\":\"%s\"}' \
-    "$benchmark_config" "$benchmark_machine" "$benchmark_engine" "$benchmark_model_size" \
-    "$benchmark_concurrency_list" "$benchmark_context_list" "$benchmark_power_cap_w")"
+  benchmark_json="$(jq -cn \
+    --arg config_name "$benchmark_config" \
+    --arg machine "$benchmark_machine" \
+    --arg engine "$benchmark_engine" \
+    --arg model_size "$benchmark_model_size" \
+    --arg concurrency_list "$benchmark_concurrency_list" \
+    --arg context_list "$benchmark_context_list" \
+    --arg power_cap_w "$benchmark_power_cap_w" \
+    --arg benchmark_endpoint_root "$benchmark_endpoint_root" \
+    --arg benchmark_cache_path "$benchmark_cache_path" \
+    '{config_name: $config_name, machine: $machine, engine: $engine, model_size: $model_size,
+      concurrency_list: $concurrency_list, context_list: $context_list, power_cap_w: $power_cap_w,
+      benchmark_endpoint_root: $benchmark_endpoint_root, benchmark_cache_path: $benchmark_cache_path}')"
   run_args+=(--extra-vars "$benchmark_json")
 fi
 
