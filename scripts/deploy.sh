@@ -156,10 +156,9 @@ if [ "${1:-}" = "--inner" ]; then
     fi
   fi
 
-  # Mint the API token tofu/semaphore/ authenticates with. Generate-if-absent,
-  # so this is a no-op on every deploy after the first. It runs here rather than
-  # before `up` because the token can only be minted against a server that is
-  # already migrated and serving.
+  # Validate the API token tofu/semaphore/ authenticates with, and mint it only
+  # when absent or rejected. It runs here rather than before `up` because a
+  # replacement can only be minted against a server that is already serving.
   DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh"
 
   # Inject runtime credentials into each project's "homelab" environment so

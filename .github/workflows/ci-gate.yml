@@ -19,6 +19,17 @@ permissions:
   pull-requests: read
 
 jobs:
+  semaphore-token-test:
+    name: Semaphore Token Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Stubbed API cases
+        run: bash tests/provision-semaphore-token.test.sh
+
   # Job id `gate` is the org-canonical caller shape: the required status
   # check context is `gate / Merge Gate` on every consumer.
   gate:
