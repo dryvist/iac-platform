@@ -119,16 +119,6 @@ for arg in "$@"; do
   esac
 done
 
-csv_to_json_ints() {
-  local csv="$1" result="" value
-  local -a values
-  IFS=',' read -r -a values <<< "$csv"
-  for value in "${values[@]}"; do
-    result+="${value},"
-  done
-  printf '[%s]' "${result%,}"
-}
-
 if [ "$benchmark_seen" -eq 1 ]; then
   [ -n "$benchmark_config" ] || { echo "semaphore-run-ansible.sh: missing config_name survey variable" >&2; exit 2; }
   [ -n "$benchmark_machine" ] || { echo "semaphore-run-ansible.sh: missing machine survey variable" >&2; exit 2; }
@@ -164,12 +154,9 @@ if [ "$benchmark_seen" -eq 1 ]; then
     echo "semaphore-run-ansible.sh: power_cap_w must be a non-negative number; use 0 for no cap" >&2
     exit 2
   }
-  power_cap_json="$(awk -v cap="$benchmark_power_cap_w" 'BEGIN { if (cap == 0) print "null"; else print cap }')"
-
-  benchmark_json="$(printf '{\"llm_benchmark_config\":\"%s\",\"llm_benchmark_machine\":\"%s\",\"llm_benchmark_engine\":\"%s\",\"llm_benchmark_model_size\":\"%s\",\"llm_benchmark_concurrency_list\":%s,\"llm_benchmark_context_list\":%s,\"llm_benchmark_power_cap_w\":%s}' \
+  benchmark_json="$(printf '{\"config_name\":\"%s\",\"machine\":\"%s\",\"engine\":\"%s\",\"model_size\":\"%s\",\"concurrency_list\":\"%s\",\"context_list\":\"%s\",\"power_cap_w\":\"%s\"}' \
     "$benchmark_config" "$benchmark_machine" "$benchmark_engine" "$benchmark_model_size" \
-    "$(csv_to_json_ints "$benchmark_concurrency_list")" \
-    "$(csv_to_json_ints "$benchmark_context_list")" "$power_cap_json")"
+    "$benchmark_concurrency_list" "$benchmark_context_list" "$benchmark_power_cap_w")"
   run_args+=(--extra-vars "$benchmark_json")
 fi
 
