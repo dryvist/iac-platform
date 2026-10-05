@@ -12,11 +12,12 @@
 #
 # So the split is explicit and mechanical:
 #
-#   * this file declares every NON-secret value, as code, and owns them;
-#   * the secret values — the ansible-converge AppRole id/secret, the Splunk HEC
-#     token, and the Nautobot read-only token — are written into each
-#     project's environment by scripts/deploy.sh after apply, from the OpenBao
-#     env it already holds, using Semaphore's API.
+#   * this file declares the Semaphore environment resources and their seed
+#     values;
+#   * scripts/deploy.sh synchronizes the complete runtime environment map,
+#     including the AppRole pair, HEC token, Nautobot token and non-secret
+#     workspace selectors, from its process environment using Semaphore's API.
+#     Tofu ignores that map because it cannot safely manage only selected keys.
 #
 # Both halves are version-controlled. Neither is a manual step.
 #
@@ -66,7 +67,8 @@ resource "semaphoreui_project_environment" "homelab" {
   lifecycle {
     # `secrets` is written by deploy.sh, not by this root (see the header). Left
     # unignored, every plan would propose deleting values it cannot see.
-    # `environment` holds runtime credentials injected at deploy time.
+    # `environment` holds the complete runtime map injected at deploy time;
+    # that map includes values this resource cannot safely manage in state.
     ignore_changes = [secrets, environment]
   }
 }
