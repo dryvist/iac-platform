@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generate-if-absent: mint Semaphore's automation API token into OpenBao
+# Validate-or-mint Semaphore's automation API token into OpenBao
 # (secret/apps/semaphore, field semaphore_api_token).
 #
 # tofu/semaphore/ declares Semaphore's object graph — project, repositories,
@@ -14,10 +14,9 @@
 # SSO-owned token would tie the automation credential to one human's identity
 # and orphan it the moment that account changes.
 #
-# Idempotent: if the field is already present and non-empty this is a no-op, so
-# it is safe to run before every deploy. Nothing secret touches disk — the token
-# exists only in this process's env and the OpenBao write body, and its value is
-# never echoed.
+# Idempotent: validate a stored token before reusing it, and mint a replacement
+# only when the field is empty or Semaphore rejects it. Nothing secret touches
+# disk, and the token value is never echoed.
 #
 # Lives under secret/apps/ because it is an application credential, not part of
 # the IaC kernel. That is also what makes it writable at all: the OpenBao access
@@ -54,6 +53,8 @@ admin_login="${SEMAPHORE_ADMIN:-admin}"
 
 token="${BAO_TOKEN:-${VAULT_TOKEN:-}}"
 [ -n "$token" ] || { echo "provision-semaphore-token: authenticate to OpenBao and set BAO_TOKEN" >&2; exit 1; }
+bao_token_config="${token//\\/\\\\}"
+bao_token_config="${bao_token_config//\"/\\\"}"
 
 # KV v2 read/write insert "/data/" after the mount (logical
 # secret/apps/semaphore -> /v1/secret/data/apps/semaphore).
@@ -64,8 +65,9 @@ data_url="${BAO_ADDR}/v1/${mount}/data/${subpath}"
 # 404 means the path does not exist yet, which is the first-run case and not an
 # error. Anything else is: separate the two on the status code rather than on
 # curl's exit alone, so a 403 can never be mistaken for "absent, go create it".
-read_body="$(curl -s --max-time 10 -o - -w '\n%{http_code}' \
-  -H "X-Vault-Token: $token" "$data_url")"
+read_body="$(curl -s --max-time 10 \
+  --config <(printf 'header = "X-Vault-Token: %s"\n' "$bao_token_config") \
+  -o - -w '\n%{http_code}' "$data_url")"
 read_code="${read_body##*$'\n'}"
 current="${read_body%$'\n'*}"
 case "$read_code" in
@@ -74,10 +76,38 @@ case "$read_code" in
   *)   echo "provision-semaphore-token: read of $PATH_KV returned HTTP $read_code" >&2; exit 1 ;;
 esac
 
-have="$(printf '%s' "$current" | jq -r --arg f "$FIELD" '.data.data[$f] // "" | length')"
-if [ "$have" -gt 0 ]; then
-  echo "ok   $FIELD already present at $PATH_KV — nothing to do"
-  exit 0
+existing_token="$(printf '%s' "$current" | jq -r --arg f "$FIELD" '.data.data[$f] // ""')"
+if [ -n "$existing_token" ]; then
+  case "$existing_token" in
+    *$'\n'*|*$'\r'*)
+      echo "provision-semaphore-token: stored token contains a line break" >&2
+      exit 1
+      ;;
+  esac
+  token_config="${existing_token//\\/\\\\}"
+  token_config="${token_config//\"/\\\"}"
+  if ! api_status="$(
+    printf 'header = "Authorization: Bearer %s"\n' "$token_config" \
+      | docker --host "$DEPLOY_HOST" exec -i "$CONTAINER" sh -c '
+        [ -n "$SEMAPHORE_WEB_ROOT" ] || exit 1
+        exec curl -sS --max-time 10 -o /dev/null -w "%{http_code}" --config - \
+          "${SEMAPHORE_WEB_ROOT%/}/api/projects"
+      ' 2>/dev/null
+  )"; then
+    echo "provision-semaphore-token: Semaphore API token validation request failed" >&2
+    exit 1
+  fi
+  case "$api_status" in
+    200)
+      echo "ok   $FIELD is valid at $PATH_KV — nothing to do"
+      exit 0
+      ;;
+    401) echo "stored $FIELD was rejected — minting a replacement" ;;
+    *)
+      echo "provision-semaphore-token: Semaphore API validation returned HTTP $api_status" >&2
+      exit 1
+      ;;
+  esac
 fi
 
 echo "minting Semaphore API token for '$admin_login' ..."
@@ -96,13 +126,22 @@ if [ -z "$api_token" ] || [ "${#api_token}" -lt 16 ] \
   exit 1
 fi
 
-write_body="$(printf '%s' "$current" \
-  | jq --arg t "$api_token" --arg f "$FIELD" '{data: (.data.data + {($f): $t})}')"
+if [ "$read_code" = 404 ]; then
+  write_method=POST
+  content_type=application/json
+  write_body="$(SEMAPHORE_API_TOKEN="$api_token" jq --arg f "$FIELD" \
+    '{data: ((.data.data // {}) + {($f): env.SEMAPHORE_API_TOKEN})}' <<<"$current")"
+else
+  write_method=PATCH
+  content_type=application/merge-patch+json
+  write_body="$(SEMAPHORE_API_TOKEN="$api_token" jq -n --arg f "$FIELD" \
+    '{data: {($f): env.SEMAPHORE_API_TOKEN}}')"
+fi
 
-curl -sf --max-time 10 -X POST \
-  -H "X-Vault-Token: $token" \
-  -H "Content-Type: application/json" \
-  -d "$write_body" "$data_url" >/dev/null \
-  || { echo "provision-semaphore-token: write to $PATH_KV failed" >&2; exit 1; }
+curl -sf --max-time 10 -X "$write_method" \
+  --config <(printf 'header = "X-Vault-Token: %s"\n' "$bao_token_config") \
+  -H "Content-Type: $content_type" \
+  --data-binary @- "$data_url" <<<"$write_body" >/dev/null \
+  || { echo "provision-semaphore-token: $write_method write to $PATH_KV failed" >&2; exit 1; }
 
 echo "ok   wrote $FIELD to $PATH_KV (tofu/semaphore/ reads it ephemerally)"
