@@ -64,7 +64,7 @@ via the Proxmox API for the one clone).
 ## Bring-up
 
 ```bash
-# Set OPENBAO_TERRAKUBE_NETWORK_WORKSPACE to a declared workspace name first.
+# Set OPENBAO_TERRAKUBE_NETWORK_WORKSPACE and OPENBAO_TERRAKUBE_AWS_WORKSPACE to declared workspace names first.
 ./scripts/deploy.sh   # compose up (by FQDN)
 ./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
   ./scripts/smoke-test.sh                 # health + S3 roundtrip
