@@ -67,6 +67,10 @@ if [ "${1:-}" = "--inner" ]; then
   for name in DEX_GITHUB_ORG DEX_GITHUB_TEAM DEX_AUTHELIA_CLIENT_ID; do
     [ -n "${!name:-}" ] || { echo "$name missing from $REPO_ROOT/compose/.env" >&2; exit 1; }
   done
+  # Non-secret workspace selectors consumed by the OpenBao role defaults in
+  # ansible-proxmox-apps. The API sync below is the runtime environment source.
+  : "${OPENBAO_TERRAKUBE_NETWORK_WORKSPACE:?OPENBAO_TERRAKUBE_NETWORK_WORKSPACE must be set in the deploy environment}"
+  : "${OPENBAO_TERRAKUBE_AWS_WORKSPACE:?OPENBAO_TERRAKUBE_AWS_WORKSPACE must be set in the deploy environment}"
 
   # The Authelia path stores these under the Ansible role's own per-client
   # variable names (roles/authelia in ansible-proxmox-apps declares them in
@@ -212,6 +216,8 @@ if [ "${1:-}" = "--inner" ]; then
         --arg bao "$BAO_ADDR" \
         --arg sem_role "$OPENBAO_APPROLE_SEMAPHORE_ROLE_ID" \
         --arg sem_secret "$OPENBAO_APPROLE_SEMAPHORE_SECRET_ID" \
+        --arg network_workspace "$OPENBAO_TERRAKUBE_NETWORK_WORKSPACE" \
+        --arg aws_workspace "$OPENBAO_TERRAKUBE_AWS_WORKSPACE" \
         --arg issues_channel "C0B42KTRF6G" \
         '{
           id: $id,
@@ -221,6 +227,8 @@ if [ "${1:-}" = "--inner" ]; then
             BAO_ADDR: $bao,
             OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: $sem_role,
             OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret,
+            OPENBAO_TERRAKUBE_NETWORK_WORKSPACE: $network_workspace,
+            OPENBAO_TERRAKUBE_AWS_WORKSPACE: $aws_workspace,
             SLACK_HERMES_ISSUES_CHANNEL: $issues_channel
           } | tojson),
           json: "{}"
