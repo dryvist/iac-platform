@@ -72,6 +72,8 @@ locals {
             "vllm/cross-card"            = "vllm/cross-card"
             "mlx/cross-card"             = "mlx/cross-card"
             "lm-eval/quick-intelligence" = "lm-eval/quick-intelligence"
+            "lm-eval/gpqa-diamond"       = "lm-eval/gpqa-diamond"
+            "evalscope/livecodebench"    = "evalscope/livecodebench"
           }
         },
         {
