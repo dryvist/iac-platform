@@ -57,17 +57,33 @@ locals {
       description      = "Docker VM apt proxy and registry mirror converge only, via --tags apt_proxy,registry_mirror."
     }
 
-    # site/02-dns-and-pipeline.yml, minus cribl/cribl_stream/prometheus which
-    # already have their own scoped templates in templates-catalog-apps.tf.
-    apps-dns-pipeline = {
+    # site/02-dns-and-pipeline.yml's Technitium plays alone. The stage as a
+    # whole outlasts the Semaphore task duration rail, and the budget gate
+    # only runs between stages, so the stage is split by host group between
+    # this template and apps-dns-pipeline below.
+    apps-dns-technitium = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"
-      limit            = "technitium_dns_group,haproxy_group,netmon_group,prometheus_group,unifi_metrics_group"
-      tags             = "technitium_install,technitium_dns,haproxy,netmon,smokeping,prometheus_pve_exporter,github_exporter,unifi_metrics"
+      limit            = "technitium_dns_group"
+      tags             = "technitium_install,technitium_dns"
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      description      = "DNS and syslog/netflow pipeline converge (Technitium, HAProxy, netmon, exporters), via --tags technitium_install,technitium_dns,haproxy,netmon,smokeping,prometheus_pve_exporter,github_exporter,unifi_metrics."
+      description      = "Technitium DNS install and record converge only, via --tags technitium_install,technitium_dns."
+    }
+
+    # The rest of site/02-dns-and-pipeline.yml, minus Technitium (above) and
+    # cribl/cribl_stream/prometheus, which already have their own scoped
+    # templates in templates-catalog-apps.tf.
+    apps-dns-pipeline = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "haproxy_group,netmon_group,prometheus_group,unifi_metrics_group"
+      tags             = "haproxy,netmon,smokeping,prometheus_pve_exporter,github_exporter,unifi_metrics"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Syslog/netflow pipeline converge (HAProxy, netmon, exporters), via --tags haproxy,netmon,smokeping,prometheus_pve_exporter,github_exporter,unifi_metrics."
     }
 
     # site/03-notifications-and-core-apps.yml in full — no play in this file
