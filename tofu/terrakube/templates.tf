@@ -39,7 +39,7 @@ locals {
       EOF
     }
     # Same flow as plan_and_apply, run with a per-job target list (the job's
-    # `targetAddrs`, see docs/runbook.md). The template carries no targets
+    # `targetAddrs`, see docs/targeted-apply.md). The template carries no targets
     # itself. The plan step turns the job's targets into -target flags and the
     # apply step applies that saved plan, so both cover the same addresses.
     plan_and_apply_targeted = {
