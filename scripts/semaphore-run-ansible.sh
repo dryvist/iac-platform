@@ -145,7 +145,8 @@ if [ "$benchmark_seen" -eq 1 ]; then
   [ -n "$benchmark_cache_path" ] || { echo "semaphore-run-ansible.sh: missing benchmark_cache_path survey variable" >&2; exit 2; }
 
   case "$benchmark_config" in
-    llama-cpp/cross-card|vllm/cross-card|mlx/cross-card|lm-eval/quick-intelligence) ;;
+    llama-cpp/cross-card|vllm/cross-card|mlx/cross-card) ;;
+    lm-eval/quick-intelligence|lm-eval/gpqa-diamond|evalscope/livecodebench) ;;
     *) echo "semaphore-run-ansible.sh: invalid config_name survey value" >&2; exit 2 ;;
   esac
   [[ "$benchmark_machine" =~ ^[A-Za-z][A-Za-z0-9_-]*$ ]] || {

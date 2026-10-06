@@ -84,4 +84,23 @@ check "benchmark survey requires an endpoint and cache parameter" 2 "$real" \
   playbooks/llm-model-campaign.yml config_name=mlx/cross-card machine=benchmark_target \
   engine=mlx_lm model_size=small concurrency_list=1 context_list=8192 power_cap_w=0
 
+# Every config the template offers must pass the wrapper's allow-list. The names are
+# read from the template catalog so the survey enum and the allow-list cannot drift.
+catalog_count=0
+while IFS= read -r config; do
+  catalog_count=$((catalog_count + 1))
+  check "benchmark config $config from the catalog is accepted" 0 "$real" playbooks/llm-model-campaign.yml \
+    config_name="$config" machine=benchmark_target engine=vllm model_size=small \
+    concurrency_list=1,2,4,8 context_list=65536 power_cap_w=0 \
+    benchmark_endpoint_root=https://benchmark-target.invalid benchmark_cache_path=/MODEL_CACHE
+done < <(grep -oE '"[a-z-]+/[a-z0-9-]+" += "[a-z-]+/[a-z0-9-]+"' "$REPO_ROOT/tofu/semaphore/templates-catalog-ai.tf" | cut -d'"' -f2)
+if [ "$catalog_count" -lt 1 ]; then
+  echo "FAIL the template catalog lists no benchmark configs"
+  FAIL=1
+fi
+check "a benchmark config outside the catalog is rejected" 2 "$real" playbooks/llm-model-campaign.yml \
+  config_name=lm-eval/unlisted machine=benchmark_target engine=vllm model_size=small \
+  concurrency_list=1 context_list=8192 power_cap_w=0 \
+  benchmark_endpoint_root=https://benchmark-target.invalid benchmark_cache_path=/MODEL_CACHE
+
 exit "$FAIL"
