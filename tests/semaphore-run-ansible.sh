@@ -66,6 +66,50 @@ else
 fi
 check "invalid profile survey value fails" 2 "$real" playbooks/site.yml --limit web_group,localhost llm_active_profile=unknown
 
+# The ai-llm-profile template's own tags, limit and profile choices are read from
+# the catalog, so the dropdown, its scope and the wrapper's allow-list cannot drift.
+# The template converges the serving role and the router for the chosen profile.
+profile_block="$(awk '/^    ai-llm-profile = \{/,/description = "Select the active LLM GPU serving profile and/' "$REPO_ROOT/tofu/semaphore/templates-catalog-ai.tf")"
+profile_tags="$(sed -n 's/^ *tags *= *"\(.*\)"$/\1/p' <<<"$profile_block")"
+profile_limit="$(sed -n 's/^ *limit *= *"\(.*\)"$/\1/p' <<<"$profile_block")"
+if [ "$profile_tags" = "llm_gpu_serving,llm_router" ]; then
+  echo "ok   ai-llm-profile template runs both the serving role and the router tags"
+else
+  echo "FAIL ai-llm-profile template tags are '$profile_tags'"
+  FAIL=1
+fi
+for group in llm_gpu_group llm_router_group; do
+  if [[ ",$profile_limit," == *",$group,"* ]]; then
+    echo "ok   ai-llm-profile template limit covers $group"
+  else
+    echo "FAIL ai-llm-profile template limit '$profile_limit' misses $group"
+    FAIL=1
+  fi
+done
+if [[ "$profile_limit" == *localhost* ]]; then
+  echo "FAIL ai-llm-profile template limit names localhost; the argument list appends it"
+  FAIL=1
+fi
+profile_count=0
+while IFS= read -r profile; do
+  profile_count=$((profile_count + 1))
+  check "profile $profile from the dropdown is accepted with the template's tags and limit" 0 "$real" \
+    playbooks/site.yml --tags "$profile_tags" --limit "$profile_limit,localhost" --diff "llm_active_profile=$profile"
+  printf '%s\n' playbooks/site.yml --tags "$profile_tags" --limit "$profile_limit,localhost" --diff \
+    --extra-vars "llm_active_profile=$profile" >"$STUB_DIR/expected-args"
+  if diff -u "$STUB_DIR/expected-args" "$STUB_ARGS" >/dev/null; then
+    echo "ok   profile $profile reaches Ansible as an extra var beside the tags and limit"
+  else
+    echo "FAIL profile $profile reaches Ansible as an extra var beside the tags and limit"
+    diff -u "$STUB_DIR/expected-args" "$STUB_ARGS"
+    FAIL=1
+  fi
+done < <(sed -n 's/^ *"\{0,1\}\([a-z-]*\)"\{0,1\} *= *"\([a-z-]*\)"$/\2/p' <<<"$(sed -n '/enum_values = {/,/}/p' <<<"$profile_block")")
+if [ "$profile_count" -ne 4 ]; then
+  echo "FAIL the profile dropdown offers $profile_count profiles, wanted 4"
+  FAIL=1
+fi
+
 check "benchmark survey parameters are accepted" 0 "$real" playbooks/llm-model-campaign.yml \
   config_name=mlx/cross-card machine=benchmark_target engine=mlx_lm model_size=small \
   concurrency_list=1,2 context_list=8192 power_cap_w=0 \

@@ -29,11 +29,16 @@ locals {
       description = "GPU inference serving stack converge (llama.cpp, LiteLLM proxy, Redis spend store)."
     }
 
+    # The profile switch converges both halves: the serving role starts the
+    # selected profile's unit on the GPU guest, and the router re-projects the
+    # active profile's deployment. Entry is site.yml for the same reason as the
+    # entries above: the inventory loader and the always-tagged secrets
+    # pre-fetch live there. The limit names both groups; localhost is appended.
     ai-llm-profile = {
       repository = "ansible-proxmox-ai"
       playbook   = "playbooks/site.yml"
-      limit      = "all"
-      tags       = "llm_gpu_serving"
+      limit      = "llm_gpu_group,llm_router_group"
+      tags       = "llm_gpu_serving,llm_router"
       mutating   = true
       survey_vars = [{
         name        = "llm_active_profile"
@@ -48,7 +53,7 @@ locals {
           max        = "max"
         }
       }]
-      description = "Select and apply the active LLM GPU serving profile."
+      description = "Select the active LLM GPU serving profile and converge the serving role and the router for it."
     }
 
     # The AI repository imports playbooks/llm-model-campaign.yml from site.yml
