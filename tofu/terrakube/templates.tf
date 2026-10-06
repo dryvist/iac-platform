@@ -38,6 +38,27 @@ locals {
             step: 200
       EOF
     }
+    # Same flow as plan_and_apply, run with a per-job target list (the job's
+    # `targetAddrs`, see docs/targeted-apply.md). The template carries no targets
+    # itself. The plan step turns the job's targets into -target flags and the
+    # apply step applies that saved plan, so both cover the same addresses.
+    plan_and_apply_targeted = {
+      name        = "Plan and apply (targeted)"
+      description = "Running Terraform plan and apply limited to the job's target addresses"
+      content     = <<-EOF
+        flow:
+          - type: "terraformPlan"
+            name: "Plan"
+            step: 100
+          - type: "approval"
+            name: "Approve Targeted Apply"
+            step: 150
+            team: "TERRAFORM_CLI"
+          - type: "terraformApply"
+            name: "Apply"
+            step: 200
+      EOF
+    }
     destroy = {
       name        = "Destroy"
       description = "Running Terraform destroy"

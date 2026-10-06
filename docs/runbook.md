@@ -224,3 +224,7 @@ instead of `run-ansible.sh` directly.
   change in tofu/terrakube, is still open.
 - Prometheus scrape (Spring actuator + cAdvisor) via the existing prometheus LXC.
 - Dedicated RustFS access policy (today: dedicated key, full-access MVP).
+
+## Targeted apply
+
+See [targeted-apply.md](targeted-apply.md).
