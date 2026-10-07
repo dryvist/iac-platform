@@ -147,4 +147,41 @@ check "a benchmark config outside the catalog is rejected" 2 "$real" playbooks/l
   concurrency_list=1 context_list=8192 power_cap_w=0 \
   benchmark_endpoint_root=https://benchmark-target.invalid benchmark_cache_path=/MODEL_CACHE
 
+# Collections install into a per-run directory that leads ANSIBLE_COLLECTIONS_PATH,
+# so a concurrent run's different pin in a shared directory cannot reach this run.
+GALAXY_DIR="$STUB_DIR/galaxy-bin"
+mkdir -p "$GALAXY_DIR" "$STUB_DIR/req"
+cat >"$GALAXY_DIR/ansible-galaxy" <<'GALAXY'
+#!/usr/bin/env bash
+if [ "$1" = collection ]; then
+  [ "${GALAXY_FAIL:-}" = 1 ] && exit 1
+  while [ "$#" -gt 0 ]; do [ "$1" = -p ] && printf '%s\n' "$2" >"$GALAXY_LOG"; shift; done
+fi
+exit 0
+GALAXY
+chmod +x "$GALAXY_DIR/ansible-galaxy"
+cat >"$STUB_DIR/env-runner.sh" <<'STUB'
+#!/usr/bin/env bash
+printf '%s\n' "$ANSIBLE_COLLECTIONS_PATH" >"$PATH_LOG"
+printf 'PLAY RECAP *****\nweb-01 : ok=1 changed=0 unreachable=0 failed=0\n'
+STUB
+chmod +x "$STUB_DIR/env-runner.sh"
+: >"$STUB_DIR/req/requirements.yml"
+export GALAXY_LOG="$STUB_DIR/galaxy-dir" PATH_LOG="$STUB_DIR/path-seen"
+(cd "$STUB_DIR/req" && env -u BAO_ADDR PATH="$GALAXY_DIR:$PATH" ANSIBLE_COLLECTIONS_PATH=/shared bash "$WRAPPER" "$STUB_DIR/env-runner.sh") >/dev/null 2>&1
+installed="$(cat "$GALAXY_LOG" 2>/dev/null)"
+seen="$(cat "$PATH_LOG" 2>/dev/null)"
+if [ -n "$installed" ] && [ "$seen" = "$installed:/shared" ] && [ ! -e "$installed" ]; then
+  echo "ok   collections install privately, lead the search path, and are removed after the run"
+else
+  echo "FAIL collections install privately, lead the search path, and are removed after the run (installed=$installed seen=$seen)"
+  FAIL=1
+fi
+if (cd "$STUB_DIR/req" && env -u BAO_ADDR GALAXY_FAIL=1 PATH="$GALAXY_DIR:$PATH" bash "$WRAPPER" "$STUB_DIR/env-runner.sh") >/dev/null 2>&1; then
+  echo "FAIL a failed collection install stops the run"
+  FAIL=1
+else
+  echo "ok   a failed collection install stops the run"
+fi
+
 exit "$FAIL"
