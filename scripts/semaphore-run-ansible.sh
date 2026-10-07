@@ -203,14 +203,24 @@ if [ -n "$active_profile" ]; then
   run_args+=(--extra-vars "llm_active_profile=$active_profile")
 fi
 
+log="$(mktemp)"
+run_collections=""
+trap 'rm -rf "$log" "$run_collections"' EXIT
+
+# Collections install into a directory private to this run and lead the search
+# path. The runner's shared ~/.ansible/collections is mutated by every template
+# that runs there, each with its own pin, and `ansible-galaxy collection install`
+# skips an installed name:version, so a git-pinned collection (version unchanged
+# between commits) could be left stale or half-replaced by a concurrent run. A
+# private directory always holds exactly this run's pins, and a failed install
+# stops the run instead of leaving whatever was there.
 if [ -f requirements.yml ]; then
   echo "Installing Ansible requirements..."
+  run_collections="$(mktemp -d)"
   ansible-galaxy install -r requirements.yml --roles-path roles || true
-  ansible-galaxy collection install -r requirements.yml || true
+  ansible-galaxy collection install -r requirements.yml -p "$run_collections"
+  export ANSIBLE_COLLECTIONS_PATH="$run_collections${ANSIBLE_COLLECTIONS_PATH:+:$ANSIBLE_COLLECTIONS_PATH}"
 fi
-
-log="$(mktemp)"
-trap 'rm -f "$log"' EXIT
 
 set +e
 "${run_args[@]}" 2>&1 | tee "$log"
