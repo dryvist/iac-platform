@@ -16,6 +16,11 @@ FROM semaphoreui/semaphore:${SEMAPHORE_VERSION}
 # renovate: datasource=github-releases depName=openbao/openbao extractVersion=^v(?<version>.*)$
 ARG BAO_VERSION=2.5.5
 
+# uv runs the pinned benchmark converter during campaign preflight. Install the
+# official musl release in the image so the execution plane owns the binary.
+# renovate: datasource=github-releases depName=astral-sh/uv
+ARG UV_VERSION=0.12.20
+
 USER root
 # Every tool and library below is reached by a role that runs ON THE
 # CONTROLLER, so a missing one fails the play rather than the target. Each
@@ -50,6 +55,23 @@ RUN set -eu \
     && install -m 0755 bao /usr/local/bin/bao \
     && rm -f "bao_${BAO_VERSION}_Linux_${BAO_ARCH}.tar.gz" checksums-linux.txt bao \
     && bao version
+
+RUN set -eu \
+    && case "$(apk --print-arch)" in \
+         aarch64) UV_ARCH=aarch64 ;; \
+         x86_64)  UV_ARCH=x86_64 ;; \
+         *) echo "unsupported arch: $(apk --print-arch)" >&2; exit 1 ;; \
+       esac \
+    && cd /tmp \
+    && UV_ARCHIVE="uv-${UV_ARCH}-unknown-linux-musl.tar.gz" \
+    && curl -fsSLO "https://releases.astral.sh/github/uv/releases/download/${UV_VERSION}/${UV_ARCHIVE}" \
+    && curl -fsSLO "https://releases.astral.sh/github/uv/releases/download/${UV_VERSION}/${UV_ARCHIVE}.sha256" \
+    && sha256sum -c "${UV_ARCHIVE}.sha256" \
+    && tar -xzf "${UV_ARCHIVE}" \
+    && install -m 0755 "uv-${UV_ARCH}-unknown-linux-musl/uv" /usr/local/bin/uv \
+    && install -m 0755 "uv-${UV_ARCH}-unknown-linux-musl/uvx" /usr/local/bin/uvx \
+    && rm -rf "${UV_ARCHIVE}" "${UV_ARCHIVE}.sha256" "uv-${UV_ARCH}-unknown-linux-musl" \
+    && uv --version
 
 # The PLAY RECAP assertion wrapper every Ansible template invokes instead of
 # calling run-ansible.sh directly — see the script for why.

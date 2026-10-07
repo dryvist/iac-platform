@@ -28,6 +28,14 @@
       "matchStrings": ["SEMAPHORE_VERSION=(?<currentValue>.+)"],
       "depNameTemplate": "semaphoreui/semaphore",
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "uv release pin in the Semaphore runner image",
+      "managerFilePatterns": ["/^compose/semaphore/Dockerfile$/"],
+      "matchStrings": ["ARG UV_VERSION=(?<currentValue>[^\\s]+)"],
+      "depNameTemplate": "astral-sh/uv",
+      "datasourceTemplate": "github-releases"
     }
   ]
 }
