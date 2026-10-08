@@ -17,6 +17,14 @@
 # path first — streamed as tar into a root helper container over the docker
 # connection (the VM has no rsync and the ssh login can't write the root-owned
 # path); the compose file mounts them from there.
+#
+# Usage:
+#   scripts/deploy.sh                    deploy the whole stack
+#   scripts/deploy.sh --restart SERVICE  force-recreate only SERVICE (no deps,
+#                                        no build, no file shipping, no
+#                                        Semaphore environment sync). SERVICE
+#                                        must be a service in compose/docker-compose.yml.
+#                                        Never restart semaphore from a Semaphore task.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -33,6 +41,7 @@ VM_CONFIG_DIR="/var/lib/platform/compose"
 # Second entry: OpenBao KV is already exported into the environment, so the real
 # deploy runs in a normal shell — no nested sh -c quoting.
 if [ "${1:-}" = "--inner" ]; then
+  restart_service="${2:-}"
   case "${DEX_GITHUB_CLIENT_ID:-}${DEX_GITHUB_CLIENT_SECRET:-}" in
     *CHANGEME*)
       echo "OpenBao $BAO_PATH still has CHANGEME Dex GitHub credentials." >&2
@@ -102,6 +111,25 @@ if [ "${1:-}" = "--inner" ]; then
   done
 
   host="${DEPLOY_HOST:?DEPLOY_HOST missing from OpenBao}"
+
+  # Single-service restart: the same guards, host and project name as a full
+  # deploy, but recreate only the named service. `up -d` alone leaves a hung
+  # container whose config and image are unchanged untouched; --force-recreate
+  # replaces it, and --no-deps keeps its dependencies running.
+  if [ -n "$restart_service" ]; then
+    compose=(docker --host "$host" compose
+      --project-name iac-platform
+      --project-directory "$REPO_ROOT/compose"
+      --env-file "$REPO_ROOT/compose/.env")
+    if ! "${compose[@]}" config --services | grep -qxF -- "$restart_service"; then
+      echo "Unknown service '$restart_service'; compose services:" >&2
+      "${compose[@]}" config --services >&2
+      exit 1
+    fi
+    "${compose[@]}" up -d --force-recreate --no-deps "$restart_service"
+    echo "Recreated service '$restart_service'."
+    exit 0
+  fi
   # Ship the two non-secret config dirs into the (root-owned) VM path via a root
   # helper container over the docker connection: the VM has no rsync and the ssh
   # login cannot write under /var/lib/platform. tar streams in; rm -rf clears any
@@ -271,8 +299,16 @@ if [ "${1:-}" = "--inner" ]; then
   exit 0
 fi
 
-# First entry: verify local tooling, then re-exec self under OpenBao so the KV
-# env is populated for the --inner branch above.
+# First entry: parse arguments, verify local tooling, then re-exec self under
+# OpenBao so the KV env is populated for the --inner branch above.
+restart_service=""
+case "${1:-}" in
+  "") ;;
+  --restart)
+    restart_service="${2:-}"
+    [ -n "$restart_service" ] || { echo "usage: deploy.sh [--restart SERVICE]" >&2; exit 2; } ;;
+  *) echo "usage: deploy.sh [--restart SERVICE]" >&2; exit 2 ;;
+esac
 for bin in curl jq tar docker; do
   command -v "$bin" >/dev/null || { echo "$bin required (enter the dev shell)" >&2; exit 1; }
 done
@@ -284,4 +320,4 @@ done
 # execution plane, which reads them itself at the start of every task
 # (scripts/semaphore-run-ansible.sh), so the deploy identity needs no grant on
 # them.
-exec "$EXEC_ENV" "$BAO_PATH" -- "$EXEC_ENV" "$AUTHELIA_BAO_PATH" -- "$EXEC_ENV" "$SEMAPHORE_BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner
+exec "$EXEC_ENV" "$BAO_PATH" -- "$EXEC_ENV" "$AUTHELIA_BAO_PATH" -- "$EXEC_ENV" "$SEMAPHORE_BAO_PATH" -- bash "${BASH_SOURCE[0]}" --inner "$restart_service"

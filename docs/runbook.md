@@ -13,6 +13,13 @@ power-off (~22:00) was removed (ansible-proxmox#354). Notes that still apply:
   remain independent.
 - Backup jobs: vzdump for the VM; the in-stack pg_dump sidecar runs ~12:00.
 
+## Hung single service (e.g. executor)
+
+`deploy.sh --restart <service>` force-recreates only that compose service
+(`up -d --force-recreate --no-deps`) with the same OpenBao environment as a
+full deploy. A job the API still reports `running` afterwards must be
+cancelled explicitly; the restart does not update job state.
+
 ## Stuck workspace lock (run killed mid-flight)
 
 Terrakube holds locks in its own DB (not in RustFS). After an ungraceful stop:
