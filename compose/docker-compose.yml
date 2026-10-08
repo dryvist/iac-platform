@@ -126,6 +126,15 @@ x-executor: &executor_env
   TerrakubeRedisPort: 6379
   TerrakubeRedisPassword: ${TK_REDIS_PASSWORD}
   JAVA_TOOL_OPTIONS: -Xmx512m
+  # Provider cache on the persistent volume: reruns reuse downloaded providers
+  # instead of re-fetching them over the WAN. The executor's own documented
+  # path; the tofu child process inherits the container environment.
+  TF_PLUGIN_CACHE_DIR: /home/cnb/.terraform.d/plugin-cache
+  # OpenTofu registry-client settings (documented env names): retry metadata
+  # requests and provider downloads so a brief WAN loss is retried, not fatal.
+  TF_REGISTRY_CLIENT_TIMEOUT: "30"
+  TF_REGISTRY_DISCOVERY_RETRY: "5"
+  TF_PROVIDER_DOWNLOAD_RETRY: "5"
 
 x-registry: &registry_env
   AzBuilderRegistry: https://terrakube-registry.${DOMAIN}
@@ -195,12 +204,28 @@ services:
     mem_limit: 64m
     restart: unless-stopped
 
+  # A new named volume is root-owned when its mount path is absent from the
+  # image; hand it to the executor's user (cnb) once, before the executor starts.
+  terrakube-executor-cache-init:
+    logging: *logging
+    image: azbuilder/executor:${TK_VERSION}
+    user: root
+    entrypoint: ["chown", "cnb:cnb", "/cache"]
+    volumes:
+      - executor_plugin_cache:/cache
+    restart: "no"
+
   terrakube-executor:
     logging: *logging
     image: azbuilder/executor:${TK_VERSION}
     container_name: terrakube-executor
     environment:
       <<: [*executor_env]
+    volumes:
+      - executor_plugin_cache:/home/cnb/.terraform.d/plugin-cache
+    depends_on:
+      terrakube-executor-cache-init:
+        condition: service_completed_successfully
     # No published ports: executor is compose-internal only (API dials
     # http://terrakube-executor:8090). Never front this service.
     # 1g crashed at launch (Paketo fixed regions ~824M + -Xmx512m heap > 1g).
@@ -573,6 +598,7 @@ volumes:
   postgresql_data:
   semaphore_data:
   semaphore_runner_data:
+  executor_plugin_cache:
 
 # Docker Compose materializes these environment-sourced values as read-only
 # files under /run/secrets. The values are injected from OpenBao for deploy and
