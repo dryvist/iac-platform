@@ -23,6 +23,8 @@ direnv allow   # uses the committed .envrc → nix flake dev shell
 # Authenticate with a native OpenBao human/workload method first, then:
 # Set OPENBAO_TERRAKUBE_NETWORK_WORKSPACE and OPENBAO_TERRAKUBE_AWS_WORKSPACE to declared workspace names first.
 ./scripts/deploy.sh
+# Force-recreate one service only (e.g. a hung executor); name must be a compose service:
+./scripts/deploy.sh --restart terrakube-executor
 ./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
   ./scripts/smoke-test.sh    # health + S3 state-storage roundtrip
 ```
