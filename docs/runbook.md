@@ -165,11 +165,10 @@ semaphore-run-ansible.sh ./scripts/run-ansible.sh <playbook> \
   --limit <hosts>,localhost --diff
 ```
 
-The wrapper also loads the run environment before the playbook starts. The
-playbooks read plain environment variables and are indifferent to the secrets
-manager behind them; the wrapper re-execs itself through
-`openbao-exec-env.sh` over three KV documents, one per mount, so every value
-lives on exactly one tier:
+The wrapper loads the run environment before the playbook starts. It re-execs
+itself through `openbao-exec-env.sh` over three KV documents, one per mount,
+so each value lives on exactly one tier. Playbooks read plain environment
+variables:
 
 | Document | Holds |
 | --- | --- |
@@ -198,18 +197,15 @@ Two non-negotiable details, both burned this estate before:
   silently no-ops and the play does nothing at rc 0.
 - `--diff` only — never add a `--check` dry-run step.
 
-A third failure mode, just observed: `run-ansible.sh` can exit 0 on a run
-interrupted mid-play with no PLAY RECAP, reading as a no-op success on what
-was actually a half-finished converge (tracked upstream as Vikunja 1843;
-the ansible-proxmox* repos likely carry the same copy of that script and
-are covered by 1843, not by this wrapper). `semaphore-run-ansible.sh`
-(baked into the Semaphore image by the Dockerfile above, on `PATH`) wraps the call
-instead of papering over it here: no recap at all means the run state is
-UNKNOWN and is treated as a failure, a recap with any failed/unreachable
-host is a failure, and a recap covering only `localhost` (the real target
-host never ran) is also a failure — evaluated only once a recap actually
-exists, never inferred from its absence. Every template should call it
-instead of `run-ansible.sh` directly.
+A third failure mode: `run-ansible.sh` can exit 0 on a run interrupted mid-play
+with no PLAY RECAP, which reads as a no-op success on a half-finished converge
+(tracked upstream as Vikunja 1843; the ansible-proxmox* repos likely carry the
+same script and are covered by 1843). `semaphore-run-ansible.sh` (on `PATH` in
+the Semaphore image) wraps the call instead. No recap means the run state is
+UNKNOWN and is a failure. A recap with any failed or unreachable host is a
+failure. A recap covering only `localhost` (the real target never ran) is also
+a failure. These checks run only once a recap exists. Every template should
+call the wrapper instead of `run-ansible.sh` directly.
 
 ## Foundation blockers and hardening backlog
 
