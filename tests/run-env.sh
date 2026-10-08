@@ -109,6 +109,7 @@ prereqs=(
   TK_DYNAMIC_CREDENTIAL_PUBLIC_KEY=pub TK_DYNAMIC_CREDENTIAL_PRIVATE_KEY=priv
   DEX_GITHUB_ORG=org DEX_GITHUB_TEAM=team DEX_AUTHELIA_CLIENT_ID=client
   SEMAPHORE_OIDC_CLIENT_SECRET=sem DEX_AUTHELIA_CLIENT_SECRET=dex
+  OPENBAO_TERRAKUBE_NETWORK_WORKSPACE=net OPENBAO_TERRAKUBE_AWS_WORKSPACE=aws
 )
 
 # The plane's own pair is the only thing a run cannot fetch for itself, so a
@@ -126,9 +127,22 @@ check "proceeds past the guards when every name is present" 1 "DEPLOY_HOST missi
   OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret \
   bash "$REPO_ROOT/scripts/deploy.sh" --inner
 
+# The first-entry argument parser refuses anything but no argument or
+# --restart SERVICE, before any OpenBao or docker call.
+check "refuses an unknown option" 2 "usage: deploy.sh" \
+  bash "$REPO_ROOT/scripts/deploy.sh" --bogus
+check "--restart requires a service name" 2 "usage: deploy.sh" \
+  bash "$REPO_ROOT/scripts/deploy.sh" --restart
+
+# The restart path sits behind the same guards as a full deploy.
+check "--restart passes the same guards before recreating" 1 "DEPLOY_HOST missing" \
+  env -u DEPLOY_HOST "${prereqs[@]}" \
+  OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret \
+  bash "$REPO_ROOT/scripts/deploy.sh" --inner terrakube-executor
+
 # The deploy reads the stack's own two paths and nothing else: no
 # run-environment document is in its exec chain.
 check "the exec chain reads only the stack's own paths" 0 "" \
-  bash -c '! grep -q "platform/ansible/env" "$1"' _ "$REPO_ROOT/scripts/deploy.sh"
+  bash -c "! grep -q 'platform/ansible/env' \"\$1\"" _ "$REPO_ROOT/scripts/deploy.sh"
 
 exit "$FAIL"
