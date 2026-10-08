@@ -63,5 +63,50 @@ locals {
       extra_args       = []
       description      = "node_exporter converge only, via --tags pve_node_exporter."
     }
+
+    # One power action on one guest by VMID; the node is read from live
+    # placement by the playbook. Entry is guest-power.yml, which needs no tag.
+    proxmox-guest-power = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/guest-power.yml"
+      limit            = "proxmox"
+      mutating         = true
+      schedule_enabled = false
+      survey_vars = [
+        {
+          name        = "guest_power_vmid"
+          title       = "Guest VMID"
+          description = "Numeric VMID of the guest to act on."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "guest_power_type"
+          title       = "Guest type"
+          description = "Guest kind: qemu or lxc."
+          required    = true
+          type        = "enum"
+          enum_values = {
+            qemu = "qemu"
+            lxc  = "lxc"
+          }
+        },
+        {
+          name        = "guest_power_action"
+          title       = "Power action"
+          description = "Action to run; reset applies to qemu only."
+          required    = true
+          type        = "enum"
+          enum_values = {
+            start    = "start"
+            stop     = "stop"
+            shutdown = "shutdown"
+            reboot   = "reboot"
+            reset    = "reset"
+          }
+        },
+      ]
+      description = "Power action (start, stop, shutdown, reboot, reset) on one guest by VMID, on the node that hosts it."
+    }
   }
 }

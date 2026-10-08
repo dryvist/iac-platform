@@ -31,5 +31,17 @@ locals {
       extra_args       = []
       description      = "Read-only verification of the Splunk deployment."
     }
+
+    # Forces a container restart after a bypassed install path; the site
+    # converge only restarts on a reported change.
+    splunk-restart = {
+      repository       = "ansible-splunk"
+      playbook         = "playbooks/restart-splunk.yml"
+      limit            = "splunk"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Restart the Splunk container and wait for the management port."
+    }
   }
 }
