@@ -57,6 +57,13 @@ inconsistent, `psql < pg_dumpall-<date>.sql` → workspaces re-apply from
 - **PAT_SECRET / INTERNAL_SECRET rotation invalidates every issued Terrakube
   token** (user PATs) — plan for re-login on every machine.
 
+## Executor provider cache
+
+Providers persist in the `executor_plugin_cache` volume (`TF_PLUGIN_CACHE_DIR`).
+`terrakube-executor-cache-init` sets its owner on a full `deploy.sh` (not
+`--restart`). `TF_REGISTRY_CLIENT_TIMEOUT`, `TF_REGISTRY_DISCOVERY_RETRY` and
+`TF_PROVIDER_DOWNLOAD_RETRY` retry through brief WAN loss.
+
 ## Upgrades
 
 Image pins live in `compose/.env` (renovate-tracked). Bump → `deploy.sh` →
@@ -199,9 +206,8 @@ Two non-negotiable details, both burned this estate before:
 
 A third failure mode: `run-ansible.sh` can exit 0 on a run interrupted mid-play
 with no PLAY RECAP, which reads as a no-op success on a half-finished converge
-(tracked upstream as Vikunja 1843; the ansible-proxmox* repos likely carry the
-same script and are covered by 1843). `semaphore-run-ansible.sh` (on `PATH` in
-the Semaphore image) wraps the call instead. No recap means the run state is
+(Vikunja 1843). `semaphore-run-ansible.sh` (on `PATH` in the Semaphore image)
+wraps the call instead. No recap means the run state is
 UNKNOWN and is a failure. A recap with any failed or unreachable host is a
 failure. A recap covering only `localhost` (the real target never ran) is also
 a failure. These checks run only once a recap exists. Every template should
@@ -215,9 +221,9 @@ call the wrapper instead of `run-ansible.sh` directly.
 - Mirror the Terrakube extensions repository and Terraform compatibility
   release index inside the homelab before removing
   `TerrakubeToolsRepository` and `CustomTerraformReleasesUrl`. No internal
-  endpoint exists today, so this repository deliberately does not invent one.
-- Mirror pinned container images, OpenTofu releases, providers, and modules;
-  then prove a clean executor run with general WAN egress blocked.
+  endpoint exists today, so none is invented here.
+- Mirror pinned images, OpenTofu releases, providers, and modules; then prove
+  a clean executor run with WAN egress blocked.
 - Done: Semaphore Authelia OIDC (local admin kept as break-glass, not dropped)
   and Semaphore-as-Ansible-run-platform wiring — see "Semaphore SSO" and
   "Semaphore as the Ansible run platform" above. Remaining gap: the Dex
