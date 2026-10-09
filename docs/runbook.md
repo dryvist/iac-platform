@@ -213,6 +213,16 @@ failure. A recap covering only `localhost` (the real target never ran) is also
 a failure. These checks run only once a recap exists. Every template should
 call the wrapper instead of `run-ansible.sh` directly.
 
+Task duration. Every wrapped run has a 900-second rail, counted from the
+wrapper's first entry, so the OpenBao env export and the collection install
+count against it. The rail stops the run's whole session and fails the task,
+with no recap, by the rule above. Semaphore's `max_task_duration_sec` is one
+server-wide value, the 3600-second ceiling in `compose/docker-compose.yml`,
+so a single template cannot be given more time through it. The one template
+that requests more is `ai-site-promotion @ develop`, the develop-to-main
+promotion check. It passes `--rail-sec=3600` and only runs from the develop
+ref (`only_branch`, `tofu/semaphore/templates-catalog-ai.tf`).
+
 ## Foundation blockers and hardening backlog
 
 - Provision the nine exact-claim OpenBao JWT roles and migrate each consumer to
