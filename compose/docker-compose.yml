@@ -23,7 +23,8 @@
 # Semaphore's per-task duration limit is one value for the whole server, so it
 # is the CEILING (3600 s, the promotion-validation allowance), not the rail.
 # Every task runs under a 900 s rail that scripts/semaphore-run-ansible.sh
-# enforces; only a template passing --rail-sec gets more, never above this.
+# enforces; only a template whose first argument is --rail-sec gets more, never
+# above this.
 x-semaphore-task-duration-ceiling-sec: &task_duration_ceiling_sec "3600"
 
 x-semaphore-max-parallel-tasks: &max_parallel_tasks "3"

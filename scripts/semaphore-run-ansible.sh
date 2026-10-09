@@ -25,11 +25,14 @@
 # Task rail: every run is bounded to 900 seconds, counted from the first entry
 # into this script. The OpenBao env export and the collection install are
 # charged to that budget, though only the playbook run itself is stopped by
-# it, and it is what is left at that point. A template may pass --rail-sec=N to
-# raise its own allowance. Semaphore's MaxTaskDurationSec is one server-wide
-# value and cannot be set per template, so the bound is enforced here; the
-# server value is the ceiling. The playbook budget gate reads
+# it, and it is what is left at that point. Semaphore's MaxTaskDurationSec is one
+# server-wide value and cannot be set per template, so the bound is enforced
+# here; the server value is the ceiling. The playbook budget gate reads
 # SEMAPHORE_MAX_TASK_DURATION_SEC, which this script sets to the seconds left.
+#
+# A template raises its allowance with --rail-sec=N as its FIRST argument, and
+# that is the only place it is honoured. Anywhere else it is refused, because a
+# task override can put text after the template's arguments but not before them.
 #
 # Usage: semaphore-run-ansible.sh [--rail-sec=N] <run-ansible.sh> <playbook> [args...]
 set -euo pipefail
@@ -54,13 +57,27 @@ if [ -z "${SEMAPHORE_RUN_ENV_LOADED:-}" ] && [ -n "${BAO_ADDR:-}" ]; then
     bash "$0" "$@"
 fi
 
+# Semaphore builds a shell task's arguments in this order: the script, the
+# environment secrets, the template's own arguments, the environment-derived
+# name=value pairs, then the task's overrides (upstream services/tasks,
+# getShellArgs). The task's overrides and the name=value pairs come after the
+# template's own arguments, so only the template can put --rail-sec first. An
+# environment secret, set by an administrator, comes before it; if one were
+# present the flag would not be first and the run would fail closed.
+rail_sec=""
+if [[ "${1:-}" == --rail-sec=* ]]; then
+  rail_sec="${1#--rail-sec=}"
+  shift
+  [[ "$rail_sec" =~ ^[1-9][0-9]*$ ]] || { echo "semaphore-run-ansible.sh: --rail-sec must be a positive whole number of seconds" >&2; exit 2; }
+  [ "$#" -ge 1 ] || { echo "usage: semaphore-run-ansible.sh [--rail-sec=N] <run-ansible.sh> [args...]" >&2; exit 2; }
+fi
+
 # Semaphore's bash templates append survey variables as name=value script
 # arguments. Translate the profile selector into the Ansible extra-var expected
 # by the site playbook. Benchmark survey values are validated here, encoded as
 # JSON (including numeric lists), and validated against the selected config by
 # its playbook before any benchmark command runs.
 run_args=()
-rail_sec=""
 active_profile=""
 benchmark_seen=0
 benchmark_config=""
@@ -143,10 +160,9 @@ for arg in "$@"; do
       survey_value power_cap_w "$value" "$benchmark_power_cap_w"
       benchmark_power_cap_w="$value"
       ;;
-    --rail-sec=*)
-      [ -z "$rail_sec" ] || { echo "semaphore-run-ansible.sh: duplicate --rail-sec" >&2; exit 2; }
-      rail_sec="${arg#*=}"
-      [[ "$rail_sec" =~ ^[1-9][0-9]*$ ]] || { echo "semaphore-run-ansible.sh: --rail-sec must be a positive whole number of seconds" >&2; exit 2; }
+    --rail-sec|--rail-sec=*)
+      echo "semaphore-run-ansible.sh: --rail-sec is honoured only as the first argument, set by the template" >&2
+      exit 2
       ;;
     *) run_args+=("$arg") ;;
   esac

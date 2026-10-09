@@ -199,8 +199,10 @@ printf 'PLAY RECAP *****\nweb-01 : ok=1 changed=0 unreachable=0 failed=0\n'
 STUB
 chmod +x "$RAIL_DIR/run-ansible.sh"
 
-rail_run() { # wrapper arguments; the caller sets the clock and stub env
-  (cd "$RAIL_DIR" && env -u BAO_ADDR bash "$WRAPPER" ./run-ansible.sh "$@") >/dev/null 2>&1
+rail_run() { # [--rail-sec=N] then the wrapper's other arguments; the caller sets the clock and stub env
+  local rail=()
+  if [[ "${1:-}" == --rail-sec=* ]]; then rail=("$1"); shift; fi
+  (cd "$RAIL_DIR" && env -u BAO_ADDR bash "$WRAPPER" "${rail[@]}" ./run-ansible.sh "$@") >/dev/null 2>&1
 }
 budget_between() { # min max: the stub's recorded budget is an integer in range
   local b
@@ -234,6 +236,39 @@ rail_run --rail-sec=900 --rail-sec=3600 playbooks/site.yml --limit web_group,loc
 ok=1
 if [ "$rc" -eq 2 ]; then ok=0; fi
 rail_report "a repeated --rail-sec is refused" "$ok"
+
+# Task overrides and name=value pairs are appended after the template's own
+# arguments, so a --rail-sec found anywhere but first is a task's attempt to raise
+# the rail. It must be refused before the run starts, whatever its position.
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --limit web_group,localhost --rail-sec=3600; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "an appended --rail-sec=3600 after the playbook does not raise the rail and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run --rail-sec=900 playbooks/site.yml --limit web_group,localhost --rail-sec=3600; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "an appended --rail-sec=3600 after a template's own 900 is refused and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --rail-sec=3600 --limit web_group,localhost; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "an interior --rail-sec=3600 is refused and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --limit web_group,localhost --rail-sec; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "a bare --rail-sec is refused and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+(cd "$RAIL_DIR" && env -u BAO_ADDR bash "$WRAPPER" --rail-sec=3600) >/dev/null 2>&1; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "a first --rail-sec with no script or playbook is refused" "$ok"
 
 export SEMAPHORE_RAIL_STARTED=$(( $(date +%s) - 890 ))
 rm -f "$STUB_ARGS" "$STUB_ARGS.budget"

@@ -220,8 +220,11 @@ with no recap, by the rule above. Semaphore's `max_task_duration_sec` is one
 server-wide value, the 3600-second ceiling in `compose/docker-compose.yml`,
 so a single template cannot be given more time through it. The one template
 that requests more is `ai-site-promotion @ develop`, the develop-to-main
-promotion check. It passes `--rail-sec=3600` and only runs from the develop
-ref (`only_branch`, `tofu/semaphore/templates-catalog-ai.tf`).
+promotion check. It sets `--rail-sec=3600` as its first argument, the only
+position the wrapper honours, and only runs from the develop ref
+(`only_branch`, `tofu/semaphore/templates-catalog-ai.tf`). A task override
+is appended after the template's arguments, so it cannot raise the rail: a
+`--rail-sec` anywhere else fails the run before it starts.
 
 ## Foundation blockers and hardening backlog
 
