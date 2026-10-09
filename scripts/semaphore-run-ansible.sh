@@ -22,10 +22,23 @@
 #   4. Recap exists, covers a real host, no failures -> exit with the
 #      wrapped command's own exit code.
 #
-# Usage: semaphore-run-ansible.sh <run-ansible.sh> <playbook> [args...]
+# Task rail: every run is bounded to 900 seconds, counted from the first entry
+# into this script. The OpenBao env export and the collection install are
+# charged to that budget, though only the playbook run itself is stopped by
+# it, and it is what is left at that point. A template may pass --rail-sec=N to
+# raise its own allowance. Semaphore's MaxTaskDurationSec is one server-wide
+# value and cannot be set per template, so the bound is enforced here; the
+# server value is the ceiling. The playbook budget gate reads
+# SEMAPHORE_MAX_TASK_DURATION_SEC, which this script sets to the seconds left.
+#
+# Usage: semaphore-run-ansible.sh [--rail-sec=N] <run-ansible.sh> <playbook> [args...]
 set -euo pipefail
 
-[ "$#" -ge 1 ] || { echo "usage: semaphore-run-ansible.sh <run-ansible.sh> [args...]" >&2; exit 2; }
+[ "$#" -ge 1 ] || { echo "usage: semaphore-run-ansible.sh [--rail-sec=N] <run-ansible.sh> [args...]" >&2; exit 2; }
+
+# Starts the task clock once. The re-exec below keeps it, because the marker is
+# exported, not reset; a shell that wants a fresh clock must unset it first.
+export SEMAPHORE_RAIL_STARTED="${SEMAPHORE_RAIL_STARTED:-$(date +%s)}"
 
 # The run environment. The playbooks read plain environment variables and know
 # nothing about where they came from; this is the one place that fills them in.
@@ -47,6 +60,7 @@ fi
 # JSON (including numeric lists), and validated against the selected config by
 # its playbook before any benchmark command runs.
 run_args=()
+rail_sec=""
 active_profile=""
 benchmark_seen=0
 benchmark_config=""
@@ -129,9 +143,15 @@ for arg in "$@"; do
       survey_value power_cap_w "$value" "$benchmark_power_cap_w"
       benchmark_power_cap_w="$value"
       ;;
+    --rail-sec=*)
+      [ -z "$rail_sec" ] || { echo "semaphore-run-ansible.sh: duplicate --rail-sec" >&2; exit 2; }
+      rail_sec="${arg#*=}"
+      [[ "$rail_sec" =~ ^[1-9][0-9]*$ ]] || { echo "semaphore-run-ansible.sh: --rail-sec must be a positive whole number of seconds" >&2; exit 2; }
+      ;;
     *) run_args+=("$arg") ;;
   esac
 done
+rail_sec="${rail_sec:-900}"
 
 if [ "$benchmark_seen" -eq 1 ]; then
   [ -n "$benchmark_config" ] || { echo "semaphore-run-ansible.sh: missing config_name survey variable" >&2; exit 2; }
@@ -222,8 +242,31 @@ if [ -f requirements.yml ]; then
   export ANSIBLE_COLLECTIONS_PATH="$run_collections${ANSIBLE_COLLECTIONS_PATH:+:$ANSIBLE_COLLECTIONS_PATH}"
 fi
 
+# Runs the command in a session of its own and stops that whole session when the
+# seconds run out. timeout(1) in the image signals only its direct child, and
+# ansible's own children keep the output pipe open, so the rail signals the
+# session's process group instead. A run stopped this way has no PLAY RECAP and
+# fails by rule 1.
+run_in_rail() {
+  local seconds="$1" run rail status=0
+  shift
+  setsid "$@" &
+  run=$!
+  ( sleep "$seconds" && kill -TERM -- "-$run" ) >/dev/null 2>&1 &
+  rail=$!
+  wait "$run" || status=$?
+  kill "$rail" 2>/dev/null || true
+  return "$status"
+}
+
+# What is left of the rail is the run's whole budget: the playbook gate reads it,
+# and run_in_rail enforces it. Nothing has run yet if none is left.
+rail_left=$(( rail_sec - ( $(date +%s) - SEMAPHORE_RAIL_STARTED ) ))
+[ "$rail_left" -gt 0 ] || { echo "semaphore-run-ansible.sh: the ${rail_sec}s task rail was spent before the playbook started; nothing was run" >&2; exit 1; }
+export SEMAPHORE_MAX_TASK_DURATION_SEC="$rail_left"
+
 set +e
-"${run_args[@]}" 2>&1 | tee "$log"
+run_in_rail "$rail_left" "${run_args[@]}" 2>&1 | tee "$log"
 rc="${PIPESTATUS[0]}"
 set -e
 
