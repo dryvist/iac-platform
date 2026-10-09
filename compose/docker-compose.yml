@@ -20,7 +20,11 @@
 # The executor is deliberately unpublished: only the API reaches it, on the
 # compose-internal network.
 
-x-semaphore-task-duration-sec: &task_duration_sec "900"
+# Semaphore's per-task duration limit is one value for the whole server, so it
+# is the CEILING (3600 s, the promotion-validation allowance), not the rail.
+# Every task runs under a 900 s rail that scripts/semaphore-run-ansible.sh
+# enforces; only a template passing --rail-sec gets more, never above this.
+x-semaphore-task-duration-ceiling-sec: &task_duration_ceiling_sec "3600"
 
 x-semaphore-max-parallel-tasks: &max_parallel_tasks "3"
 
@@ -378,13 +382,14 @@ services:
       SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
       SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${SEMAPHORE_ACCESS_KEY_ENCRYPTION}
       SEMAPHORE_WEB_ROOT: https://semaphore.${DOMAIN}
-      # 15-minute hard rail, defined once above (&task_duration_sec) and
-      # shared with semaphore-runner below. The playbooks' own budget gate
-      # (ansible-proxmox-apps playbooks/site/budget-gate.yml) reads the same
-      # forwarded value and stops itself with margin before this rail ever
-      # fires; a run that still needs this rail to stop it is a defect to
-      # scope down, never a value to raise here.
-      SEMAPHORE_MAX_TASK_DURATION_SEC: *task_duration_sec
+      # Server ceiling (&task_duration_ceiling_sec), shared with
+      # semaphore-runner below. The per-run rail is the wrapper's
+      # (scripts/semaphore-run-ansible.sh): it exports the seconds left as
+      # SEMAPHORE_MAX_TASK_DURATION_SEC for the playbooks' budget gate
+      # (ansible-proxmox-apps playbooks/site/budget-gate.yml), so the gate
+      # stops with margin before the rail fires. A run that needs the rail to
+      # stop it is a defect to scope down, never a value to raise.
+      SEMAPHORE_MAX_TASK_DURATION_SEC: *task_duration_ceiling_sec
       # Server-wide concurrency ceiling, spanning every project. Each project
       # below still declares its own max_parallel_tasks (tofu/semaphore,
       # var.max_parallel_tasks), which only bounds concurrency WITHIN that
@@ -460,18 +465,14 @@ services:
       # (util/config.go setConfigValue).
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
-        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID", "SEMAPHORE_MAX_TASK_DURATION_SEC"]
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
       # Nothing else here. Every other value a run needs — the ansible pair
       # the runners fall back to, the reconcile pair, the telemetry callback's
       # token, the Nautobot pair — is read from OpenBao at run time: the
       # wrapper exports the run-environment documents before any playbook
       # starts, and the one non-Ansible template wraps itself the same way.
       # A secret listed here would be a second copy with its own rotation.
-      # SEMAPHORE_MAX_TASK_DURATION_SEC is not a secret; it is forwarded so
-      # the playbooks' budget gate can read the same rail via
-      # lookup('env', 'SEMAPHORE_MAX_TASK_DURATION_SEC') that this server
-      # enforces (see semaphore-runner below, the process that actually
-      # spawns each task once SEMAPHORE_USE_REMOTE_RUNNER is set).
+      # The task rail is not forwarded: the wrapper sets it per run.
     volumes:
       - semaphore_data:/var/lib/semaphore
     ports:
@@ -520,22 +521,20 @@ services:
       # (tofu/semaphore/project.tf) — one budget, contract-tested; see the
       # comment on SEMAPHORE_MAX_PARALLEL_TASKS above.
       SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS: *max_parallel_tasks
-      # The 15-minute hard rail this runner enforces on every task it spawns
-      # (RemoteJob.go, gated on SEMAPHORE_USE_REMOTE_RUNNER, which is set on
-      # the semaphore service above) and forwards below so the playbooks'
-      # own budget gate can read the same value and stop first.
-      SEMAPHORE_MAX_TASK_DURATION_SEC: *task_duration_sec
+      # The same server ceiling as the semaphore service above. The dispatching
+      # server enforces it on remote-runner tasks (RemoteJob.go, gated on
+      # SEMAPHORE_USE_REMOTE_RUNNER); the per-task rail is in the wrapper.
+      SEMAPHORE_MAX_TASK_DURATION_SEC: *task_duration_ceiling_sec
       # run-ansible.sh's OpenBao identity, same values as the semaphore service.
       BAO_ADDR: ${BAO_ADDR:-}
       OPENBAO_APPROLE_SEMAPHORE_ROLE_ID: ${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}
       OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: ${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}
       # Curated allow-list for every subprocess THIS runner starts (git clone
       # and the task's own bash template) — see the service-level comment
-      # above. SEMAPHORE_MAX_TASK_DURATION_SEC is not a secret; it is here so
-      # the playbooks' budget gate can read it via lookup('env', ...).
+      # above.
       SEMAPHORE_FORWARDED_ENV_VARS: >-
         ["BAO_ADDR", "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID",
-        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID", "SEMAPHORE_MAX_TASK_DURATION_SEC"]
+        "OPENBAO_APPROLE_SEMAPHORE_SECRET_ID"]
       # Warm caches on the semaphore_runner_data volume (below) instead of the
       # container's writable layer, so a runner redeploy stays warm instead of
       # paying full collection-install and fact-gathering cost again. None of

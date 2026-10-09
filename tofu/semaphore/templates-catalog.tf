@@ -29,6 +29,11 @@
 #   `@ <branch>` preview variant of it, whatever preview branches the
 #   repository declares.
 #
+#   `only_branch` is optional. Set it to one ref to build the entry from that
+#   ref alone: templates.tf then builds no variant from any other ref, the
+#   deployed one included. It must name one of the repository's
+#   preview_branches, checked in templates.tf.
+#
 #   `project` is optional. Left out, the entry lands in its repository's
 #   project (project.tf repository_projects). Only openbao-tagged
 #   ansible-proxmox-apps entries set it, to "secrets" — templates.tf asserts it.

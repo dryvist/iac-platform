@@ -67,7 +67,7 @@ locals {
             deployed       = r.deployed
             template       = tname
           })
-        } if r.project == try(t.project, local.repository_projects[t.repository]) && r.repo == t.repository && (r.deployed || !try(t.deployed_only, false))
+        } if r.project == try(t.project, local.repository_projects[t.repository]) && r.repo == t.repository && (r.deployed || !try(t.deployed_only, false)) && try(t.only_branch, r.branch) == r.branch
       ]
     ]) : pair.key => pair.value
   }
@@ -93,6 +93,15 @@ resource "terraform_data" "limit_guard" {
         )
       ])
       error_message = "Only openbao-tagged ansible-proxmox-apps templates may name project = \"secrets\"."
+    }
+    # An only_branch that is not a preview ref of its repository would build no template at all.
+    precondition {
+      condition = alltrue([
+        for t in local.ansible_templates : try(t.only_branch, null) == null || contains(
+          try(var.ansible_repositories[t.repository].preview_branches, []), t.only_branch
+        )
+      ])
+      error_message = "A template's only_branch must name one of its repository's preview_branches, or it is built from no ref at all."
     }
   }
 }
