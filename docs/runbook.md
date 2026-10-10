@@ -124,7 +124,7 @@ clone failing with the helper reporting an unset address means that list, not
 the credential. The value must be a JSON array — Semaphore panics at startup
 on anything else.
 
-Which git ref a run uses, and how to start a run from a preview ref:
+Run refs, preview-ref runs and the task-duration rail:
 [semaphore-refs.md](semaphore-refs.md).
 
 **Nothing is created in the Semaphore UI.** The projects (one per Ansible
@@ -212,19 +212,6 @@ UNKNOWN and is a failure. A recap with any failed or unreachable host is a
 failure. A recap covering only `localhost` (the real target never ran) is also
 a failure. These checks run only once a recap exists. Every template should
 call the wrapper instead of `run-ansible.sh` directly.
-
-Task duration. Every wrapped run has a 900-second rail, counted from the
-wrapper's first entry, so the OpenBao env export and the collection install
-count against it. The rail stops the run's whole session and fails the task,
-with no recap, by the rule above. Semaphore's `max_task_duration_sec` is one
-server-wide value, the 3600-second ceiling in `compose/docker-compose.yml`,
-so a single template cannot be given more time through it. The one template
-that requests more is `ai-site-promotion @ develop`, the develop-to-main
-promotion check. It sets `--rail-sec=3600` as its first argument, the only
-position the wrapper honours, and only runs from the develop ref
-(`only_branch`, `tofu/semaphore/templates-catalog-ai.tf`). A task override
-is appended after the template's arguments, so it cannot raise the rail: a
-`--rail-sec` anywhere else fails the run before it starts.
 
 ## Foundation blockers and hardening backlog
 
