@@ -1,6 +1,8 @@
-# Contract: the 3600-second promotion allowance is requested by exactly one
-# template, as the first argument that templates.tf builds from its rail_sec,
-# and that value must equal the server ceiling in compose/docker-compose.yml.
+# Contract: only the catalog entries listed below may raise the task rail, each
+# with exactly the listed rail_sec, as the first argument that templates.tf
+# builds from it. No value may exceed the server ceiling in
+# compose/docker-compose.yml, and the promotion entry uses the whole ceiling.
+# Adding an entry means editing both lists in this file on purpose.
 # Read as raw text, the same way max_parallel_tasks_contract.tftest.hcl does,
 # for the reason given in fixtures/noop/main.tf.
 
@@ -23,8 +25,20 @@ run "promotion_rail_contract" {
     condition = length(flatten([
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
-    ])) == 1
-    error_message = "Exactly one catalog entry may set rail_sec. Every other template keeps the wrapper's 900-second default."
+    ])) == 2
+    error_message = "rail_sec may be set only by the two allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
+  }
+
+  assert {
+    condition = merge([
+      for f in fileset("${path.module}/../../..", "templates-catalog*.tf") : {
+        for m in regexall(
+          "(?m)^\\s*([A-Za-z0-9_-]+) = \\{[^{}]*?\\brail_sec\\s*=\\s*([0-9]+)",
+          file("${path.module}/../../../${f}")
+        ) : m[0] => tonumber(m[1])
+      }
+    ]...) == { "ai-site-promotion" = 3600, "ai-hermes-agent" = 1800 }
+    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600 and ai-hermes-agent = 1800."
   }
 
   assert {
@@ -44,14 +58,17 @@ run "promotion_rail_contract" {
   }
 
   assert {
-    condition = tonumber(regex(
-      "rail_sec\\s*=\\s*([0-9]+)",
-      file("${path.module}/../../../templates-catalog-ai.tf")
-      )[0]) == tonumber(regex(
-      "&task_duration_ceiling_sec \"([0-9]+)\"",
-      file("${path.module}/../../../../../compose/docker-compose.yml")
-    )[0])
-    error_message = "The rail_sec value in templates-catalog-ai.tf must equal the compose server ceiling; a rail above the ceiling is cut short by the server."
+    condition = alltrue([
+      for m in concat([
+        for f in fileset("${path.module}/../../..", "templates-catalog*.tf") :
+        regexall("rail_sec\\s*=\\s*([0-9]+)", file("${path.module}/../../../${f}"))
+      ]...) :
+      tonumber(m[0]) <= tonumber(regex(
+        "&task_duration_ceiling_sec \"([0-9]+)\"",
+        file("${path.module}/../../../../../compose/docker-compose.yml")
+      )[0])
+    ])
+    error_message = "No rail_sec may exceed the compose server ceiling; a rail above the ceiling is cut short by the server."
   }
 
   assert {

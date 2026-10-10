@@ -36,8 +36,9 @@
 #
 #   `rail_sec` is optional. Set it to a number of seconds to raise this entry's
 #   task rail above the wrapper's default. templates.tf puts it first in the
-#   arguments, where the wrapper alone honours it. Only one entry may set it,
-#   and the contract test in tests/ pins the value to the server ceiling.
+#   arguments, where the wrapper alone honours it. The contract test in tests/
+#   lists every entry allowed to set it, with its value, and caps each value
+#   at the server ceiling.
 #
 #   `project` is optional. Left out, the entry lands in its repository's
 #   project (project.tf repository_projects). Only openbao-tagged
