@@ -11,7 +11,7 @@ locals {
     }
 
     # The develop-to-main promotion check: the same converge as ai-site, run
-    # from the develop ref only (only_branch builds no main variant), with the
+    # from the develop ref only (only_branch builds no deployed-ref variant), with the
     # 3600-second allowance. rail_sec puts --rail-sec first in the arguments,
     # the one position the wrapper honours; a task override is appended after
     # the arguments and cannot reach it. The contract test in

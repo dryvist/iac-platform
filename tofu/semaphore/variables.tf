@@ -40,7 +40,10 @@ variable "ansible_repositories" {
     Ansible repositories Semaphore may run, keyed by short name.
 
     `url` is the public clone URL. `branch` is the DEPLOYED ref — the one the
-    unsuffixed template runs and the only one anything scheduled may touch.
+    unsuffixed template runs and the only one anything scheduled may touch. It
+    names a release tag (SemaphoreUI's branch field accepts a tag), so a
+    deployed run executes a published release; the annotation above each value
+    lets Renovate propose the next tag.
     `preview_branches` names further refs the same repository may be run from
     on demand; each gets its own repository entry, its own templates and its
     own tab in the UI, so which ref a run used is never inferred.
@@ -64,25 +67,29 @@ variable "ansible_repositories" {
 
   default = {
     ansible-proxmox = {
-      url              = "https://github.com/dryvist/ansible-proxmox.git"
-      branch           = "main"
+      url = "https://github.com/dryvist/ansible-proxmox.git"
+      # renovate: datasource=github-tags depName=dryvist/ansible-proxmox
+      branch           = "v2.20.1"
       preview_branches = ["develop"]
     }
     ansible-proxmox-apps = {
-      url              = "https://github.com/dryvist/ansible-proxmox-apps.git"
-      branch           = "main"
+      url = "https://github.com/dryvist/ansible-proxmox-apps.git"
+      # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-apps
+      branch           = "v4.59.0"
       preview_branches = ["develop"]
     }
     ansible-proxmox-ai = {
-      url              = "https://github.com/dryvist/ansible-proxmox-ai.git"
-      branch           = "main"
+      url = "https://github.com/dryvist/ansible-proxmox-ai.git"
+      # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-ai
+      branch           = "v1.0.0"
       preview_branches = ["develop"]
     }
     # No develop branch upstream: this repository releases from main only, so
     # naming one here would produce a template whose every run fails to clone.
     ansible-splunk = {
-      url    = "https://github.com/dryvist/ansible-splunk.git"
-      branch = "main"
+      url = "https://github.com/dryvist/ansible-splunk.git"
+      # renovate: datasource=github-tags depName=dryvist/ansible-splunk
+      branch = "v0.92.2"
     }
   }
 

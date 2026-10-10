@@ -31,6 +31,14 @@
     },
     {
       "customType": "regex",
+      "description": "Release tags of the Ansible repositories Semaphore deploys, annotated above each branch value in the ansible_repositories default",
+      "managerFilePatterns": ["/^tofu/semaphore/variables\\.tf$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+branch\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "customType": "regex",
       "description": "uv release pin in the Semaphore runner image",
       "managerFilePatterns": ["/^compose/semaphore/Dockerfile$/"],
       "matchStrings": ["ARG UV_VERSION=(?<currentValue>[^\\s]+)"],
