@@ -63,6 +63,9 @@ locals {
 
     # Declares the template that already exists on the plane as id 13
     # (undeclared drift) — see the import block in templates.tf.
+    #
+    # The 2400-second rail: store reconciliation can run past the 900-second
+    # default.
     apps-openbao-tagged = {
       repository       = "ansible-proxmox-apps"
       project          = "secrets"
@@ -72,6 +75,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 2400
       description      = "Store reconciliation only, via --tags openbao. Skips the baseline phase."
     }
 
