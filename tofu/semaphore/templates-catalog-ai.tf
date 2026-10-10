@@ -171,7 +171,11 @@ locals {
       # Mutating: the play restarts pool members. It does so one at a time
       # (`serial: 1`, `max_fail_percentage: 0`) so the front door stays up,
       # but a rolling restart is still a restart.
+      #
+      # The 2400-second rail: a converge of the router tier runs past the
+      # 900-second default.
       mutating    = true
+      rail_sec    = 2400
       description = "LiteLLM router converge only, scoped by tag and limit."
     }
 
