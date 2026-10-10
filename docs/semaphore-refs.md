@@ -46,9 +46,11 @@ stops the run's whole session and fails the task. The run leaves no recap, and
 the wrapper treats a missing recap as a failure ([runbook.md](runbook.md)).
 Semaphore's `max_task_duration_sec` is one server-wide value, the 3600-second
 ceiling in `compose/docker-compose.yml`, so a single template cannot be given
-more time through it. The one template that requests more is `ai-site-promotion
-@ develop`, the develop-to-main promotion check. It sets `--rail-sec=3600` as
-its first argument, the only position the wrapper honours, and only runs from
-the develop ref (`only_branch`, `tofu/semaphore/templates-catalog-ai.tf`). A
-task override is appended after the template's arguments, so it cannot raise the
-rail: a `--rail-sec` anywhere else fails the run before it starts.
+more time through it. A catalog entry requests more with `rail_sec`, which
+templates.tf turns into `--rail-sec=N` as the first argument, the only position
+the wrapper honours. Two entries do: `ai-site-promotion @ develop`, the
+develop-to-main promotion check, at 3600 seconds and only from the develop ref
+(`only_branch`), and `ai-hermes-agent` on both refs at 1800 seconds.
+`tofu/semaphore/tests/promotion_rail_contract.tftest.hcl` pins that exact list.
+A task override is appended after the template's arguments, so it cannot raise
+the rail: a `--rail-sec` anywhere else fails the run before it starts.
