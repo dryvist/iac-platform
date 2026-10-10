@@ -184,4 +184,116 @@ else
   echo "ok   a failed collection install stops the run"
 fi
 
+# Task rail: 900 seconds by default, --rail-sec=N raises one template's allowance,
+# the clock starts at the wrapper's first entry, and the playbook gate is handed
+# the seconds left. The stub records that budget next to its arguments.
+echo "== task rail =="
+RAIL_DIR="$STUB_DIR/rail"
+mkdir -p "$RAIL_DIR"
+cat >"$RAIL_DIR/run-ansible.sh" <<'STUB'
+#!/usr/bin/env bash
+printf '%s\n' "$@" >"$STUB_ARGS"
+printf '%s\n' "${SEMAPHORE_MAX_TASK_DURATION_SEC:-unset}" >"$STUB_ARGS.budget"
+[ -z "${STUB_SLEEP:-}" ] || sleep "$STUB_SLEEP"
+printf 'PLAY RECAP *****\nweb-01 : ok=1 changed=0 unreachable=0 failed=0\n'
+STUB
+chmod +x "$RAIL_DIR/run-ansible.sh"
+
+rail_run() { # [--rail-sec=N] then the wrapper's other arguments; the caller sets the clock and stub env
+  local rail=()
+  if [[ "${1:-}" == --rail-sec=* ]]; then rail=("$1"); shift; fi
+  (cd "$RAIL_DIR" && env -u BAO_ADDR bash "$WRAPPER" "${rail[@]}" ./run-ansible.sh "$@") >/dev/null 2>&1
+}
+budget_between() { # min max: the stub's recorded budget is an integer in range
+  local b
+  b="$(cat "$STUB_ARGS.budget" 2>/dev/null || true)"
+  [[ "$b" =~ ^[0-9]+$ ]] && [ "$b" -ge "$1" ] && [ "$b" -le "$2" ]
+}
+rail_report() { # name passed(0/1)
+  if [ "$2" -eq 0 ]; then echo "ok   $1"; else echo "FAIL $1"; FAIL=1; fi
+}
+
+unset SEMAPHORE_RAIL_STARTED STUB_SLEEP
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --limit web_group,localhost; rc=$?
+ok=1
+if [ "$rc" -eq 0 ] && budget_between 890 900 && ! grep -q -- '--rail-sec' "$STUB_ARGS"; then ok=0; fi
+rail_report "a run with no --rail-sec gets the 900-second rail" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run --rail-sec=3600 playbooks/site.yml --limit web_group,localhost; rc=$?
+ok=1
+if [ "$rc" -eq 0 ] && budget_between 3590 3600 && ! grep -q -- '--rail-sec' "$STUB_ARGS"; then ok=0; fi
+rail_report "--rail-sec=3600 raises the allowance and is not passed to Ansible" "$ok"
+
+for bad in --rail-sec=soon --rail-sec=0 --rail-sec=-5; do
+  rail_run "$bad" playbooks/site.yml --limit web_group,localhost; rc=$?
+  ok=1
+  if [ "$rc" -eq 2 ]; then ok=0; fi
+  rail_report "$bad is refused" "$ok"
+done
+rail_run --rail-sec=900 --rail-sec=3600 playbooks/site.yml --limit web_group,localhost; rc=$?
+ok=1
+if [ "$rc" -eq 2 ]; then ok=0; fi
+rail_report "a repeated --rail-sec is refused" "$ok"
+
+# Task overrides and name=value pairs are appended after the template's own
+# arguments, so a --rail-sec found anywhere but first is a task's attempt to raise
+# the rail. It must be refused before the run starts, whatever its position.
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --limit web_group,localhost --rail-sec=3600; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "an appended --rail-sec=3600 after the playbook does not raise the rail and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run --rail-sec=900 playbooks/site.yml --limit web_group,localhost --rail-sec=3600; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "an appended --rail-sec=3600 after a template's own 900 is refused and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --rail-sec=3600 --limit web_group,localhost; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "an interior --rail-sec=3600 is refused and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --limit web_group,localhost --rail-sec; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "a bare --rail-sec is refused and runs nothing" "$ok"
+
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+(cd "$RAIL_DIR" && env -u BAO_ADDR bash "$WRAPPER" --rail-sec=3600) >/dev/null 2>&1; rc=$?
+ok=1
+if [ "$rc" -eq 2 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "a first --rail-sec with no script or playbook is refused" "$ok"
+
+export SEMAPHORE_RAIL_STARTED=$(( $(date +%s) - 890 ))
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --limit web_group,localhost; rc=$?
+ok=1
+if [ "$rc" -eq 0 ] && budget_between 1 11; then ok=0; fi
+rail_report "the clock is inherited, so the budget left is what remains of the rail" "$ok"
+
+export SEMAPHORE_RAIL_STARTED=$(( $(date +%s) - 1000 ))
+rm -f "$STUB_ARGS" "$STUB_ARGS.budget"
+rail_run playbooks/site.yml --limit web_group,localhost; rc=$?
+ok=1
+if [ "$rc" -eq 1 ] && [ ! -e "$STUB_ARGS" ]; then ok=0; fi
+rail_report "a rail spent before the playbook starts runs nothing and fails" "$ok"
+unset SEMAPHORE_RAIL_STARTED
+
+# The stub's sleep is a grandchild that would hold the output pipe for 3 seconds;
+# finishing inside 2 seconds shows the rail took the whole session, not the stub only.
+export STUB_SLEEP=3
+rail_start=$SECONDS
+rail_run --rail-sec=1 playbooks/site.yml --limit web_group,localhost; rc=$?
+rail_elapsed=$((SECONDS - rail_start))
+unset STUB_SLEEP
+ok=1
+if [ "$rc" -eq 1 ] && [ "$rail_elapsed" -le 2 ]; then ok=0; fi
+rail_report "a run that outlives its rail fails at the rail, grandchildren included" "$ok"
+
 exit "$FAIL"

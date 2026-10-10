@@ -37,3 +37,18 @@ Adding a preview ref is one line: `preview_branches` on the repository in
 `tofu/semaphore/variables.tf`. Its templates and its tab follow. Naming a branch
 that does not exist upstream produces templates whose every run fails to clone,
 so only name refs that are really there.
+
+## Task duration
+
+Every wrapped run has a 900-second rail, counted from the wrapper's first entry,
+so the OpenBao env export and the collection install count against it. The rail
+stops the run's whole session and fails the task. The run leaves no recap, and
+the wrapper treats a missing recap as a failure ([runbook.md](runbook.md)).
+Semaphore's `max_task_duration_sec` is one server-wide value, the 3600-second
+ceiling in `compose/docker-compose.yml`, so a single template cannot be given
+more time through it. The one template that requests more is `ai-site-promotion
+@ develop`, the develop-to-main promotion check. It sets `--rail-sec=3600` as
+its first argument, the only position the wrapper honours, and only runs from
+the develop ref (`only_branch`, `tofu/semaphore/templates-catalog-ai.tf`). A
+task override is appended after the template's arguments, so it cannot raise the
+rail: a `--rail-sec` anywhere else fails the run before it starts.

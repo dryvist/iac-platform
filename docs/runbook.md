@@ -124,7 +124,7 @@ clone failing with the helper reporting an unset address means that list, not
 the credential. The value must be a JSON array — Semaphore panics at startup
 on anything else.
 
-Which git ref a run uses, and how to start a run from a preview ref:
+Run refs, preview-ref runs and the task-duration rail:
 [semaphore-refs.md](semaphore-refs.md).
 
 **Nothing is created in the Semaphore UI.** The projects (one per Ansible

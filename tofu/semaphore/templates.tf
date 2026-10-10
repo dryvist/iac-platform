@@ -67,7 +67,7 @@ locals {
             deployed       = r.deployed
             template       = tname
           })
-        } if r.project == try(t.project, local.repository_projects[t.repository]) && r.repo == t.repository && (r.deployed || !try(t.deployed_only, false))
+        } if r.project == try(t.project, local.repository_projects[t.repository]) && r.repo == t.repository && (r.deployed || !try(t.deployed_only, false)) && try(t.only_branch, r.branch) == r.branch
       ]
     ]) : pair.key => pair.value
   }
@@ -94,6 +94,15 @@ resource "terraform_data" "limit_guard" {
       ])
       error_message = "Only openbao-tagged ansible-proxmox-apps templates may name project = \"secrets\"."
     }
+    # An only_branch that is not a preview ref of its repository would build no template at all.
+    precondition {
+      condition = alltrue([
+        for t in local.ansible_templates : try(t.only_branch, null) == null || contains(
+          try(var.ansible_repositories[t.repository].preview_branches, []), t.only_branch
+        )
+      ])
+      error_message = "A template's only_branch must name one of its repository's preview_branches, or it is built from no ref at all."
+    }
   }
 }
 
@@ -117,7 +126,10 @@ resource "semaphoreui_project_template" "ansible" {
 
   app      = "bash"
   playbook = "semaphore-run-ansible.sh"
+  # The rail allowance is the first argument or it is nothing: the wrapper reads
+  # --rail-sec only from there (scripts/semaphore-run-ansible.sh).
   arguments = concat(
+    try(each.value.rail_sec, null) != null ? ["--rail-sec=${each.value.rail_sec}"] : [],
     ["./scripts/run-ansible.sh", each.value.playbook],
     try(each.value.tags, null) != null ? ["--tags", each.value.tags] : [],
     ["--limit", "${each.value.limit},localhost"],
@@ -127,8 +139,10 @@ resource "semaphoreui_project_template" "ansible" {
 
   survey_vars = try(each.value.survey_vars, null)
 
-  # Allows a task launch (UI or API) to replace `arguments` — the terraform
-  # provider's only lever for a per-task override, per its own docs (Terraform
+  # Allows a task launch (UI or API) to add to `arguments`. Upstream appends the
+  # task's arguments after the template's own, which always come first
+  # (services/tasks getShellArgs, v2.19.14), so they cannot displace them — the
+  # terraform provider's only lever for a per-task override, per its own docs (Terraform
   # SemaphoreUI Provider, resource/project_template.md, via Context7
   # /semaphoreui/semaphore-terraform-provider): there is no separate
   # limit/tags override, since limit and tags ARE arguments here. This is what

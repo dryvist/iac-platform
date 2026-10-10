@@ -10,6 +10,22 @@ locals {
       description = "Full AI/LLM stack converge (Ollama, LiteLLM, Qdrant, Hermes, Langfuse, etc.)."
     }
 
+    # The develop-to-main promotion check: the same converge as ai-site, run
+    # from the develop ref only (only_branch builds no main variant), with the
+    # 3600-second allowance. rail_sec puts --rail-sec first in the arguments,
+    # the one position the wrapper honours; a task override is appended after
+    # the arguments and cannot reach it. The contract test in
+    # tests/promotion_rail_contract.tftest.hcl pins rail_sec to this one entry.
+    ai-site-promotion = {
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/site.yml"
+      limit       = "all"
+      mutating    = true
+      only_branch = "develop"
+      rail_sec    = 3600
+      description = "Promotion validation: full AI/LLM stack converge from develop, with the 60-minute task allowance."
+    }
+
     # Both scoped AI entries enter through site.yml, never through the
     # llm-serving.yml fragment they narrow to. That file is an import_playbook
     # fragment of site.yml: it carries neither the inventory loader nor the
