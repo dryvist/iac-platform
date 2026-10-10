@@ -15,7 +15,8 @@ locals {
     # 3600-second allowance. rail_sec puts --rail-sec first in the arguments,
     # the one position the wrapper honours; a task override is appended after
     # the arguments and cannot reach it. The contract test in
-    # tests/promotion_rail_contract.tftest.hcl pins rail_sec to this one entry.
+    # tests/promotion_rail_contract.tftest.hcl lists every entry allowed a
+    # rail_sec and its value.
     ai-site-promotion = {
       repository  = "ansible-proxmox-ai"
       playbook    = "playbooks/site.yml"
@@ -186,7 +187,8 @@ locals {
     }
 
     # diff = false: the role syncs a full source tree, and its --diff output
-    # is too large to store as task output.
+    # is too large to store as task output. The 1800-second rail: a full converge
+    # of the Hermes identities runs past the 900-second default.
     ai-hermes-agent = {
       repository  = "ansible-proxmox-ai"
       playbook    = "playbooks/site.yml"
@@ -194,6 +196,7 @@ locals {
       tags        = "hermes_agent"
       mutating    = true
       diff        = false
+      rail_sec    = 1800
       description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
     }
   }
