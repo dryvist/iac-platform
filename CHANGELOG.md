@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/dryvist/iac-platform/compare/v1.0.1...v1.0.2) (2026-10-11)
+
+
+### Bug Fixes
+
+* **semaphore:** give apps-openbao-tagged the 3600-second rail ([#166](https://github.com/dryvist/iac-platform/issues/166)) ([f664584](https://github.com/dryvist/iac-platform/commit/f664584544086725f859cdaf28657a8df2c8ab46))
+
 ## [1.0.1](https://github.com/dryvist/iac-platform/compare/v1.0.0...v1.0.1) (2026-10-11)
 
 
