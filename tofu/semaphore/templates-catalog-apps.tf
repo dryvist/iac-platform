@@ -61,9 +61,6 @@ locals {
       description      = "Vikunja converge only, via --tags vikunja."
     }
 
-    # Declares the template that already exists on the plane as id 13
-    # (undeclared drift) — see the import block in templates.tf.
-    #
     # The 2400-second rail: store reconciliation can run past the 900-second
     # default.
     apps-openbao-tagged = {
