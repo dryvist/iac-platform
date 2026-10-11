@@ -195,14 +195,14 @@ resource "semaphoreui_project_template" "nautobot_drift" {
   suppress_success_alerts     = false
 }
 
-# Every 12h: rotate openbao_secrets domain AppRole secret_ids. Declared
-# apart from ansible_templates: no host pattern, the play names localhost
-# itself.
+# Every 12h: rotate openbao_secrets domain AppRole secret_ids from the
+# ansible-secrets-management repository. Declared apart from ansible_templates:
+# no host pattern, the play names localhost itself.
 # Auth: the scheduled AppRole pair from the platform env document the
 # wrapper exports.
 resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
   project_id     = semaphoreui_project.each["secrets"].id
-  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-secrets-management"].id
   inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
   environment_id = semaphoreui_project_environment.homelab["secrets"].id
 
@@ -224,11 +224,12 @@ resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
   suppress_success_alerts     = false
 }
 
-# One-shot seed of host secret-zero identities into the env document.
-# Manual only: no schedule reaches it. Same auth as the scheduled rotation.
+# One-shot seed of host secret-zero identities into the env document, using the
+# ansible-secrets-management develop ref. Manual only: no schedule reaches it.
+# Same auth as the scheduled rotation.
 resource "semaphoreui_project_template" "openbao_seed_host_secret_zero" {
   project_id     = semaphoreui_project.each["secrets"].id
-  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps@develop"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-secrets-management@develop"].id
   inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
   environment_id = semaphoreui_project_environment.homelab["secrets"].id
   view_id        = semaphoreui_project_view.each["secrets/develop"].id

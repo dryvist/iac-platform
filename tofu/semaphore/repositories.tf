@@ -13,9 +13,11 @@
 #
 # Keys: `<project>/<repo>` for the deployed ref, `<project>/<repo>@<branch>`
 # for a preview ref. A project carries every ref of the repositories its
-# templates run from, plus the deployed ansible-proxmox-apps ref whatever its
-# templates are: that checkout holds inventory/hosts.yml, which every
-# project's inventory points at (inventories.tf).
+# templates run from, plus the deployed ansible-proxmox-apps ref for the shared
+# inventory and both ansible-secrets-management refs in `secrets` for its
+# standalone OpenBao templates. The deployed apps checkout holds
+# inventory/hosts.yml, which every project's inventory points at
+# (inventories.tf).
 #
 # Declarative-drift audit (semaphoreui_project_repository): the settable
 # attributes are name, project_id, url, branch and ssh_key_id. All five are
@@ -64,7 +66,7 @@ locals {
     for pair in flatten([
       for p in local.semaphore_project_names : [
         for rkey, r in local.repository_refs : merge(r, { key = "${p}/${rkey}", project = p })
-        if contains(local.project_template_repos[p], r.repo) || rkey == "ansible-proxmox-apps"
+        if contains(local.project_template_repos[p], r.repo) || rkey == "ansible-proxmox-apps" || (p == "secrets" && r.repo == "ansible-secrets-management")
       ]
     ]) : pair.key => pair
   }
