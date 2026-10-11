@@ -81,6 +81,7 @@ locals {
     # inner tags select the tasks; the play-level tags stay on the same play.
     # No project = "secrets": templates.tf allows that project only for a tag
     # that is exactly "openbao", and these tags are finer than that.
+    # The 2400-second rail, as for apps-openbao-tagged.
     apps-openbao-rotators = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"
@@ -89,6 +90,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 2400
       description      = "On-box rotator and secret-age EnvironmentFile re-render only, via --tags openbao_rotate,openbao_secret_age."
     }
 
