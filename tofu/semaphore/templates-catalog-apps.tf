@@ -61,8 +61,7 @@ locals {
       description      = "Vikunja converge only, via --tags vikunja."
     }
 
-    # The 2400-second rail: store reconciliation can run past the 900-second
-    # default.
+    # The 3600-second rail: a full store reconciliation runs past 2400 seconds.
     apps-openbao-tagged = {
       repository       = "ansible-proxmox-apps"
       project          = "secrets"
@@ -72,7 +71,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      rail_sec         = 2400
+      rail_sec         = 3600
       description      = "Store reconciliation only, via --tags openbao. Skips the baseline phase."
     }
 
