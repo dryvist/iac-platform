@@ -41,11 +41,11 @@ run "promotion_rail_contract" {
       "ai-site-promotion"     = 3600
       "ai-hermes-agent"       = 1800
       "ai-llm-router"         = 2400
-      "apps-openbao-tagged"   = 2400
+      "apps-openbao-tagged"   = 3600
       "apps-openbao-rotators" = 2400
       "proxmox-site"          = 3600
     }
-    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 1800, ai-llm-router = 2400, apps-openbao-tagged = 2400, apps-openbao-rotators = 2400 and proxmox-site = 3600."
+    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 1800, ai-llm-router = 2400, apps-openbao-tagged = 3600, apps-openbao-rotators = 2400 and proxmox-site = 3600."
   }
 
   assert {
