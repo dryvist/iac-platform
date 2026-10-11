@@ -25,8 +25,8 @@ run "promotion_rail_contract" {
     condition = length(flatten([
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
-    ])) == 5
-    error_message = "rail_sec may be set only by the five allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
+    ])) == 6
+    error_message = "rail_sec may be set only by the six allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
   }
 
   assert {
@@ -43,8 +43,9 @@ run "promotion_rail_contract" {
       "ai-llm-router"         = 2400
       "apps-openbao-tagged"   = 2400
       "apps-openbao-rotators" = 2400
+      "proxmox-site"          = 3600
     }
-    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 1800, ai-llm-router = 2400, apps-openbao-tagged = 2400 and apps-openbao-rotators = 2400."
+    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 1800, ai-llm-router = 2400, apps-openbao-tagged = 2400, apps-openbao-rotators = 2400 and proxmox-site = 3600."
   }
 
   assert {
