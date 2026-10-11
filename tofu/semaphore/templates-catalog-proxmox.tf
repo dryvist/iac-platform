@@ -2,6 +2,8 @@
 
 locals {
   ansible_templates_proxmox = {
+    # The 3600-second rail: a full hypervisor converge seeds model-store blobs
+    # and runs past the 900-second default.
     proxmox-site = {
       repository       = "ansible-proxmox"
       playbook         = "playbooks/site.yml"
@@ -9,6 +11,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 3600
       description      = "Full hypervisor-layer converge."
     }
 
