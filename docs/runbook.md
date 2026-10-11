@@ -127,9 +127,8 @@ on anything else.
 Run refs, preview-ref runs and the task-duration rail:
 [semaphore-refs.md](semaphore-refs.md).
 
-**Nothing is created in the Semaphore UI.** The projects (one per Ansible run
-lane, with a separate `secrets` lane for OpenBao runs, listed in
-`tofu/semaphore/project.tf`), repositories,
+**Nothing is created in the Semaphore UI.** The projects (one per run lane,
+listed in `tofu/semaphore/project.tf`), repositories,
 inventories, environments, templates and schedules are declared in
 `tofu/semaphore/` and applied as a Terrakube job, the same way `tofu/terrakube/`
 declares Terrakube's own organization and workspaces. Creating any of these by
