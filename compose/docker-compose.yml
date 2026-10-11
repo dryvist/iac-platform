@@ -57,7 +57,7 @@ x-api: &api_env
   # newest entry, regenerate compose/tofu-releases.json (see the file's PR /
   # issue #25 for the one-liner). Durable fix tracked in issue #25
   # (authenticated fetch via CustomReleaseGithubToken).
-  CustomTofuReleasesUrl: https://raw.githubusercontent.com/dryvist/iac-platform/main/compose/tofu-releases.json
+  CustomTofuReleasesUrl: https://raw.githubusercontent.com/dryvist/iac-platform/v1/compose/tofu-releases.json
   ApiDataSourceType: POSTGRESQL
   DatasourceHostname: postgresql-service
   DatasourceDatabase: ${TK_POSTGRESQL_DATABASE_NAME}
