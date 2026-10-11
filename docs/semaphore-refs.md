@@ -11,8 +11,10 @@ product tags a template, and a template that silently overrode its repository's
 branch would be worse — so the ref is made visible three times instead:
 
 - **Repository name** — `ansible-proxmox-apps (<release tag>)`,
-  `ansible-proxmox-apps (develop)`. One entry per ref; the deployed ref is a
-  release tag that Renovate bumps in `variables.tf`.
+  `ansible-proxmox-apps (develop)`, plus `ansible-secrets-management
+  (<release tag>)` for scheduled OpenBao rotation and `ansible-secrets-management
+  (develop)` for the manual host secret-zero seed. One entry per ref; deployed
+  refs are release tags that Renovate bumps in `variables.tf`.
 - **Template name** — the deployed ref keeps the bare name (`apps-site`); a
   preview ref is suffixed (`apps-site @ develop`).
 - **View** — the tabs across the top of the template list. `Deployed` is

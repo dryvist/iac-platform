@@ -1,8 +1,9 @@
-# One project per Ansible repository checkout: `pve` (ansible-proxmox), `apps`
-# (ansible-proxmox-apps), `secrets` (the openbao-tagged ansible-proxmox-apps
-# templates, kept apart so they only queue behind each other), `observability`
-# (ansible-splunk) and `ai` (ansible-proxmox-ai). A catalog entry lands in its
-# repository's project unless it names `project` itself (templates-catalog.tf).
+# One project per Ansible run lane: `pve` (ansible-proxmox), `apps`
+# (ansible-proxmox-apps), `secrets` (the OpenBao-tagged apps templates plus the
+# standalone ansible-secrets-management rotate/seed templates, kept apart so
+# they only queue behind each other), `observability` (ansible-splunk) and `ai`
+# (ansible-proxmox-ai). A catalog entry lands in its repository's project
+# unless it names `project` itself (templates-catalog.tf).
 #
 # Two concurrency limits, deliberately different:
 #

@@ -202,7 +202,7 @@ resource "semaphoreui_project_template" "nautobot_drift" {
 # wrapper exports.
 resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
   project_id     = semaphoreui_project.each["secrets"].id
-  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-secrets-management"].id
   inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
   environment_id = semaphoreui_project_environment.homelab["secrets"].id
 
@@ -228,7 +228,7 @@ resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
 # Manual only: no schedule reaches it. Same auth as the scheduled rotation.
 resource "semaphoreui_project_template" "openbao_seed_host_secret_zero" {
   project_id     = semaphoreui_project.each["secrets"].id
-  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-proxmox-apps@develop"].id
+  repository_id  = semaphoreui_project_repository.ansible["secrets/ansible-secrets-management@develop"].id
   inventory_id   = semaphoreui_project_inventory.homelab_tofu["secrets"].id
   environment_id = semaphoreui_project_environment.homelab["secrets"].id
   view_id        = semaphoreui_project_view.each["secrets/develop"].id
