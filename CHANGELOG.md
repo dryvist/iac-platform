@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/dryvist/iac-platform/compare/v1.0.0...v1.0.1) (2026-10-11)
+
+
+### Bug Fixes
+
+* **semaphore:** give proxmox-site the 3600-second rail ([#159](https://github.com/dryvist/iac-platform/issues/159)) ([f235190](https://github.com/dryvist/iac-platform/commit/f23519028912e799c312a75b12d15cd2e42d82b8))
+
 ## 1.0.0 (2026-10-11)
 
 
