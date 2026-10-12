@@ -250,7 +250,7 @@ resource "semaphoreui_project_template" "nautobot_drift_collection" {
   app      = "bash"
   playbook = "semaphore-run-ansible.sh"
   arguments = [
-    "./scripts/run-ansible.sh", "playbooks/nautobot-drift-collection.yml",
+    "./scripts/run-ansible.sh", "playbooks/nautobot-drift.yml",
     "--limit", "localhost",
   ]
 

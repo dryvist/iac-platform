@@ -137,13 +137,13 @@ run "nautobot_drift_collection_contract" {
 
   assert {
     condition = can(regex(
-      "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"playbooks/nautobot-drift-collection\\.yml\\\"",
+      "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"playbooks/nautobot-drift\\.yml\\\"",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_drift_collection\\\" \\{([^}]*)\\}",
         file("${path.module}/../../../templates.tf")
       )[0]
     ))
-    error_message = "nautobot_drift_collection must pass playbooks/nautobot-drift-collection.yml to the runner."
+    error_message = "nautobot_drift_collection must pass playbooks/nautobot-drift.yml to the runner."
   }
 
   assert {
