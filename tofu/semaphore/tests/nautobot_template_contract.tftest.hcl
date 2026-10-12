@@ -213,3 +213,54 @@ run "nautobot_limit_contract_rejects_other_values" {
     error_message = "The localhost limit assertion must reject a non-localhost value."
   }
 }
+
+run "proxmox_preflight_catalog_contract" {
+  command = plan
+
+  module {
+    source = "./tests/fixtures/noop"
+  }
+
+  assert {
+    condition = can(regex(
+      "proxmox-preflight-gate\\s*=\\s*\\{[^}]*?repository\\s*=\\s*\"ansible-proxmox\"[^}]*?playbook\\s*=\\s*\"playbooks/preflight_gate\\.yml\"[^}]*?limit\\s*=\\s*\"proxmox\"",
+      file("${path.module}/../../../templates-catalog-proxmox.tf")
+    ))
+    error_message = "proxmox-preflight-gate must use its read-only preflight playbook with the proxmox limit."
+  }
+
+  assert {
+    condition = can(regex(
+      "proxmox-preflight-gate\\s*=\\s*\\{[^}]*?mutating\\s*=\\s*false[^}]*?schedule_enabled\\s*=\\s*false[^}]*?extra_args\\s*=\\s*\\[\\s*\\]",
+      file("${path.module}/../../../templates-catalog-proxmox.tf")
+    ))
+    error_message = "proxmox-preflight-gate must be non-mutating, unscheduled and use no extra arguments."
+  }
+
+  assert {
+    condition = can(regex(
+      "proxmox-preflight-gate-selftest\\s*=\\s*\\{[^}]*?repository\\s*=\\s*\"ansible-proxmox\"[^}]*?playbook\\s*=\\s*\"tests/preflight_gate/verify\\.yml\"[^}]*?limit\\s*=\\s*\"proxmox\"",
+      file("${path.module}/../../../templates-catalog-proxmox.tf")
+    ))
+    error_message = "proxmox-preflight-gate-selftest must use its fixture verification playbook with the proxmox limit."
+  }
+
+  assert {
+    condition = can(regex(
+      "proxmox-preflight-gate-selftest\\s*=\\s*\\{[^}]*?mutating\\s*=\\s*false[^}]*?schedule_enabled\\s*=\\s*false[^}]*?extra_args\\s*=\\s*\\[\\s*\\]",
+      file("${path.module}/../../../templates-catalog-proxmox.tf")
+    ))
+    error_message = "proxmox-preflight-gate-selftest must be non-mutating, unscheduled and use no extra arguments."
+  }
+
+  assert {
+    condition = length(regexall(
+      "(?m)^\\s*proxmox-preflight-gate\\s*=",
+      file("${path.module}/../../../schedules.tf")
+      )) == 0 && length(regexall(
+      "(?m)^\\s*proxmox-preflight-gate-selftest\\s*=",
+      file("${path.module}/../../../schedules.tf")
+    )) == 0
+    error_message = "The preflight gate and self-test must not appear in schedule_crons."
+  }
+}
