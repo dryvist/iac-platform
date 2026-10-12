@@ -263,4 +263,23 @@ run "proxmox_preflight_catalog_contract" {
     )) == 0
     error_message = "The preflight gate and self-test must not appear in schedule_crons."
   }
+
+  assert {
+    condition = length(regexall(
+      "(?m)^\\s*proxmox-preflight-gate\\s*=",
+      replace(
+        file("${path.module}/../../../schedules.tf"),
+        "schedule_crons = {",
+        "schedule_crons = {\n    proxmox-preflight-gate = \"probe\"\n    proxmox-preflight-gate-selftest = \"probe\""
+      )
+      )) == 1 && length(regexall(
+      "(?m)^\\s*proxmox-preflight-gate-selftest\\s*=",
+      replace(
+        file("${path.module}/../../../schedules.tf"),
+        "schedule_crons = {",
+        "schedule_crons = {\n    proxmox-preflight-gate = \"probe\"\n    proxmox-preflight-gate-selftest = \"probe\""
+      )
+    )) == 1
+    error_message = "The schedule_crons checks must recognize either preflight key if it is added."
+  }
 }
