@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/dryvist/iac-platform/compare/v1.1.0...v1.2.0) (2026-10-13)
+
+
+### Features
+
+* **semaphore:** add a postgres restore-drill template ([d7d2562](https://github.com/dryvist/iac-platform/commit/d7d25629fef71596bf6a7edb391cf768d90c836c))
+* **semaphore:** add a postgres restore-drill template ([#172](https://github.com/dryvist/iac-platform/issues/172)) ([0de6ca7](https://github.com/dryvist/iac-platform/commit/0de6ca7291a611633337fe94cb22d261e3cebeb1))
+
 ## [1.1.0](https://github.com/dryvist/iac-platform/compare/v1.0.2...v1.1.0) (2026-10-13)
 
 
