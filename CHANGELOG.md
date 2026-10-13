@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/dryvist/iac-platform/compare/v1.3.0...v1.3.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* **semaphore:** declare the pack sync as a controller-only template ([2c941d8](https://github.com/dryvist/iac-platform/commit/2c941d846b99ce674fa4619f98cb69986cb2a618))
+* **semaphore:** declare the pack sync as a controller-only template ([#177](https://github.com/dryvist/iac-platform/issues/177)) ([2c941d8](https://github.com/dryvist/iac-platform/commit/2c941d846b99ce674fa4619f98cb69986cb2a618))
+
 ## [1.3.0](https://github.com/dryvist/iac-platform/compare/v1.2.0...v1.3.0) (2026-10-13)
 
 
