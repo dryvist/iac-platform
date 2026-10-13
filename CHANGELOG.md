@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/dryvist/iac-platform/compare/v1.2.0...v1.3.0) (2026-10-13)
+
+
+### Features
+
+* **semaphore:** add the apps-sync-cribl-packs template ([82ff0fd](https://github.com/dryvist/iac-platform/commit/82ff0fd1b6db5544ac61b2a55a54cd75da6c1111))
+* **semaphore:** add the apps-sync-cribl-packs template ([#175](https://github.com/dryvist/iac-platform/issues/175)) ([82ff0fd](https://github.com/dryvist/iac-platform/commit/82ff0fd1b6db5544ac61b2a55a54cd75da6c1111))
+
 ## [1.2.0](https://github.com/dryvist/iac-platform/compare/v1.1.0...v1.2.0) (2026-10-13)
 
 
