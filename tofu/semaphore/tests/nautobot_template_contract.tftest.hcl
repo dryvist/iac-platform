@@ -14,7 +14,7 @@ run "nautobot_sync_in_contract" {
       "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"playbooks/nautobot-sync-in\\.yml\\\"",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_in\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_in must pass playbooks/nautobot-sync-in.yml to the runner."
@@ -25,7 +25,7 @@ run "nautobot_sync_in_contract" {
       "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"--limit\\\"\\s*,\\s*\\\"localhost\\\"",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_in\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_in must set --limit to exactly localhost."
@@ -36,7 +36,7 @@ run "nautobot_sync_in_contract" {
       "allow_override_args_in_task\\s*=\\s*false",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_in\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_in must disallow task argument overrides."
@@ -47,7 +47,7 @@ run "nautobot_sync_in_contract" {
       "view_id\\s*=\\s*semaphoreui_project_view[.]each\\[\\\"apps/deployed\\\"\\][.]id",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_in\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_in must use the deployed-ref view."
@@ -77,7 +77,7 @@ run "nautobot_sync_out_contract" {
       "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"playbooks/nautobot-sync-out\\.yml\\\"",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_out\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_out must pass playbooks/nautobot-sync-out.yml to the runner."
@@ -88,7 +88,7 @@ run "nautobot_sync_out_contract" {
       "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"--limit\\\"\\s*,\\s*\\\"localhost\\\"",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_out\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_out must set --limit to exactly localhost."
@@ -99,7 +99,7 @@ run "nautobot_sync_out_contract" {
       "allow_override_args_in_task\\s*=\\s*false",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_out\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_out must disallow task argument overrides."
@@ -110,7 +110,7 @@ run "nautobot_sync_out_contract" {
       "view_id\\s*=\\s*semaphoreui_project_view[.]each\\[\\\"apps/deployed\\\"\\][.]id",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_sync_out\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_sync_out must use the deployed-ref view."
@@ -140,7 +140,7 @@ run "nautobot_drift_collection_contract" {
       "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"playbooks/nautobot-drift\\.yml\\\"",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_drift_collection\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_drift_collection must pass playbooks/nautobot-drift.yml to the runner."
@@ -151,7 +151,7 @@ run "nautobot_drift_collection_contract" {
       "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"--limit\\\"\\s*,\\s*\\\"localhost\\\"",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_drift_collection\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_drift_collection must set --limit to exactly localhost."
@@ -162,7 +162,7 @@ run "nautobot_drift_collection_contract" {
       "allow_override_args_in_task\\s*=\\s*false",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_drift_collection\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_drift_collection must disallow task argument overrides."
@@ -173,7 +173,7 @@ run "nautobot_drift_collection_contract" {
       "view_id\\s*=\\s*semaphoreui_project_view[.]each\\[\\\"apps/deployed\\\"\\][.]id",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"nautobot_drift_collection\\\" \\{([^}]*)\\}",
-        file("${path.module}/../../../templates.tf")
+        file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
     error_message = "nautobot_drift_collection must use the deployed-ref view."
@@ -204,7 +204,7 @@ run "nautobot_limit_contract_rejects_other_values" {
       regex(
         "resource \"semaphoreui_project_template\" \"nautobot_sync_in\" \\{([^}]*)\\}",
         replace(
-          file("${path.module}/../../../templates.tf"),
+          file("${path.module}/../../../templates-nautobot.tf"),
           "\"--limit\", \"localhost\"",
           "\"--limit\", \"proxmox\"",
         )
