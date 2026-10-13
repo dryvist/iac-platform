@@ -28,6 +28,26 @@ locals {
       description      = "Validation of the hypervisor SMB shares."
     }
 
+    proxmox-preflight-gate = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/preflight_gate.yml"
+      limit            = "proxmox"
+      mutating         = false
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Read-only Nautobot capacity and storage pre-flight plus HA relocation admission check."
+    }
+
+    proxmox-preflight-gate-selftest = {
+      repository       = "ansible-proxmox"
+      playbook         = "tests/preflight_gate/verify.yml"
+      limit            = "proxmox"
+      mutating         = false
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Offline fixtures that prove the pre-flight gate rejects over-committed memory, a wrong or missing storage pool and an unsafe HA recovery node."
+    }
+
     # playbooks/node-hardware.yml's idrac_kiosk role only; inert on hosts that
     # do not opt in.
     proxmox-idrac-kiosk = {
