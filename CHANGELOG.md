@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0](https://github.com/dryvist/iac-platform/compare/v1.0.2...v1.1.0) (2026-10-13)
+
+
+### Features
+
+* **semaphore-image:** install Nautobot client libraries ([2904929](https://github.com/dryvist/iac-platform/commit/29049290029efdfdde551e2ca166349171ade151))
+* **semaphore:** add Nautobot collection templates ([d431575](https://github.com/dryvist/iac-platform/commit/d4315752f4623555c489f54ef8333377ff199640))
+* **semaphore:** add the Nautobot collection templates ([#170](https://github.com/dryvist/iac-platform/issues/170)) ([5c4eec9](https://github.com/dryvist/iac-platform/commit/5c4eec93cba4a9b3334ae3bd5e82934140dc66da))
+* **semaphore:** add unscheduled preflight templates ([ac71afa](https://github.com/dryvist/iac-platform/commit/ac71afa6b95bc7613d1aa4f3a70e2d82a252942b))
+
+
+### Bug Fixes
+
+* **semaphore:** use the current Nautobot drift playbook ([7235bfb](https://github.com/dryvist/iac-platform/commit/7235bfbb4adef7034c32a61b1d0d31077bd30ac7))
+
 ## [1.0.2](https://github.com/dryvist/iac-platform/compare/v1.0.1...v1.0.2) (2026-10-11)
 
 
