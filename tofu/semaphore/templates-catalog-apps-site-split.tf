@@ -159,5 +159,45 @@ locals {
       extra_args       = []
       description      = "Status stack (Gatus + Uptime Kuma) converge only, via --tags status."
     }
+
+    # The postgres role's never-tagged dr_restore and db_connection_report
+    # tasks, each gated by its own input: a launch fills in only the survey
+    # fields for the task it wants and the other stays inert. The play carries
+    # the postgres tags, so --tags reaches the static role tasks. The drill
+    # restores the newest on-host dump of the source database into the scratch
+    # database, compares row counts, and drops the scratch database.
+    apps-postgres-dr-drill = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "postgres_group"
+      tags             = "dr_restore,db_connection_report"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = ["-e", "postgres_dr_restore_drop_after=true"]
+      survey_vars = [
+        {
+          name        = "postgres_dr_restore_source_db"
+          title       = "Source database"
+          description = "Database whose newest on-host dump is restored. Empty skips the drill."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "postgres_dr_restore_db"
+          title       = "Scratch database"
+          description = "Scratch database to restore into and then drop. Must not be a managed database."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "postgres_connection_report_db"
+          title       = "Report database"
+          description = "Database whose connected client addresses are listed. Empty skips the report."
+          required    = false
+          type        = "string"
+        },
+      ]
+      description = "Restore drill of a database's newest on-host dump into a scratch database, and a read-only connection report, via --tags dr_restore,db_connection_report."
+    }
   }
 }
