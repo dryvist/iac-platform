@@ -136,6 +136,20 @@ locals {
       description      = "Pipeline Stream tier converge only, via --tags cribl_stream."
     }
 
+    # Mirrors the latest release of every cc-* pack repo into object storage and
+    # publishes the manifest the cribl_packs role installs from. Its plays run on
+    # localhost only; the limit names the Stream group because the shared limit
+    # guard refuses a limit that names localhost itself.
+    apps-sync-cribl-packs = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/sync-cribl-packs.yml"
+      limit            = "cribl_stream_group"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Mirror the latest cc-* Cribl pack releases into object storage and publish the manifest."
+    }
+
     # Grafana + VictoriaMetrics observability stack only. The full apps-site
     # converge takes far longer than a scoped run needs for this one stack;
     # this reaches grafana_group in minutes via the role's own play tag.
