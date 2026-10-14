@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/dryvist/iac-platform/compare/v1.8.0...v1.9.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** add the apps-agent-sandbox template for the sandbox host converge ([#194](https://github.com/dryvist/iac-platform/issues/194)) ([c4baee1](https://github.com/dryvist/iac-platform/commit/c4baee17004b76c8eef2dd6d8ac6d882aa5e965f))
+
 ## [1.8.0](https://github.com/dryvist/iac-platform/compare/v1.7.0...v1.8.0) (2026-10-14)
 
 
