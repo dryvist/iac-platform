@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/dryvist/iac-platform/compare/v1.5.0...v1.6.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** give the apps-grafana template a 2400-second task rail ([#186](https://github.com/dryvist/iac-platform/issues/186)) ([9ed4ca5](https://github.com/dryvist/iac-platform/commit/9ed4ca578bc88f2ed9151869fcbbd89605bba4c0))
+
 ## [1.5.0](https://github.com/dryvist/iac-platform/compare/v1.4.0...v1.5.0) (2026-10-14)
 
 
