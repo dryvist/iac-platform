@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/dryvist/iac-platform/compare/v1.9.0...v1.10.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** give the Hermes agent template a 2400-second task rail ([#196](https://github.com/dryvist/iac-platform/issues/196)) ([4add951](https://github.com/dryvist/iac-platform/commit/4add951027d41b645f7c37ce08afaf6d6ce384c6))
+
 ## [1.9.0](https://github.com/dryvist/iac-platform/compare/v1.8.0...v1.9.0) (2026-10-14)
 
 
