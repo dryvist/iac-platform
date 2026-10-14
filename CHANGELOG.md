@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/dryvist/iac-platform/compare/v1.4.0...v1.5.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** give the ai-llm-serving template a 2400-second task rail ([#187](https://github.com/dryvist/iac-platform/issues/187)) ([3ab9c24](https://github.com/dryvist/iac-platform/commit/3ab9c248dc29b1497ac6c145969a23e6a36036c3))
+
 ## [1.4.0](https://github.com/dryvist/iac-platform/compare/v1.3.1...v1.4.0) (2026-10-14)
 
 
