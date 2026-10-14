@@ -192,7 +192,7 @@ locals {
     }
 
     # diff = false: the role syncs a full source tree, and its --diff output
-    # is too large to store as task output. The 1800-second rail: a full converge
+    # is too large to store as task output. The 2400-second rail: a full converge
     # of the Hermes identities runs past the 900-second default.
     ai-hermes-agent = {
       repository  = "ansible-proxmox-ai"
@@ -201,7 +201,7 @@ locals {
       tags        = "hermes_agent"
       mutating    = true
       diff        = false
-      rail_sec    = 1800
+      rail_sec    = 2400
       description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
     }
   }

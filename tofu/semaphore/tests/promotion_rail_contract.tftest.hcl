@@ -39,7 +39,7 @@ run "promotion_rail_contract" {
       }
       ]...) == {
       "ai-site-promotion"     = 3600
-      "ai-hermes-agent"       = 1800
+      "ai-hermes-agent"       = 2400
       "ai-llm-serving"        = 2400
       "ai-llm-router"         = 2400
       "apps-openbao-tagged"   = 3600
@@ -51,7 +51,7 @@ run "promotion_rail_contract" {
       "apps-grafana"          = 2400
       "proxmox-site"          = 3600
     }
-    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 1800, ai-llm-serving = 2400, ai-llm-router = 2400, apps-openbao-tagged = 3600, apps-openbao-rotators = 2400, apps-core-apps = 1800, apps-agent-sandbox = 1800, apps-cribl = 2400, apps-cribl-packs = 1800, apps-grafana = 2400 and proxmox-site = 3600."
+    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 2400, ai-llm-serving = 2400, ai-llm-router = 2400, apps-openbao-tagged = 3600, apps-openbao-rotators = 2400, apps-core-apps = 1800, apps-agent-sandbox = 1800, apps-cribl = 2400, apps-cribl-packs = 1800, apps-grafana = 2400 and proxmox-site = 3600."
   }
 
   assert {
