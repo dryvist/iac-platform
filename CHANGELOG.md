@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/dryvist/iac-platform/compare/v1.10.0...v1.11.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** add the apps-postgres-roles template ([#198](https://github.com/dryvist/iac-platform/issues/198)) ([7629849](https://github.com/dryvist/iac-platform/commit/762984980f9af10a6f747f6efd130094e632a3d6))
+
 ## [1.10.0](https://github.com/dryvist/iac-platform/compare/v1.9.0...v1.10.0) (2026-10-14)
 
 
