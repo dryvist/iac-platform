@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/dryvist/iac-platform/compare/v1.7.0...v1.8.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** set a 1800-second rail on the apps-core-apps template ([#192](https://github.com/dryvist/iac-platform/issues/192)) ([b8d7512](https://github.com/dryvist/iac-platform/commit/b8d75124399ba17a53e5a645e4c0c30a7b866b9f))
+
 ## [1.7.0](https://github.com/dryvist/iac-platform/compare/v1.6.0...v1.7.0) (2026-10-14)
 
 
