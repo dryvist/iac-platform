@@ -97,6 +97,18 @@ locals {
       description      = "Agent sandbox credential refresh only, via --tags agent_sandbox_credentials."
     }
 
+    apps-agent-sandbox = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "agent_sandbox_host"
+      tags             = "agent_sandbox"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      rail_sec         = 1800
+      description      = "Agent sandbox host converge only, via --tags agent_sandbox."
+    }
+
     # site/04-secrets-and-collab-apps.yml, minus openbao (apps-openbao-tagged),
     # zammad, vikunja, authelia and grafana, which already have their own
     # scoped templates in templates-catalog-apps.tf.
