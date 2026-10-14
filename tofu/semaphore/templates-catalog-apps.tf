@@ -148,6 +148,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 2400
       description      = "Grafana/VictoriaMetrics stack converge only, via --tags grafana."
     }
 
