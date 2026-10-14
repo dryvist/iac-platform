@@ -80,6 +80,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 1800
       description      = "Notifications and core apps converge (mailpit, ntfy, healthchecks, deadman, mssql, postgres, nautobot, n8n, openproject, ...), via --tags mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker."
     }
 
