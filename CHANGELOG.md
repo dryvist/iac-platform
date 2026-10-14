@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/dryvist/iac-platform/compare/v1.6.0...v1.7.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** add the apps-cribl-packs template for the Cribl pack install ([#190](https://github.com/dryvist/iac-platform/issues/190)) ([c5c2786](https://github.com/dryvist/iac-platform/commit/c5c2786b2f3d517d0a0a882bff9d9236444aab3d))
+
 ## [1.6.0](https://github.com/dryvist/iac-platform/compare/v1.5.0...v1.6.0) (2026-10-14)
 
 
