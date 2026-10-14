@@ -137,6 +137,22 @@ locals {
       description      = "Pipeline Stream tier converge only, via --tags cribl_stream."
     }
 
+    # The pack install play of apps-cribl on its own. That play carries the
+    # cribl_packs tag on a static `roles:` list, so --tags reaches it; the Edge,
+    # Stream and unpoller plays of apps-cribl do not. The limit names both
+    # groups because the install play spans them.
+    apps-cribl-packs = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "cribl_edge,cribl_stream_group"
+      tags             = "cribl_packs"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      rail_sec         = 1800
+      description      = "Cribl pack install only, via --tags cribl_packs."
+    }
+
     # Grafana + VictoriaMetrics observability stack only. The full apps-site
     # converge takes far longer than a scoped run needs for this one stack;
     # this reaches grafana_group in minutes via the role's own play tag.
