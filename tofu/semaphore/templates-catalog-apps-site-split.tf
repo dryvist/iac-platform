@@ -84,6 +84,25 @@ locals {
       description      = "Notifications and core apps converge (mailpit, ntfy, healthchecks, deadman, mssql, postgres, nautobot, n8n, openproject, ...), via --tags mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker."
     }
 
+    # Phase 4 of the postgres role (managed roles, databases, pg_hba) plus the
+    # nautobot play, on the apps database guest and the nautobot guest only.
+    # Task arguments are appended to a template's own, and --tags accumulates
+    # as a union, so apps-core-apps cannot be narrowed at launch: this entry
+    # carries the narrow tag itself. A launch passes the installed PostgreSQL
+    # major as a task argument (-e postgres_cluster_version=<major>) because
+    # the narrow run skips the role's version discovery.
+    apps-postgres-roles = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/site.yml"
+      limit            = "postgres-apps,nautobot"
+      tags             = "postgres_roles,nautobot"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      rail_sec         = 1800
+      description      = "Managed PostgreSQL roles and the nautobot play on their two guests only, via --tags postgres_roles,nautobot."
+    }
+
     # Dedicated narrow task: the play, block, and dynamic role include carry
     # this tag, and only the credential import inside the role is tagged.
     apps-agent-sandbox-credentials = {
