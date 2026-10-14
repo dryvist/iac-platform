@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/dryvist/iac-platform/compare/v1.3.1...v1.4.0) (2026-10-14)
+
+
+### Features
+
+* **semaphore:** give the apps-cribl template a 2400-second task rail ([#184](https://github.com/dryvist/iac-platform/issues/184)) ([f578e3a](https://github.com/dryvist/iac-platform/commit/f578e3a2b17802da4034d2df402864449948dce8))
+
 ## [1.3.1](https://github.com/dryvist/iac-platform/compare/v1.3.0...v1.3.1) (2026-10-13)
 
 
