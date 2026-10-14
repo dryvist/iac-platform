@@ -118,13 +118,14 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 2400
       description      = "Log/telemetry pipeline converge only (Stream, Edge, packs), via --tags cribl."
     }
 
     # The Stream half of apps-cribl on its own. Both halves together run past
-    # the per-run wall-clock budget, so there is no route to a completed Stream
-    # converge through the combined entry. Splitting the two is what keeps each
-    # one inside the budget; run this when only the Stream tier needs to move.
+    # the wrapper's 900-second default, which is why apps-cribl carries a
+    # 2400-second rail. Run this entry, inside the default, when only the Stream
+    # tier needs to move.
     apps-cribl-stream = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"
