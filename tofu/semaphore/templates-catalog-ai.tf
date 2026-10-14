@@ -43,6 +43,7 @@ locals {
       # in site.yml it also matches the Ollama and Open WebUI plays.
       tags        = "llama_cpp,llm_redis,llm_router"
       mutating    = true
+      rail_sec    = 2400
       description = "GPU inference serving stack converge (llama.cpp, LiteLLM proxy, Redis spend store)."
     }
 
