@@ -48,6 +48,16 @@ locals {
       description      = "Offline fixtures that prove the pre-flight gate rejects over-committed memory, a wrong or missing storage pool and an unsafe HA recovery node."
     }
 
+    proxmox-access-verification = {
+      repository       = "ansible-proxmox"
+      playbook         = "tests/access_verification/verify.yml"
+      limit            = "proxmox"
+      mutating         = false
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Verify SSH certificate access and report pending service identity probes."
+    }
+
     # playbooks/node-hardware.yml's idrac_kiosk role only; inert on hosts that
     # do not opt in.
     proxmox-idrac-kiosk = {
