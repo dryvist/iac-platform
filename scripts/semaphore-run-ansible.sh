@@ -253,9 +253,11 @@ trap 'rm -rf "$log" "$run_collections"' EXIT
 if [ -f requirements.yml ]; then
   echo "Installing Ansible requirements..."
   run_collections="$(mktemp -d)"
+  # Expose the destination before Galaxy runs so install and playbook lookup
+  # use the same per-run path, ahead of shared collection paths.
+  export ANSIBLE_COLLECTIONS_PATH="$run_collections${ANSIBLE_COLLECTIONS_PATH:+:$ANSIBLE_COLLECTIONS_PATH}"
   ansible-galaxy install -r requirements.yml --roles-path roles || true
   ansible-galaxy collection install -r requirements.yml -p "$run_collections"
-  export ANSIBLE_COLLECTIONS_PATH="$run_collections${ANSIBLE_COLLECTIONS_PATH:+:$ANSIBLE_COLLECTIONS_PATH}"
 fi
 
 # Runs the command in a session of its own and stops that whole session when the
