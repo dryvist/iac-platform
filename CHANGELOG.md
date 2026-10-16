@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.0](https://github.com/dryvist/iac-platform/compare/v1.12.1...v1.13.0) (2026-10-16)
+
+
+### Features
+
+* **semaphore:** extend GPU profile task rail ([374d9a6](https://github.com/dryvist/iac-platform/commit/374d9a69953c23aa4be588b7c7ec7e777126dba2))
+* **semaphore:** extend GPU profile task rail ([#207](https://github.com/dryvist/iac-platform/issues/207)) ([d5505ef](https://github.com/dryvist/iac-platform/commit/d5505efd73060a160b6a9b11576e0587dee4257c))
+
 ## [1.12.1](https://github.com/dryvist/iac-platform/compare/v1.12.0...v1.12.1) (2026-10-16)
 
 
