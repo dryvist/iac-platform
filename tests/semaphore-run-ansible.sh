@@ -66,12 +66,12 @@ else
 fi
 check "invalid profile survey value fails" 2 "$real" playbooks/site.yml --limit web_group,localhost llm_active_profile=unknown
 
-# The ai-llm-profile template's own tags, limit and profile choices are read from
-# the catalog, so the dropdown, its scope and the wrapper's allow-list cannot drift.
-# The template converges the serving role and the router for the chosen profile.
+# The ai-llm-profile template keeps its serving and router tags. Both profile
+# templates share one survey definition so their choices cannot drift.
 profile_block="$(awk '/^    ai-llm-profile = \{/,/description = "Select the active LLM GPU serving profile and/' "$REPO_ROOT/tofu/semaphore/templates-catalog-ai.tf")"
 profile_tags="$(sed -n 's/^ *tags *= *"\(.*\)"$/\1/p' <<<"$profile_block")"
 profile_limit="$(sed -n 's/^ *limit *= *"\(.*\)"$/\1/p' <<<"$profile_block")"
+profile_survey_block="$(awk '/^  llm_profile_survey_vars = \[/,/^  \]/' "$REPO_ROOT/tofu/semaphore/templates-catalog-ai.tf")"
 if [ "$profile_tags" = "llm_gpu_serving,llm_router" ]; then
   echo "ok   ai-llm-profile template runs both the serving role and the router tags"
 else
@@ -90,6 +90,12 @@ if [[ "$profile_limit" == *localhost* ]]; then
   echo "FAIL ai-llm-profile template limit names localhost; the argument list appends it"
   FAIL=1
 fi
+if grep -q '^ *survey_vars *= *local\.llm_profile_survey_vars$' <<<"$profile_block"; then
+  echo "ok   ai-llm-profile template uses the shared profile survey"
+else
+  echo "FAIL ai-llm-profile template does not use the shared profile survey"
+  FAIL=1
+fi
 profile_count=0
 while IFS= read -r profile; do
   profile_count=$((profile_count + 1))
@@ -104,9 +110,50 @@ while IFS= read -r profile; do
     diff -u "$STUB_DIR/expected-args" "$STUB_ARGS"
     FAIL=1
   fi
-done < <(sed -n 's/^ *"\{0,1\}\([a-z-]*\)"\{0,1\} *= *"\([a-z-]*\)"$/\2/p' <<<"$(sed -n '/enum_values = {/,/}/p' <<<"$profile_block")")
+done < <(sed -n 's/^ *"\{0,1\}\([a-z-]*\)"\{0,1\} *= *"\([a-z-]*\)"$/\2/p' <<<"$(sed -n '/enum_values = {/,/}/p' <<<"$profile_survey_block")")
 if [ "$profile_count" -ne 4 ]; then
   echo "FAIL the profile dropdown offers $profile_count profiles, wanted 4"
+  FAIL=1
+fi
+
+gpu_profile_block="$(awk '/^    ai-llm-gpu-profile = \{/,/description = "Select an LLM GPU serving profile and/' "$REPO_ROOT/tofu/semaphore/templates-catalog-ai.tf")"
+gpu_profile_tags="$(sed -n 's/^ *tags *= *"\(.*\)"$/\1/p' <<<"$gpu_profile_block")"
+gpu_profile_limit="$(sed -n 's/^ *limit *= *"\(.*\)"$/\1/p' <<<"$gpu_profile_block")"
+if [ "$gpu_profile_tags" = "llm_gpu_serving" ]; then
+  echo "ok   ai-llm-gpu-profile template selects the GPU serving tag"
+else
+  echo "FAIL ai-llm-gpu-profile template tags are '$gpu_profile_tags'"
+  FAIL=1
+fi
+if [ "$gpu_profile_limit" = "llm_gpu_group" ]; then
+  echo "ok   ai-llm-gpu-profile template limits the run to the GPU group"
+else
+  echo "FAIL ai-llm-gpu-profile template limit is '$gpu_profile_limit'"
+  FAIL=1
+fi
+if grep -q '^ *survey_vars *= *local\.llm_profile_survey_vars$' <<<"$gpu_profile_block"; then
+  echo "ok   ai-llm-gpu-profile template uses the shared profile survey"
+else
+  echo "FAIL ai-llm-gpu-profile template does not use the shared profile survey"
+  FAIL=1
+fi
+gpu_profile_count=0
+while IFS= read -r profile; do
+  gpu_profile_count=$((gpu_profile_count + 1))
+  check "GPU profile $profile is accepted with the GPU serving tag and limit" 0 "$real" \
+    playbooks/site.yml --tags "$gpu_profile_tags" --limit "$gpu_profile_limit,localhost" --diff "llm_active_profile=$profile"
+  printf '%s\n' playbooks/site.yml --tags "$gpu_profile_tags" --limit "$gpu_profile_limit,localhost" --diff \
+    --extra-vars "llm_active_profile=$profile" >"$STUB_DIR/expected-args"
+  if diff -u "$STUB_DIR/expected-args" "$STUB_ARGS" >/dev/null; then
+    echo "ok   GPU profile $profile reaches Ansible with the GPU tag and limit"
+  else
+    echo "FAIL GPU profile $profile reaches Ansible with the GPU tag and limit"
+    diff -u "$STUB_DIR/expected-args" "$STUB_ARGS"
+    FAIL=1
+  fi
+done < <(sed -n 's/^ *"\{0,1\}\([a-z-]*\)"\{0,1\} *= *"\([a-z-]*\)"$/\2/p' <<<"$(sed -n '/enum_values = {/,/}/p' <<<"$profile_survey_block")")
+if [ "$gpu_profile_count" -ne 4 ]; then
+  echo "FAIL the GPU profile dropdown offers $gpu_profile_count profiles, wanted 4"
   FAIL=1
 fi
 
