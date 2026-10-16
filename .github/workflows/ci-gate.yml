@@ -31,6 +31,8 @@ jobs:
         run: bash tests/provision-semaphore-token.test.sh
       - name: Semaphore runner wrapper and profile template cases
         run: bash tests/semaphore-run-ansible.sh
+      - name: Semaphore collection search path cases
+        run: bash tests/semaphore-collections-path.sh
 
   # Job id `gate` is the org-canonical caller shape: the required status
   # check context is `gate / Merge Gate` on every consumer.
