@@ -87,6 +87,7 @@ locals {
       tags        = "llm_gpu_serving"
       mutating    = true
       survey_vars = local.llm_profile_survey_vars
+      rail_sec    = 3600
       description = "Select an LLM GPU serving profile and converge the serving role."
     }
 
