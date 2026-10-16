@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/dryvist/iac-platform/compare/v1.11.1...v1.12.0) (2026-10-16)
+
+
+### Features
+
+* **semaphore:** add GPU-scoped profile template ([#202](https://github.com/dryvist/iac-platform/issues/202)) ([a8cca1e](https://github.com/dryvist/iac-platform/commit/a8cca1e4b62cce149cbc4a05a2e3e8568d4a7bd1))
+
 ## [1.11.1](https://github.com/dryvist/iac-platform/compare/v1.11.0...v1.11.1) (2026-10-16)
 
 
