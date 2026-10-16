@@ -1,6 +1,22 @@
 # ansible-proxmox-ai templates. See templates-catalog.tf for field docs.
 
 locals {
+  llm_profile_survey_vars = [
+    {
+      name        = "llm_active_profile"
+      title       = "profile"
+      description = "Select the active LLM GPU serving profile."
+      required    = true
+      type        = "enum"
+      enum_values = {
+        small      = "small"
+        "medium-a" = "medium-a"
+        "medium-b" = "medium-b"
+        max        = "max"
+      }
+    },
+  ]
+
   ansible_templates_ai = {
     ai-site = {
       repository  = "ansible-proxmox-ai"
@@ -53,25 +69,25 @@ locals {
     # entries above: the inventory loader and the always-tagged secrets
     # pre-fetch live there. The limit names both groups; localhost is appended.
     ai-llm-profile = {
-      repository = "ansible-proxmox-ai"
-      playbook   = "playbooks/site.yml"
-      limit      = "llm_gpu_group,llm_router_group"
-      tags       = "llm_gpu_serving,llm_router"
-      mutating   = true
-      survey_vars = [{
-        name        = "llm_active_profile"
-        title       = "profile"
-        description = "Select the active LLM GPU serving profile."
-        required    = true
-        type        = "enum"
-        enum_values = {
-          small      = "small"
-          "medium-a" = "medium-a"
-          "medium-b" = "medium-b"
-          max        = "max"
-        }
-      }]
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/site.yml"
+      limit       = "llm_gpu_group,llm_router_group"
+      tags        = "llm_gpu_serving,llm_router"
+      mutating    = true
+      survey_vars = local.llm_profile_survey_vars
       description = "Select the active LLM GPU serving profile and converge the serving role and the router for it."
+    }
+
+    # The GPU-scoped profile entry uses the same selector with the same
+    # site.yml preamble and limits the converge to the serving role.
+    ai-llm-gpu-profile = {
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/site.yml"
+      limit       = "llm_gpu_group"
+      tags        = "llm_gpu_serving"
+      mutating    = true
+      survey_vars = local.llm_profile_survey_vars
+      description = "Select an LLM GPU serving profile and converge the serving role."
     }
 
     # The AI repository imports playbooks/llm-model-campaign.yml from site.yml
