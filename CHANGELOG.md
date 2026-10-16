@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/dryvist/iac-platform/compare/v1.11.0...v1.11.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **semaphore:** deploy ansible-secrets-management v0.20.1 ([#200](https://github.com/dryvist/iac-platform/issues/200)) ([7710d6c](https://github.com/dryvist/iac-platform/commit/7710d6c26a66f1f888fb4c6959e19b62f5435b1e))
+
 ## [1.11.0](https://github.com/dryvist/iac-platform/compare/v1.10.0...v1.11.0) (2026-10-14)
 
 
