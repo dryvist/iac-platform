@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.12.1](https://github.com/dryvist/iac-platform/compare/v1.12.0...v1.12.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **semaphore:** activate collection path before Galaxy install ([43eb6b8](https://github.com/dryvist/iac-platform/commit/43eb6b82a07549cfc5d7a63e89ec1791df5d1e42))
+* **semaphore:** activate collection path before Galaxy install ([#205](https://github.com/dryvist/iac-platform/issues/205)) ([0bb8531](https://github.com/dryvist/iac-platform/commit/0bb8531745d6c7ab5c1c6b7d561c4702b9538f57))
+
 ## [1.12.0](https://github.com/dryvist/iac-platform/compare/v1.11.1...v1.12.0) (2026-10-16)
 
 
