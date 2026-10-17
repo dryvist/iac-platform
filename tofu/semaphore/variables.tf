@@ -75,7 +75,7 @@ variable "ansible_repositories" {
     ansible-proxmox-apps = {
       url = "https://github.com/dryvist/ansible-proxmox-apps.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-apps
-      branch           = "v4.59.0"
+      branch           = "v5.3.0"
       preview_branches = ["develop"]
     }
     ansible-secrets-management = {
