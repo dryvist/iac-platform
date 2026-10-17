@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.0](https://github.com/dryvist/iac-platform/compare/v1.14.0...v1.15.0) (2026-10-17)
+
+
+### Features
+
+* **semaphore:** add GPU fan-control template ([#211](https://github.com/dryvist/iac-platform/issues/211)) ([d9f7619](https://github.com/dryvist/iac-platform/commit/d9f761992d4fabb5e56a882aa67055a17e1e8d05))
+* **semaphore:** add scoped GPU fan-control template ([d9f7619](https://github.com/dryvist/iac-platform/commit/d9f761992d4fabb5e56a882aa67055a17e1e8d05))
+
 ## [1.14.0](https://github.com/dryvist/iac-platform/compare/v1.13.0...v1.14.0) (2026-10-17)
 
 
