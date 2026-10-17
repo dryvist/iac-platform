@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.0](https://github.com/dryvist/iac-platform/compare/v1.19.0...v1.20.0) (2026-10-17)
+
+
+### Features
+
+* **semaphore:** add benchmark templates ([#234](https://github.com/dryvist/iac-platform/issues/234)) ([772882e](https://github.com/dryvist/iac-platform/commit/772882e9f173ec90bff11cb7d33179e9b71e388f))
+
 ## [1.19.0](https://github.com/dryvist/iac-platform/compare/v1.18.0...v1.19.0) (2026-10-17)
 
 
