@@ -8,6 +8,11 @@ output "tofu_github_workspace_id" {
   value       = terrakube_workspace_cli.tofu_github.id
 }
 
+output "tofu_github_org_workspace_ids" {
+  description = "Workspace ids keyed by GitHub organization owner"
+  value       = { for owner in local.tofu_github_orgs : owner => terrakube_workspace_cli.tofu_github_org[owner].id }
+}
+
 output "workspace_ids" {
   description = "Workspace ids keyed by the fleet-wide Terrakube workspace name"
   value       = local.workspace_ids
