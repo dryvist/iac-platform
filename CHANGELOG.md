@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/dryvist/iac-platform/compare/v1.13.0...v1.14.0) (2026-10-17)
+
+
+### Features
+
+* add a fan-control preview template ([#209](https://github.com/dryvist/iac-platform/issues/209)) ([73a33f7](https://github.com/dryvist/iac-platform/commit/73a33f7bbc6d4f4854054c7e5171f60d3618a4a3))
+
 ## [1.13.0](https://github.com/dryvist/iac-platform/compare/v1.12.1...v1.13.0) (2026-10-16)
 
 
