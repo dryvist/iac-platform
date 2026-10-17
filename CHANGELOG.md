@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/dryvist/iac-platform/compare/v1.16.0...v1.16.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* **terrakube:** create the desired-state credential only for a configured repository ([#220](https://github.com/dryvist/iac-platform/issues/220)) ([5a30ead](https://github.com/dryvist/iac-platform/commit/5a30eadf3ffc85f568ab1ae4c9440138c8f31e4b))
+
 ## [1.16.0](https://github.com/dryvist/iac-platform/compare/v1.15.0...v1.16.0) (2026-10-17)
 
 
