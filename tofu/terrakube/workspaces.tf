@@ -27,17 +27,6 @@ resource "terrakube_workspace_cli" "tofu_github" {
   iac_version     = var.tofu_version
 }
 
-resource "terrakube_workspace_cli" "tofu_github_org" {
-  for_each = toset(local.tofu_github_orgs)
-
-  organization_id = terrakube_organization.org.id
-  name            = "tofu-github-org-${each.key}"
-  description     = "GitHub org governance as code for ${each.key}"
-  execution_mode  = "remote"
-  iac_type        = "tofu"
-  iac_version     = var.tofu_version
-}
-
 # Self-hosting workspace: this directory's own state migrates here once the
 # instance is healthy (see providers.tf bootstrap note).
 resource "terrakube_workspace_cli" "iac_platform" {
@@ -118,118 +107,17 @@ resource "terrakube_workspace_cli" "tofu_proxmox_servarr_config" {
 }
 
 locals {
-  tofu_github_orgs = [
-    "JacobPEvans",
-    "jpe-ansible",
-    "jpe-cribl",
-    "jpe-openbao-plugin-secrets",
-    "jpe-private",
-    "jpe-splunk",
-    "vct-cribl",
-    "vct-splunk",
-  ]
-
-  tofu_github_workspace_owners = merge(
-    { "tofu-github" = "dryvist" },
-    { for owner in local.tofu_github_orgs : "tofu-github-org-${owner}" => owner }
-  )
-  tofu_github_workspace_names = toset(keys(local.tofu_github_workspace_owners))
-
-  tofu_github_automation_bypass_app_ids = [
-    2740,
-    29110,
-    222410,
-    1144995,
-    1210556,
-    1236702,
-    2956476,
-    3509510,
-    3923580,
-    4241562,
-    4282473,
-    4952939,
-  ]
-
-  tofu_github_inputs = merge(
-    {
-      for workspace_name, owner in local.tofu_github_workspace_owners :
-      "${workspace_name}:github_owner" => {
-        workspace_name = workspace_name
-        key            = "github_owner"
-        value          = owner
-        description    = "GitHub organization managed by this workspace"
-        hcl            = false
-      }
-    },
-    {
-      for workspace_name, _ in local.tofu_github_workspace_owners :
-      "${workspace_name}:automation_bypass_app_ids" => {
-        workspace_name = workspace_name
-        key            = "automation_bypass_app_ids"
-        value          = "[${join(", ", [for app_id in local.tofu_github_automation_bypass_app_ids : tostring(app_id)])}]"
-        description    = "GitHub App IDs allowed to bypass automation rules"
-        hcl            = true
-      }
-    },
-    {
-      "tofu-github:org_branch_write_restriction_enforcement" = {
-        workspace_name = "tofu-github"
-        key            = "org_branch_write_restriction_enforcement"
-        value          = "evaluate"
-        description    = "Organization branch-write restriction enforcement mode"
-        hcl            = false
-      }
-      "tofu-github:org_automerge_manual_enforcement" = {
-        workspace_name = "tofu-github"
-        key            = "org_automerge_manual_enforcement"
-        value          = "active"
-        description    = "Organization manual-automerge enforcement mode"
-        hcl            = false
-      }
-    }
-  )
-
-  tofu_github_retired = {
-    agent_bypass_app_ids = {
-      value       = "[2956476, 1236702, 4241562, 4952939, 1144995, 1210556]"
-      category    = "TERRAFORM"
-      sensitive   = false
-      hcl         = true
-      description = "Retired agent bypass app IDs pending phase-two deletion"
-    }
-    triage_merge_app_ids = {
-      value       = "[3923580]"
-      category    = "TERRAFORM"
-      sensitive   = false
-      hcl         = true
-      description = "Retired triage merge app IDs pending phase-two deletion"
-    }
-    GITHUB_TOKEN = {
-      value       = ""
-      category    = "ENV"
-      sensitive   = true
-      hcl         = false
-      description = "Retired sensitive GitHub token pending phase-two deletion"
-    }
+  workspace_ids = {
+    iac-platform                = terrakube_workspace_cli.iac_platform.id
+    iac-platform-semaphore      = terrakube_workspace_cli.iac_platform_semaphore.id
+    tofu-github                 = terrakube_workspace_cli.tofu_github.id
+    tofu-unifi                  = terrakube_workspace_cli.tofu_unifi.id
+    tofu-aws-production         = terrakube_workspace_cli.tofu_aws_production.id
+    tofu-runs-on                = terrakube_workspace_cli.tofu_runs_on.id
+    tofu-proxmox                = terrakube_workspace_cli.tofu_proxmox.id
+    tofu-proxmox-aws-infra      = terrakube_workspace_cli.tofu_proxmox_aws_infra.id
+    tofu-proxmox-servarr-config = terrakube_workspace_cli.tofu_proxmox_servarr_config.id
   }
-
-  workspace_ids = merge(
-    {
-      iac-platform                = terrakube_workspace_cli.iac_platform.id
-      iac-platform-semaphore      = terrakube_workspace_cli.iac_platform_semaphore.id
-      tofu-github                 = terrakube_workspace_cli.tofu_github.id
-      tofu-unifi                  = terrakube_workspace_cli.tofu_unifi.id
-      tofu-aws-production         = terrakube_workspace_cli.tofu_aws_production.id
-      tofu-runs-on                = terrakube_workspace_cli.tofu_runs_on.id
-      tofu-proxmox                = terrakube_workspace_cli.tofu_proxmox.id
-      tofu-proxmox-aws-infra      = terrakube_workspace_cli.tofu_proxmox_aws_infra.id
-      tofu-proxmox-servarr-config = terrakube_workspace_cli.tofu_proxmox_servarr_config.id
-    },
-    {
-      for owner, workspace in terrakube_workspace_cli.tofu_github_org :
-      "tofu-github-org-${owner}" => workspace.id
-    }
-  )
 }
 
 # Terrakube exchanges its per-job signed identity for a short-lived OpenBao
@@ -282,12 +170,11 @@ resource "terrakube_workspace_variable" "openbao_role" {
   organization_id = terrakube_organization.org.id
   workspace_id    = each.value
   key             = "WORKLOAD_IDENTITY_VAULT_ROLE"
-  # The tofu-github workspaces share one OpenBao role bound by the workspace-name glob.
-  value       = contains(local.tofu_github_workspace_names, each.key) ? "terrakube-tofu-github" : "terrakube-${each.key}"
-  description = "Least-privilege OpenBao JWT role for this workspace"
-  category    = "ENV"
-  sensitive   = false
-  hcl         = false
+  value           = "terrakube-${each.key}"
+  description     = "Least-privilege OpenBao JWT role for this workspace"
+  category        = "ENV"
+  sensitive       = false
+  hcl             = false
 }
 
 # Terrakube defaults the login mount to auth/jwt/login; the OpenBao JWT method
@@ -304,37 +191,6 @@ resource "terrakube_workspace_variable" "openbao_auth_path" {
   category        = "ENV"
   sensitive       = false
   hcl             = false
-}
-
-resource "terrakube_workspace_variable" "tofu_github_inputs" {
-  for_each = local.tofu_github_inputs
-
-  organization_id = terrakube_organization.org.id
-  workspace_id    = local.workspace_ids[each.value.workspace_name]
-  key             = each.value.key
-  value           = each.value.value
-  description     = each.value.description
-  category        = "TERRAFORM"
-  sensitive       = false
-  hcl             = each.value.hcl
-}
-
-# Phase 2 deletes this resource and its import blocks, so the next apply destroys the three variables.
-resource "terrakube_workspace_variable" "tofu_github_retired" {
-  for_each = local.tofu_github_retired
-
-  organization_id = terrakube_organization.org.id
-  workspace_id    = terrakube_workspace_cli.tofu_github.id
-  key             = each.key
-  value           = each.value.value
-  description     = each.value.description
-  category        = each.value.category
-  sensitive       = each.value.sensitive
-  hcl             = each.value.hcl
-
-  lifecycle {
-    ignore_changes = [value]
-  }
 }
 
 # The semaphore workspace's root module takes openbao_address as a TERRAFORM
@@ -384,29 +240,4 @@ import {
 import {
   to = terrakube_workspace_variable.openbao_auth_path["tofu-unifi"]
   id = "${terrakube_organization.org.id},acf68097-ed59-4fd7-9e74-ada045b5f18a,0f9accbd-680f-4808-8e3a-a1873c326f86"
-}
-
-import {
-  to = terrakube_workspace_variable.tofu_github_inputs["tofu-github:automation_bypass_app_ids"]
-  id = "e03d3c13-cf5e-4a2d-a9ca-d96d07c91f20,41088d97-5b48-474f-ac2e-7364d60982bb,c915beb2-4d04-4e95-81af-8314d595f638"
-}
-import {
-  to = terrakube_workspace_variable.tofu_github_inputs["tofu-github:org_branch_write_restriction_enforcement"]
-  id = "e03d3c13-cf5e-4a2d-a9ca-d96d07c91f20,41088d97-5b48-474f-ac2e-7364d60982bb,4bac4d42-5c4f-4021-9c26-e652a5275503"
-}
-import {
-  to = terrakube_workspace_variable.tofu_github_inputs["tofu-github:org_automerge_manual_enforcement"]
-  id = "e03d3c13-cf5e-4a2d-a9ca-d96d07c91f20,41088d97-5b48-474f-ac2e-7364d60982bb,39690938-b56a-452d-bcfc-1e02b6269939"
-}
-import {
-  to = terrakube_workspace_variable.tofu_github_retired["agent_bypass_app_ids"]
-  id = "e03d3c13-cf5e-4a2d-a9ca-d96d07c91f20,41088d97-5b48-474f-ac2e-7364d60982bb,70cb3944-85b6-4256-87b8-ea14f753c3cb"
-}
-import {
-  to = terrakube_workspace_variable.tofu_github_retired["triage_merge_app_ids"]
-  id = "e03d3c13-cf5e-4a2d-a9ca-d96d07c91f20,41088d97-5b48-474f-ac2e-7364d60982bb,f3822e23-2cae-4044-9a17-53daf3257f58"
-}
-import {
-  to = terrakube_workspace_variable.tofu_github_retired["GITHUB_TOKEN"]
-  id = "e03d3c13-cf5e-4a2d-a9ca-d96d07c91f20,41088d97-5b48-474f-ac2e-7364d60982bb,d37fc08a-c6d9-41dc-8433-702fca2bcf49"
 }
