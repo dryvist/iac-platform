@@ -153,5 +153,64 @@ locals {
       ]
       description = "Power action (start, stop, shutdown, reboot, reset) on one guest by VMID, on the node that hosts it."
     }
+
+    proxmox-guest-recovery = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/guest-recovery.yml"
+      limit            = "proxmox"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      survey_vars = [
+        {
+          name        = "node"
+          title       = "Node"
+          description = "Inventory host name from the proxmox group."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "vmid"
+          title       = "VMID"
+          description = "Numeric VMID of the guest to recover."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "mode"
+          title       = "Recovery mode"
+          description = "Select a service-unit action or a guest restart."
+          required    = true
+          type        = "enum"
+          enum_values = {
+            unit-stop     = "unit-stop"
+            unit-kill     = "unit-kill"
+            guest-restart = "guest-restart"
+          }
+        },
+        {
+          name        = "unit"
+          title       = "Service unit"
+          description = "Required for unit-stop and unit-kill; include the .service suffix."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "reason"
+          title       = "Reason"
+          description = "Required and included in the task output."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "memory_headroom_mb"
+          title       = "Temporary memory headroom (MB)"
+          description = "Optional positive headroom for unit-kill; the original setting is restored."
+          required    = false
+          type        = "string"
+        },
+      ]
+      description = "Run a bounded unit stop, unit cgroup kill, or guest restart on one selected inventory node."
+    }
   }
 }
