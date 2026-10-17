@@ -97,6 +97,18 @@ locals {
       description      = "node_exporter converge only, via --tags pve_node_exporter."
     }
 
+    proxmox-fan-control = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/site.yml"
+      limit            = "proxmox"
+      tags             = "fan_control"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = ["--extra-vars", "fan_control=true fan_control_active_mode=benchmark-100"]
+      only_branch      = "develop"
+      description      = "Apply benchmark-100 fan-control settings only, via --tags fan_control."
+    }
+
     # One power action on one guest by VMID; the node is read from live
     # placement by the playbook. Entry is guest-power.yml, which needs no tag.
     proxmox-guest-power = {
