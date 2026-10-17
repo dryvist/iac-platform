@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.0](https://github.com/dryvist/iac-platform/compare/v1.17.0...v1.18.0) (2026-10-17)
+
+
+### Features
+
+* **terrakube:** declare locally executed workspaces from OpenBao ([#226](https://github.com/dryvist/iac-platform/issues/226)) ([6e3e3a3](https://github.com/dryvist/iac-platform/commit/6e3e3a3d489de6689a4195a80064e19366dc8a48))
+
 ## [1.17.0](https://github.com/dryvist/iac-platform/compare/v1.16.1...v1.17.0) (2026-10-17)
 
 
