@@ -45,5 +45,23 @@
       "depNameTemplate": "astral-sh/uv",
       "datasourceTemplate": "github-releases"
     }
+  ],
+  "packageRules": [
+    {
+      "description": "Update first-party Semaphore deploy refs without the org release-age or schedule delay.",
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": ["tofu/semaphore/variables.tf"],
+      "minimumReleaseAge": "0 days",
+      "schedule": ["at any time"],
+      "dependencyDashboardApproval": false,
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Hold ansible-proxmox-apps major auto-merge through the 2026-10-20T00:00Z research freeze; remove this rule after the freeze.",
+      "matchDepNames": ["dryvist/ansible-proxmox-apps"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
   ]
 }
