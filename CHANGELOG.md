@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/dryvist/iac-platform/compare/v1.16.1...v1.17.0) (2026-10-17)
+
+
+### Features
+
+* **terrakube:** one tofu-github workspace per published organization ([#223](https://github.com/dryvist/iac-platform/issues/223)) ([75729f1](https://github.com/dryvist/iac-platform/commit/75729f1a72c804034943cc923b3e8aaf316db12d))
+
 ## [1.16.1](https://github.com/dryvist/iac-platform/compare/v1.16.0...v1.16.1) (2026-10-17)
 
 
