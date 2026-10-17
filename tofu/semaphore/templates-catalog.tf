@@ -56,5 +56,6 @@ locals {
     local.ansible_templates_proxmox,
     local.ansible_templates_splunk,
     local.ansible_templates_ai,
+    local.ansible_templates_ai_benchmark,
   )
 }
