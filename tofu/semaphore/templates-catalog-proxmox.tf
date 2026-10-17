@@ -212,5 +212,98 @@ locals {
       ]
       description = "Run a bounded unit stop, unit cgroup kill, or guest restart on one selected inventory node."
     }
+
+    proxmox-benchmark-client = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/benchmark-client.yml"
+      limit            = "proxmox"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      survey_vars = [
+        {
+          name        = "node"
+          title       = "Node"
+          description = "Inventory host name from the proxmox group."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "vmid"
+          title       = "Client VMID"
+          description = "Numeric VMID reserved for the benchmark client."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "gpu_guest_vmid"
+          title       = "GPU guest VMID"
+          description = "Numeric VMID used to derive the bridge, VLAN, and storage settings."
+          required    = true
+          type        = "string"
+        },
+        {
+          name        = "state"
+          title       = "State"
+          description = "Create and configure the client, or destroy a tagged client."
+          required    = true
+          type        = "enum"
+          enum_values = {
+            present = "present"
+            absent  = "absent"
+          }
+        },
+        {
+          name        = "cores"
+          title       = "CPU cores"
+          description = "Client CPU allocation; required when state is present."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "memory_mb"
+          title       = "Memory (MB)"
+          description = "Client memory allocation; required when state is present."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "disk_gb"
+          title       = "Root disk (GB)"
+          description = "Client root disk allocation; required when state is present."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "template"
+          title       = "LXC template"
+          description = "Existing Proxmox container template; required when state is present."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "images"
+          title       = "Images"
+          description = "Optional JSON array of digest-pinned images to pre-pull."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "tools"
+          title       = "Tool versions"
+          description = "Optional JSON object with pinned uv and node versions."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "engine_url"
+          title       = "Engine URL"
+          description = "OpenAI-compatible engine base URL ending in /v1; required when state is present."
+          required    = false
+          type        = "string"
+        },
+      ]
+      description = "Create, configure, verify, or safely destroy one tagged benchmark client on a selected Proxmox node."
+    }
   }
 }
