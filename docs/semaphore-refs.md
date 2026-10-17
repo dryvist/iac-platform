@@ -14,7 +14,9 @@ branch would be worse — so the ref is made visible three times instead:
   `ansible-proxmox-apps (develop)`, plus `ansible-secrets-management
   (<release tag>)` for scheduled OpenBao rotation and `ansible-secrets-management
   (develop)` for the manual host secret-zero seed. One entry per ref; deployed
-  refs are release tags that Renovate bumps in `variables.tf`.
+  refs are release tags that Renovate updates from upstream without release-age
+  or weekend delays, then auto-merges after checks pass. Temporary exceptions
+  are recorded beside the rules in `renovate.json`.
 - **Template name** — the deployed ref keeps the bare name (`apps-site`); a
   preview ref is suffixed (`apps-site @ develop`).
 - **View** — the tabs across the top of the template list. `Deployed` is
