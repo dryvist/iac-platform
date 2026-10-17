@@ -1,5 +1,12 @@
 # Root-module inputs of the tofu-github workspace, declared here instead of set by hand.
+data "vault_kv_secret_v2" "github_orgs" {
+  mount = "config"
+  name  = "github/orgs"
+}
+
 locals {
+  tofu_github_orgs = toset(jsondecode(nonsensitive(data.vault_kv_secret_v2.github_orgs.data_json)).orgs)
+
   tofu_github_inputs = {
     github_owner = {
       value       = "dryvist"
@@ -22,6 +29,16 @@ locals {
       hcl         = false
     }
   }
+
+  tofu_github_org_inputs = {
+    for pair in setproduct(local.tofu_github_orgs, keys(local.tofu_github_inputs)) : "${pair[0]}:${pair[1]}" => {
+      org         = pair[0]
+      key         = pair[1]
+      value       = pair[1] == "github_owner" ? pair[0] : pair[1] == "org_automerge_manual_enforcement" ? "evaluate" : local.tofu_github_inputs[pair[1]].value
+      description = local.tofu_github_inputs[pair[1]].description
+      hcl         = local.tofu_github_inputs[pair[1]].hcl
+    }
+  }
 }
 
 resource "terrakube_workspace_variable" "tofu_github_inputs" {
@@ -30,6 +47,19 @@ resource "terrakube_workspace_variable" "tofu_github_inputs" {
   organization_id = terrakube_organization.org.id
   workspace_id    = terrakube_workspace_cli.tofu_github.id
   key             = each.key
+  value           = each.value.value
+  description     = each.value.description
+  category        = "TERRAFORM"
+  sensitive       = false
+  hcl             = each.value.hcl
+}
+
+resource "terrakube_workspace_variable" "tofu_github_org_inputs" {
+  for_each = local.tofu_github_org_inputs
+
+  organization_id = terrakube_organization.org.id
+  workspace_id    = terrakube_workspace_cli.tofu_github_org[each.value.org].id
+  key             = each.value.key
   value           = each.value.value
   description     = each.value.description
   category        = "TERRAFORM"

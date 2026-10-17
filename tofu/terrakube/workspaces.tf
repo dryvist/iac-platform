@@ -27,6 +27,17 @@ resource "terrakube_workspace_cli" "tofu_github" {
   iac_version     = var.tofu_version
 }
 
+resource "terrakube_workspace_cli" "tofu_github_org" {
+  for_each = local.tofu_github_orgs
+
+  organization_id = terrakube_organization.org.id
+  name            = "tofu-github-${each.key}"
+  description     = "GitHub org governance as code (rulesets, labels, repo settings)"
+  execution_mode  = "remote"
+  iac_type        = "tofu"
+  iac_version     = var.tofu_version
+}
+
 # Self-hosting workspace: this directory's own state migrates here once the
 # instance is healthy (see providers.tf bootstrap note).
 resource "terrakube_workspace_cli" "iac_platform" {
@@ -107,7 +118,7 @@ resource "terrakube_workspace_cli" "tofu_proxmox_servarr_config" {
 }
 
 locals {
-  workspace_ids = {
+  workspace_ids = merge({
     iac-platform                = terrakube_workspace_cli.iac_platform.id
     iac-platform-semaphore      = terrakube_workspace_cli.iac_platform_semaphore.id
     tofu-github                 = terrakube_workspace_cli.tofu_github.id
@@ -117,7 +128,9 @@ locals {
     tofu-proxmox                = terrakube_workspace_cli.tofu_proxmox.id
     tofu-proxmox-aws-infra      = terrakube_workspace_cli.tofu_proxmox_aws_infra.id
     tofu-proxmox-servarr-config = terrakube_workspace_cli.tofu_proxmox_servarr_config.id
-  }
+    }, {
+    for org, workspace in terrakube_workspace_cli.tofu_github_org : "tofu-github-${org}" => workspace.id
+  })
 }
 
 # Terrakube exchanges its per-job signed identity for a short-lived OpenBao
@@ -170,7 +183,7 @@ resource "terrakube_workspace_variable" "openbao_role" {
   organization_id = terrakube_organization.org.id
   workspace_id    = each.value
   key             = "WORKLOAD_IDENTITY_VAULT_ROLE"
-  value           = "terrakube-${each.key}"
+  value           = startswith(each.key, "tofu-github-") ? "terrakube-tofu-github" : "terrakube-${each.key}"
   description     = "Least-privilege OpenBao JWT role for this workspace"
   category        = "ENV"
   sensitive       = false
