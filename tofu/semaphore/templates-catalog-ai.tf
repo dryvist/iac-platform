@@ -91,6 +91,25 @@ locals {
       description = "Select an LLM GPU serving profile and converge the serving role."
     }
 
+    ai-gpu-fan-control = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/nvidia-gpu-fan-control.yml"
+      limit            = "llm_gpu_group,llm_gpu_legacy_group,llm_gpu_engine_llama_cpp_group,llm_gpu_engine_vllm_group,llm_gpu_engine_sglang_group"
+      tags             = "nvidia_gpu_guest_fan_control"
+      mutating         = true
+      schedule_enabled = false
+      survey_vars = [
+        {
+          name        = "fan_control_guest_address"
+          title       = "GPU guest inventory address"
+          description = "IPv4 address from the published inventory for one GPU guest."
+          required    = true
+          type        = "string"
+        },
+      ]
+      description = "Apply NVML fan control to one selected GPU guest, with fan readback before and after."
+    }
+
     # The AI repository imports playbooks/llm-model-campaign.yml from site.yml
     # with the model_campaign tag; this template runs that tagged entry path.
     ai-llm-model-campaign = {
