@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.19.0](https://github.com/dryvist/iac-platform/compare/v1.18.0...v1.19.0) (2026-10-17)
+
+
+### Features
+
+* add Semaphore guest recovery template ([dbf4dba](https://github.com/dryvist/iac-platform/commit/dbf4dba9705d2b0a1a8d1b4450365b683960f88e))
+* add Semaphore guest recovery template ([#228](https://github.com/dryvist/iac-platform/issues/228)) ([eb88e7f](https://github.com/dryvist/iac-platform/commit/eb88e7f19cee120afd63b01f6cfdd2276f1a78f2))
+
 ## [1.18.0](https://github.com/dryvist/iac-platform/compare/v1.17.0...v1.18.0) (2026-10-17)
 
 
