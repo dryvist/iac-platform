@@ -27,6 +27,21 @@ resource "terrakube_workspace_cli" "tofu_github" {
   iac_version     = var.tofu_version
 }
 
+# Resolve the existing workspace ID by name for the import block below.
+data "terrakube_workspace" "tofu_github_private" {
+  name         = "tofu-github-private"
+  organization = var.organization_name
+}
+
+resource "terrakube_workspace_cli" "tofu_github_private" {
+  organization_id = terrakube_organization.org.id
+  name            = "tofu-github-private"
+  description     = "Enterprise-level GitHub governance as code"
+  execution_mode  = "local"
+  iac_type        = "tofu"
+  iac_version     = var.tofu_version
+}
+
 resource "terrakube_workspace_cli" "tofu_github_org" {
   for_each = local.tofu_github_orgs
 
@@ -220,6 +235,11 @@ resource "terrakube_workspace_variable" "semaphore_openbao_address" {
   category        = "TERRAFORM"
   sensitive       = false
   hcl             = false
+}
+
+import {
+  to = terrakube_workspace_cli.tofu_github_private
+  id = "${terrakube_organization.org.id},${data.terrakube_workspace.tofu_github_private.id}"
 }
 
 import {
