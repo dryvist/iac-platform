@@ -15,5 +15,5 @@ output "workspace_ids" {
 
 output "desired_state_apply_template_id" {
   description = "Job template id for the desired-state gated apply workflow input"
-  value       = terrakube_organization_template.this["desired_state_apply"].id
+  value       = try(terrakube_organization_template.this["desired_state_apply"].id, null)
 }

@@ -7,7 +7,7 @@
 # hand-kept summary — so an edit to a template's flow that drops its
 # approval step fails plan.
 locals {
-  templates = {
+  templates = merge({
     plan = {
       name        = "Plan"
       description = "Running Terraform plan"
@@ -90,24 +90,6 @@ locals {
           step: 200
       EOF
     }
-    # Same flow as plan_and_apply, approval gated on the desired_state_apply team.
-    desired_state_apply = {
-      name        = "Desired state apply"
-      description = "Running Terraform plan and apply for the desired-state gated apply workload"
-      content     = <<-EOF
-        flow:
-          - type: "terraformPlan"
-            name: "Plan"
-            step: 100
-          - type: "approval"
-            name: "Approve Apply"
-            step: 150
-            team: "${terrakube_team.desired_state_apply.name}"
-          - type: "terraformApply"
-            name: "Apply"
-            step: 200
-      EOF
-    }
     cli_plan_destroy = {
       name        = "Terraform-Plan/Destroy-Cli"
       description = "Running Terraform destroy from Terraform CLI"
@@ -125,7 +107,26 @@ locals {
           step: 200
       EOF
     }
-  }
+    }, local.desired_state_enabled ? {
+    # Same flow as plan_and_apply, approval gated on the desired_state_apply team.
+    desired_state_apply = {
+      name        = "Desired state apply"
+      description = "Running Terraform plan and apply for the desired-state gated apply workload"
+      content     = <<-EOF
+        flow:
+          - type: "terraformPlan"
+            name: "Plan"
+            step: 100
+          - type: "approval"
+            name: "Approve Apply"
+            step: 150
+            team: "${terrakube_team.desired_state_apply[0].name}"
+          - type: "terraformApply"
+            name: "Apply"
+            step: 200
+      EOF
+    }
+  } : {})
 
   # Flow steps in step order, decoded from each template's own content — not
   # a hand-kept summary — so an edit to a template's flow is reflected here
