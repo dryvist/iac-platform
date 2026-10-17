@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/dryvist/iac-platform/compare/v1.15.0...v1.16.0) (2026-10-17)
+
+
+### Features
+
+* **terrakube:** declare the tofu-github workspace inputs ([#218](https://github.com/dryvist/iac-platform/issues/218)) ([124662a](https://github.com/dryvist/iac-platform/commit/124662ad8a5342f1ed40c08ab291092295141e15))
+
 ## [1.15.0](https://github.com/dryvist/iac-platform/compare/v1.14.0...v1.15.0) (2026-10-17)
 
 
