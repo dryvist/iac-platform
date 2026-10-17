@@ -54,8 +54,9 @@ variable "openbao_workload_auth_path" {
 }
 
 variable "desired_state_repo" {
-  description = "owner/repo whose GitHub Actions OIDC token the desired-state federated credential trusts. Set directly on the iac-platform workspace (not IaC-managed here) — a public repo must not name a private one."
+  description = "owner/repo whose GitHub Actions OIDC token the desired-state federated credential trusts. Empty (the default) leaves the desired-state team, credential and template out."
   type        = string
+  default     = ""
 }
 
 variable "desired_state_ref" {

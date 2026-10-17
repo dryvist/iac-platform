@@ -42,37 +42,52 @@ import {
   id = "${terrakube_organization.org.id},b09ff17c-3098-4484-b6a8-3d0ed093be0d"
 }
 
+locals {
+  # The desired-state team, credential and template exist only for a configured repository.
+  desired_state_enabled = var.desired_state_repo != ""
+}
+
 # A team with zero organization-wide permissions; its only rights are the
 # workspace_access grant below.
 resource "terrakube_team" "desired_state_apply" {
+  count = local.desired_state_enabled ? 1 : 0
+
   name            = "${var.organization_name}:desired-state-apply"
   organization_id = terrakube_organization.org.id
 }
 
 # Grants that team job create/approve on tofu-proxmox only.
 resource "terrakube_workspace_access" "desired_state_apply" {
+  count = local.desired_state_enabled ? 1 : 0
+
   organization_id = terrakube_organization.org.id
   workspace_id    = terrakube_workspace_cli.tofu_proxmox.id
-  name            = terrakube_team.desired_state_apply.name
+  name            = terrakube_team.desired_state_apply[0].name
   manage_job      = true
 }
 
 # Trusts a GitHub Actions OIDC token; its name is the string match to the
 # team above (same convention as the admin team's name and the Dex claim).
 resource "terrakube_federated_credential" "desired_state_github_actions" {
-  name       = terrakube_team.desired_state_apply.name
+  count = local.desired_state_enabled ? 1 : 0
+
+  name       = terrakube_team.desired_state_apply[0].name
   issuer_url = "https://token.actions.githubusercontent.com"
   audience   = "terrakube"
 }
 
 resource "terrakube_federated_credential_claim" "desired_state_repository" {
-  federated_credential_id = terrakube_federated_credential.desired_state_github_actions.id
+  count = local.desired_state_enabled ? 1 : 0
+
+  federated_credential_id = terrakube_federated_credential.desired_state_github_actions[0].id
   claim_key               = "repository"
   claim_value             = var.desired_state_repo
 }
 
 resource "terrakube_federated_credential_claim" "desired_state_ref" {
-  federated_credential_id = terrakube_federated_credential.desired_state_github_actions.id
+  count = local.desired_state_enabled ? 1 : 0
+
+  federated_credential_id = terrakube_federated_credential.desired_state_github_actions[0].id
   claim_key               = "ref"
   claim_value             = var.desired_state_ref
 }
