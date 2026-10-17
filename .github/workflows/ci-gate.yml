@@ -19,6 +19,17 @@ permissions:
   pull-requests: read
 
 jobs:
+  terrakube-workspace-name-guard:
+    name: Terrakube Workspace Name Guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Check Terrakube workspace names
+        run: bash scripts/check-terrakube-workspace-names.sh
+
   semaphore-token-test:
     name: Semaphore Token Test
     runs-on: ubuntu-latest
