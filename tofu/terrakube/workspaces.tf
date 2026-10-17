@@ -27,6 +27,33 @@ resource "terrakube_workspace_cli" "tofu_github" {
   iac_version     = var.tofu_version
 }
 
+data "vault_kv_secret_v2" "terrakube_local_workspaces" {
+  mount = "config"
+  name  = "terrakube/local-workspaces"
+}
+
+locals {
+  terrakube_local_workspaces = toset(jsondecode(nonsensitive(data.vault_kv_secret_v2.terrakube_local_workspaces.data_json)).workspaces)
+}
+
+data "terrakube_workspace" "local" {
+  for_each = local.terrakube_local_workspaces
+
+  name         = each.key
+  organization = var.organization_name
+}
+
+resource "terrakube_workspace_cli" "local" {
+  for_each = local.terrakube_local_workspaces
+
+  organization_id = terrakube_organization.org.id
+  name            = each.key
+  description     = "Locally executed workspace"
+  execution_mode  = "local"
+  iac_type        = "tofu"
+  iac_version     = var.tofu_version
+}
+
 resource "terrakube_workspace_cli" "tofu_github_org" {
   for_each = local.tofu_github_orgs
 
@@ -220,6 +247,14 @@ resource "terrakube_workspace_variable" "semaphore_openbao_address" {
   category        = "TERRAFORM"
   sensitive       = false
   hcl             = false
+}
+
+# OpenTofu 1.7+ supports for_each in import blocks:
+# https://opentofu.org/docs/v1.7/language/import/
+import {
+  for_each = local.terrakube_local_workspaces
+  to       = terrakube_workspace_cli.local[each.key]
+  id       = "${terrakube_organization.org.id},${data.terrakube_workspace.local[each.key].id}"
 }
 
 import {
