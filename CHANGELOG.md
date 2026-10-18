@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/dryvist/iac-platform/compare/v1.22.0...v1.23.0) (2026-10-18)
+
+
+### Features
+
+* **terrakube:** add GitHub org secrets workspace ([#248](https://github.com/dryvist/iac-platform/issues/248)) ([cf3807b](https://github.com/dryvist/iac-platform/commit/cf3807bc06a5a3511ddd1c1ae581d8e25563afaa))
+
 ## [1.22.0](https://github.com/dryvist/iac-platform/compare/v1.21.0...v1.22.0) (2026-10-18)
 
 
