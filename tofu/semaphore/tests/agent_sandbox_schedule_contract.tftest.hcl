@@ -23,7 +23,7 @@ run "agent_sandbox_credentials_schedule" {
 
   assert {
     condition = can(regex(
-      "!t[.]mutating \\|\\| contains\\([\\s\\S]*?splunk-weekly-update[\\s\\S]*?apps-agent-sandbox-credentials[\\s\\S]*?k",
+      "scheduled_mutating_templates = \\[[^\\]]*\"apps-agent-sandbox-credentials\"",
       file("${path.module}/../../../schedules.tf")
     ))
     error_message = "The schedule guard must explicitly allow the scoped sandbox template as a mutating schedule."

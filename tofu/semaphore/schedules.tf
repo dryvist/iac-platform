@@ -1,4 +1,11 @@
 locals {
+  scheduled_mutating_templates = [
+    "splunk-weekly-update",
+    "apps-agent-sandbox-credentials",
+    "proxmox-upgrade",
+    "apps-upgrade",
+  ]
+
   scheduled_templates = {
     for k, t in local.ansible_templates : k => t if try(t.schedule_enabled, false)
   }
@@ -25,11 +32,9 @@ resource "terraform_data" "schedule_guard" {
     }
     precondition {
       condition = alltrue([
-        for k, t in local.scheduled_templates : !t.mutating || contains(
-          ["splunk-weekly-update", "apps-agent-sandbox-credentials", "proxmox-upgrade", "apps-upgrade"], k
-        )
+        for k, t in local.scheduled_templates : !t.mutating || contains(local.scheduled_mutating_templates, k)
       ])
-      error_message = "Only splunk-weekly-update, apps-agent-sandbox-credentials, proxmox-upgrade and apps-upgrade may be both mutating and scheduled."
+      error_message = "Only ${join(", ", local.scheduled_mutating_templates)} may be both mutating and scheduled."
     }
     # Nothing unattended may run an unreleased ref. This asserts on the
     # `deployed` flag carried through from repositories.tf rather than on the
