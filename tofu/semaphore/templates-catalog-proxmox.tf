@@ -213,17 +213,6 @@ locals {
       description = "Run a bounded unit stop, unit cgroup kill, or guest restart on one selected inventory node."
     }
 
-    proxmox-benchmark-upgrade = {
-      repository       = "ansible-proxmox"
-      playbook         = "playbooks/upgrade.yml"
-      limit            = "localhost"
-      mutating         = true
-      schedule_enabled = false
-      extra_args       = []
-      rail_sec         = 3600
-      description      = "Run the existing rolling Proxmox full-upgrade and NVIDIA driver converge before a benchmark block."
-    }
-
     proxmox-benchmark-client = {
       repository       = "ansible-proxmox"
       playbook         = "playbooks/benchmark-client.yml"
