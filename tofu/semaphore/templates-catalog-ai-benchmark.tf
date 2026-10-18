@@ -29,6 +29,13 @@ locals {
           type        = "string"
         },
         {
+          name        = "gpu_guest_vmid"
+          title       = "GPU guest VMID"
+          description = "VMID of the measured GPU guest whose package versions are recorded."
+          required    = true
+          type        = "string"
+        },
+        {
           name        = "engine_url"
           title       = "Engine URL"
           description = "OpenAI-compatible /v1 endpoint without credentials or query parameters."
@@ -130,6 +137,17 @@ locals {
           description = "Unique safe identifier used for output paths and tags."
           required    = true
           type        = "string"
+        },
+        {
+          name        = "upgrade"
+          title       = "Upgrade guest OS"
+          description = "Run full-upgrade on the measured GPU guest before this cell; leave false after the block's first cell."
+          required    = false
+          type        = "enum"
+          enum_values = {
+            "true"  = "true"
+            "false" = "false"
+          }
         },
         {
           name        = "publish"
