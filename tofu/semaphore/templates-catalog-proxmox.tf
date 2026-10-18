@@ -2,6 +2,26 @@
 
 locals {
   ansible_templates_proxmox = {
+    proxmox-upgrade = {
+      repository       = "ansible-proxmox"
+      playbook         = "playbooks/upgrade.yml"
+      limit            = "proxmox"
+      mutating         = true
+      schedule_enabled = true
+      extra_args       = []
+      rail_sec         = 3600
+      survey_vars = [
+        {
+          name        = "upgrade_nodes"
+          title       = "Nodes to upgrade"
+          description = "Node name(s) to upgrade; blank defaults to all Proxmox nodes."
+          required    = false
+          type        = "string"
+        },
+      ]
+      description = "Monthly rolling Proxmox node upgrade with quorum checks; first Saturday only."
+    }
+
     # The 3600-second rail: a full hypervisor converge seeds model-store blobs
     # and runs past the 900-second default.
     proxmox-site = {

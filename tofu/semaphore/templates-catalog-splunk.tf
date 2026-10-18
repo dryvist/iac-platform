@@ -19,7 +19,7 @@ locals {
       mutating         = true
       schedule_enabled = true
       extra_args       = ["--extra-vars", "splunkbase_sync_fail_open=false"]
-      description      = "Thursday full Splunk converge with a fail-closed app update."
+      description      = "Saturday full Splunk converge with a fail-closed app update."
     }
 
     splunk-validate = {
