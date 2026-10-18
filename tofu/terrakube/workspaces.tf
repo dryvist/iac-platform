@@ -149,6 +149,7 @@ locals {
     iac-platform                = terrakube_workspace_cli.iac_platform.id
     iac-platform-semaphore      = terrakube_workspace_cli.iac_platform_semaphore.id
     tofu-github                 = terrakube_workspace_cli.tofu_github.id
+    github-org-secrets          = terrakube_workspace_cli.github_org_secrets.id
     tofu-unifi                  = terrakube_workspace_cli.tofu_unifi.id
     tofu-aws-production         = terrakube_workspace_cli.tofu_aws_production.id
     tofu-runs-on                = terrakube_workspace_cli.tofu_runs_on.id
