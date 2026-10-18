@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.21.0](https://github.com/dryvist/iac-platform/compare/v1.20.0...v1.21.0) (2026-10-18)
+
+
+### Features
+
+* add benchmark guest upgrade survey fields ([#243](https://github.com/dryvist/iac-platform/issues/243)) ([b3cfcd4](https://github.com/dryvist/iac-platform/commit/b3cfcd4be2fa45a275dd3d595b5a025f510bac5d))
+
 ## [1.20.0](https://github.com/dryvist/iac-platform/compare/v1.19.0...v1.20.0) (2026-10-17)
 
 
