@@ -50,3 +50,19 @@ run "proxmox_benchmark_client_template_contract" {
     error_message = "The benchmark-client template must offer present/absent and require its target identifiers."
   }
 }
+
+run "proxmox_benchmark_upgrade_template_contract" {
+  command = plan
+
+  module {
+    source = "./tests/fixtures/noop"
+  }
+
+  assert {
+    condition = can(regex(
+      "proxmox-benchmark-upgrade\\s*=\\s*\\{[\\s\\S]*?repository\\s*=\\s*\"ansible-proxmox\"[\\s\\S]*?playbook\\s*=\\s*\"playbooks/upgrade\\.yml\"[\\s\\S]*?limit\\s*=\\s*\"localhost\"[\\s\\S]*?mutating\\s*=\\s*true[\\s\\S]*?schedule_enabled\\s*=\\s*false[\\s\\S]*?rail_sec\\s*=\\s*3600",
+      file("${path.module}/../../../templates-catalog-proxmox.tf")
+    ))
+    error_message = "The benchmark upgrade template must run the existing rolling playbook and remain unscheduled and mutating."
+  }
+}

@@ -25,8 +25,8 @@ run "promotion_rail_contract" {
     condition = length(flatten([
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
-    ])) == 15
-    error_message = "rail_sec may be set only by the fifteen allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
+    ])) == 16
+    error_message = "rail_sec may be set only by the sixteen allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
   }
 
   assert {
@@ -38,23 +38,24 @@ run "promotion_rail_contract" {
         ) : m[0] => tonumber(m[1])
       }
       ]...) == {
-      "ai-site-promotion"     = 3600
-      "ai-hermes-agent"       = 2400
-      "ai-llm-serving"        = 2400
-      "ai-llm-router"         = 2400
-      "ai-llm-gpu-profile"    = 3600
-      "ai-benchmark-run"      = 3600
-      "apps-openbao-tagged"   = 3600
-      "apps-openbao-rotators" = 2400
-      "apps-core-apps"        = 1800
-      "apps-postgres-roles"   = 1800
-      "apps-agent-sandbox"    = 1800
-      "apps-cribl"            = 2400
-      "apps-cribl-packs"      = 1800
-      "apps-grafana"          = 2400
-      "proxmox-site"          = 3600
+      "ai-site-promotion"         = 3600
+      "ai-hermes-agent"           = 2400
+      "ai-llm-serving"            = 2400
+      "ai-llm-router"             = 2400
+      "ai-llm-gpu-profile"        = 3600
+      "ai-benchmark-run"          = 3600
+      "apps-openbao-tagged"       = 3600
+      "apps-openbao-rotators"     = 2400
+      "apps-core-apps"            = 1800
+      "apps-postgres-roles"       = 1800
+      "apps-agent-sandbox"        = 1800
+      "apps-cribl"                = 2400
+      "apps-cribl-packs"          = 1800
+      "apps-grafana"              = 2400
+      "proxmox-site"              = 3600
+      "proxmox-benchmark-upgrade" = 3600
     }
-    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 2400, ai-llm-serving = 2400, ai-llm-router = 2400, ai-llm-gpu-profile = 3600, ai-benchmark-run = 3600, apps-openbao-tagged = 3600, apps-openbao-rotators = 2400, apps-core-apps = 1800, apps-postgres-roles = 1800, apps-agent-sandbox = 1800, apps-cribl = 2400, apps-cribl-packs = 1800, apps-grafana = 2400 and proxmox-site = 3600."
+    error_message = "The entries carrying rail_sec must include the allowlisted templates and proxmox-benchmark-upgrade = 3600."
   }
 
   assert {
