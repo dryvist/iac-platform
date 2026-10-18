@@ -66,3 +66,12 @@ resource "terrakube_workspace_variable" "tofu_github_org_inputs" {
   sensitive       = false
   hcl             = each.value.hcl
 }
+
+resource "terrakube_workspace_cli" "github_org_secrets" {
+  organization_id = terrakube_organization.org.id
+  name            = "github-org-secrets"
+  description     = "GitHub organization Actions secrets from OpenBao"
+  execution_mode  = "remote"
+  iac_type        = "tofu"
+  iac_version     = var.tofu_version
+}

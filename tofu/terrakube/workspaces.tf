@@ -27,15 +27,6 @@ resource "terrakube_workspace_cli" "tofu_github" {
   iac_version     = var.tofu_version
 }
 
-resource "terrakube_workspace_cli" "github_org_secrets" {
-  organization_id = terrakube_organization.org.id
-  name            = "github-org-secrets"
-  description     = "GitHub organization Actions secrets from OpenBao"
-  execution_mode  = "remote"
-  iac_type        = "tofu"
-  iac_version     = var.tofu_version
-}
-
 data "vault_kv_secret_v2" "terrakube_local_workspaces" {
   mount = "config"
   name  = "terrakube/local-workspaces"
