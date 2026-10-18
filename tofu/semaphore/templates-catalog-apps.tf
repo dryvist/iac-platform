@@ -2,6 +2,17 @@
 
 locals {
   ansible_templates_apps = {
+    apps-upgrade = {
+      repository       = "ansible-proxmox-apps"
+      playbook         = "playbooks/upgrade.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = true
+      extra_args       = []
+      rail_sec         = 3600
+      description      = "Monthly Debian guest OS upgrade; first Saturday only."
+    }
+
     apps-site = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"
