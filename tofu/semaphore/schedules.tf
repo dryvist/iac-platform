@@ -9,7 +9,7 @@ locals {
     apps-upgrade                   = "30 14 * * 6"
     proxmox-upgrade                = "0 14 * * 6"
     splunk-validate                = "37 6 * * *"
-    splunk-weekly-update           = "17 22 * * 4"
+    splunk-weekly-update           = "17 13 * * 6"
   }
 }
 
