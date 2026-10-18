@@ -25,6 +25,20 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
+      "matchStrings": ["TK_REDIS_VERSION=(?<currentValue>.+)"],
+      "depNameTemplate": "valkey/valkey",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
+      "matchStrings": ["TK_POSTGRESQL_VERSION=(?<currentValue>.+)"],
+      "depNameTemplate": "postgres",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
       "matchStrings": ["SEMAPHORE_VERSION=(?<currentValue>.+)"],
       "depNameTemplate": "semaphoreui/semaphore",
       "datasourceTemplate": "docker"
@@ -48,11 +62,10 @@
   ],
   "packageRules": [
     {
-      "description": "Update first-party Semaphore deploy refs without the org release-age or schedule delay.",
+      "description": "Update first-party Semaphore deploy refs without the organization release-age delay.",
       "matchManagers": ["custom.regex"],
       "matchFileNames": ["tofu/semaphore/variables.tf"],
       "minimumReleaseAge": "0 days",
-      "schedule": ["at any time"],
       "dependencyDashboardApproval": false,
       "automerge": true,
       "automergeType": "pr"
