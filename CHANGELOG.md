@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.22.0](https://github.com/dryvist/iac-platform/compare/v1.21.0...v1.22.0) (2026-10-18)
+
+
+### Features
+
+* **semaphore:** schedule monthly node and guest upgrades ([7d00b9f](https://github.com/dryvist/iac-platform/commit/7d00b9fc1aa3fa4ae3cf44f92a4bf1b67142984f))
+* **semaphore:** schedule monthly node and guest upgrades ([#245](https://github.com/dryvist/iac-platform/issues/245)) ([c5e9cd5](https://github.com/dryvist/iac-platform/commit/c5e9cd506605f9c63854f6e2d0ee5247462dc0a7))
+
+
+### Bug Fixes
+
+* **renovate:** track committed version pins ([4b28fce](https://github.com/dryvist/iac-platform/commit/4b28fcee1a5de1f705105da6121bcd989f0be74e))
+
 ## [1.21.0](https://github.com/dryvist/iac-platform/compare/v1.20.0...v1.21.0) (2026-10-18)
 
 
