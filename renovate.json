@@ -1,52 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>JacobPEvans/.github"],
+  "extends": [
+    "github>JacobPEvans/.github"
+  ],
   "docker-compose": {
-    "managerFilePatterns": ["/^compose/docker-compose\\.yml$/"]
+    "managerFilePatterns": [
+      "/^compose/docker-compose\\.yml$/"
+    ]
   },
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Image pins in compose/.env.example (TK_VERSION etc.) — the committed template; compose/.env is gitignored and Renovate can never see it",
-      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
-      "matchStrings": [
-        "TK_VERSION=(?<currentValue>.+)"
-      ],
-      "depNameTemplate": "azbuilder/api-server",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
-      "matchStrings": ["TK_DEX_VERSION=(?<currentValue>.+)"],
-      "depNameTemplate": "ghcr.io/dexidp/dex",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
-      "matchStrings": ["TK_REDIS_VERSION=(?<currentValue>.+)"],
-      "depNameTemplate": "valkey/valkey",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
-      "matchStrings": ["TK_POSTGRESQL_VERSION=(?<currentValue>.+)"],
-      "depNameTemplate": "postgres",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^compose/\\.env\\.example$/"],
-      "matchStrings": ["SEMAPHORE_VERSION=(?<currentValue>.+)"],
-      "depNameTemplate": "semaphoreui/semaphore",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
       "description": "Release tags of the Ansible repositories Semaphore deploys, annotated above each branch value in the ansible_repositories default",
-      "managerFilePatterns": ["/^tofu/semaphore/variables\\.tf$/"],
+      "managerFilePatterns": [
+        "/^tofu/semaphore/variables\\.tf$/"
+      ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+branch\\s*=\\s*\"(?<currentValue>[^\"]+)\""
       ]
@@ -54,8 +22,12 @@
     {
       "customType": "regex",
       "description": "uv release pin in the Semaphore runner image",
-      "managerFilePatterns": ["/^compose/semaphore/Dockerfile$/"],
-      "matchStrings": ["ARG UV_VERSION=(?<currentValue>[^\\s]+)"],
+      "managerFilePatterns": [
+        "/^compose/semaphore/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG UV_VERSION=(?<currentValue>[^\\s]+)"
+      ],
       "depNameTemplate": "astral-sh/uv",
       "datasourceTemplate": "github-releases"
     }
@@ -63,8 +35,12 @@
   "packageRules": [
     {
       "description": "Update first-party Semaphore deploy refs without the organization release-age delay.",
-      "matchManagers": ["custom.regex"],
-      "matchFileNames": ["tofu/semaphore/variables.tf"],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "tofu/semaphore/variables.tf"
+      ],
       "minimumReleaseAge": "0 days",
       "dependencyDashboardApproval": false,
       "automerge": true,
@@ -72,8 +48,12 @@
     },
     {
       "description": "Hold ansible-proxmox-apps major auto-merge through the 2026-10-20T00:00Z research freeze; remove this rule after the freeze.",
-      "matchDepNames": ["dryvist/ansible-proxmox-apps"],
-      "matchUpdateTypes": ["major"],
+      "matchDepNames": [
+        "dryvist/ansible-proxmox-apps"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": false
     }
   ]
