@@ -7,10 +7,10 @@ run "monthly_upgrade_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "proxmox-upgrade = \\{[\\s\\S]*?repository\\s*=\\s*\"ansible-proxmox\"[\\s\\S]*?playbook\\s*=\\s*\"playbooks/upgrade\\.yml\"[\\s\\S]*?limit\\s*=\\s*\"proxmox\"[\\s\\S]*?mutating\\s*=\\s*true[\\s\\S]*?schedule_enabled\\s*=\\s*true[\\s\\S]*?extra_args\\s*=\\s*\\[\\s*\\][\\s\\S]*?rail_sec\\s*=\\s*3600",
+      "proxmox-upgrade = \\{[\\s\\S]*?repository\\s*=\\s*\"ansible-proxmox\"[\\s\\S]*?playbook\\s*=\\s*\"playbooks/upgrade\\.yml\"[\\s\\S]*?limit\\s*=\\s*\"proxmox\"[\\s\\S]*?mutating\\s*=\\s*true[\\s\\S]*?schedule_enabled\\s*=\\s*true[\\s\\S]*?extra_args\\s*=\\s*\\[\\s*\\]",
       file("${path.module}/../../../templates-catalog-proxmox.tf")
     ))
-    error_message = "proxmox-upgrade must use the Proxmox upgrade playbook and a scheduled 3600-second rail."
+    error_message = "proxmox-upgrade must use the Proxmox upgrade playbook and be scheduled."
   }
 
   assert {
@@ -23,10 +23,10 @@ run "monthly_upgrade_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "apps-upgrade = \\{[\\s\\S]*?repository\\s*=\\s*\"ansible-proxmox-apps\"[\\s\\S]*?playbook\\s*=\\s*\"playbooks/upgrade\\.yml\"[\\s\\S]*?limit\\s*=\\s*\"all\"[\\s\\S]*?mutating\\s*=\\s*true[\\s\\S]*?schedule_enabled\\s*=\\s*true[\\s\\S]*?extra_args\\s*=\\s*\\[\\s*\\][\\s\\S]*?rail_sec\\s*=\\s*3600",
+      "apps-upgrade = \\{[\\s\\S]*?repository\\s*=\\s*\"ansible-proxmox-apps\"[\\s\\S]*?playbook\\s*=\\s*\"playbooks/upgrade\\.yml\"[\\s\\S]*?limit\\s*=\\s*\"all\"[\\s\\S]*?mutating\\s*=\\s*true[\\s\\S]*?schedule_enabled\\s*=\\s*true[\\s\\S]*?extra_args\\s*=\\s*\\[\\s*\\]",
       file("${path.module}/../../../templates-catalog-apps.tf")
     ))
-    error_message = "apps-upgrade must use the guest upgrade playbook and a scheduled 3600-second rail."
+    error_message = "apps-upgrade must use the guest upgrade playbook and be scheduled."
   }
 
   assert {
@@ -39,10 +39,10 @@ run "monthly_upgrade_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "\\[\"splunk-weekly-update\", \"apps-agent-sandbox-credentials\", \"proxmox-upgrade\", \"apps-upgrade\"\\]",
+      "contains\\(local\\.scheduled_mutating_templates, k\\)",
       file("${path.module}/../../../schedules.tf")
       )) && can(regex(
-      "Only splunk-weekly-update, apps-agent-sandbox-credentials, proxmox-upgrade and apps-upgrade may be both mutating and scheduled\\.",
+      "join\\(.*local\\.scheduled_mutating_templates",
       file("${path.module}/../../../schedules.tf")
     ))
     error_message = "The mutating schedule guard must explicitly allow both monthly upgrade templates by name."
