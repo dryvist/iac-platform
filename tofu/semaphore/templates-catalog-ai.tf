@@ -63,6 +63,19 @@ locals {
       description = "GPU inference serving stack converge (llama.cpp, LiteLLM proxy, Redis spend store)."
     }
 
+    # One-shot model-store population for artifact IDs supplied at launch.
+    # The shared template builder appends localhost to this dynamic writer
+    # group limit, and task overrides may pass --extra-vars and a narrower
+    # --limit while keeping localhost in scope.
+    ai-llm-model-store-seed = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/llm-model-store-seed.yml"
+      limit            = "llm_model_store_writer_group"
+      mutating         = true
+      schedule_enabled = false
+      description      = "Seed selected model artifacts into the shared model store."
+    }
+
     # The profile switch converges both halves: the serving role starts the
     # selected profile's unit on the GPU guest, and the router re-projects the
     # active profile's deployment. Entry is site.yml for the same reason as the
