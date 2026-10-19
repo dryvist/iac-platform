@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.1](https://github.com/dryvist/iac-platform/compare/v1.24.0...v1.24.1) (2026-10-19)
+
+
+### Bug Fixes
+
+* **semaphore:** restrict model store seed to develop ([#253](https://github.com/dryvist/iac-platform/issues/253)) ([8ad793a](https://github.com/dryvist/iac-platform/commit/8ad793aa5f192a03594aa8ca5b28b057e8c05f24))
+
 ## [1.24.0](https://github.com/dryvist/iac-platform/compare/v1.23.0...v1.24.0) (2026-10-19)
 
 
