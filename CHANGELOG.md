@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/dryvist/iac-platform/compare/v1.23.0...v1.24.0) (2026-10-19)
+
+
+### Features
+
+* **semaphore:** add AI model store seed template ([#251](https://github.com/dryvist/iac-platform/issues/251)) ([4fb1280](https://github.com/dryvist/iac-platform/commit/4fb1280fb42a6d56c21481af8a1de03276958cb1))
+
 ## [1.23.0](https://github.com/dryvist/iac-platform/compare/v1.22.0...v1.23.0) (2026-10-18)
 
 
