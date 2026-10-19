@@ -72,6 +72,7 @@ locals {
       playbook         = "playbooks/llm-model-store-seed.yml"
       limit            = "llm_model_store_writer_group"
       mutating         = true
+      only_branch      = "develop"
       schedule_enabled = false
       description      = "Seed selected model artifacts into the shared model store."
     }
