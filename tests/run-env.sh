@@ -150,4 +150,15 @@ check "the exec chain reads only the stack's own paths" 0 "" \
 check "the environment PUT takes its payload on stdin" 0 "" \
   grep -q 'printf .%s. "[$]payload" | docker --host "[$]host" exec -i semaphore curl' "$REPO_ROOT/scripts/deploy.sh"
 
+check "compose loads tracked defaults before local overrides" 0 "" \
+  awk '
+    /--env-file ".*\/compose\/\.env\.example"/ { example = NR }
+    /--env-file ".*\/compose\/\.env"/ {
+      if (example != NR - 1) exit 1
+      pairs++
+      example = 0
+    }
+    END { exit !(pairs == 2 && example == 0) }
+  ' "$REPO_ROOT/scripts/deploy.sh"
+
 exit "$FAIL"
