@@ -145,6 +145,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 2400
       description      = "Pipeline Stream tier converge only, via --tags cribl_stream."
     }
 
