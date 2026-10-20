@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.2](https://github.com/dryvist/iac-platform/compare/v1.24.1...v1.24.2) (2026-10-20)
+
+
+### Bug Fixes
+
+* scope AppRole env for bounds check ([#258](https://github.com/dryvist/iac-platform/issues/258)) ([0f3ecb7](https://github.com/dryvist/iac-platform/commit/0f3ecb7e4f5bc7dceb0ae0c25436091c6b8633e2))
+
 ## [1.24.1](https://github.com/dryvist/iac-platform/compare/v1.24.0...v1.24.1) (2026-10-19)
 
 
