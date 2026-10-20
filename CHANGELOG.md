@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.2](https://github.com/dryvist/iac-platform/compare/v1.25.1...v1.25.2) (2026-10-20)
+
+
+### Bug Fixes
+
+* **semaphore:** pass every survey value as an extra var ([#284](https://github.com/dryvist/iac-platform/issues/284)) ([5cf1b63](https://github.com/dryvist/iac-platform/commit/5cf1b63be52eed79ae92620341708a9186265a84))
+
 ## [1.25.1](https://github.com/dryvist/iac-platform/compare/v1.25.0...v1.25.1) (2026-10-20)
 
 
