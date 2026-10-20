@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.0](https://github.com/dryvist/iac-platform/compare/v1.25.2...v1.26.0) (2026-10-20)
+
+
+### Features
+
+* **semaphore:** raise the task rail for baseline-lxc, node-exporter and core-apps ([#302](https://github.com/dryvist/iac-platform/issues/302)) ([fb5e6cb](https://github.com/dryvist/iac-platform/commit/fb5e6cb1db8ac9ce944fd53f826abe2003beacff))
+
 ## [1.25.2](https://github.com/dryvist/iac-platform/compare/v1.25.1...v1.25.2) (2026-10-20)
 
 
