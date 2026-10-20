@@ -69,13 +69,13 @@ variable "ansible_repositories" {
     ansible-proxmox = {
       url = "https://github.com/dryvist/ansible-proxmox.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox
-      branch           = "v2.33.1"
+      branch           = "v2.33.2"
       preview_branches = ["develop"]
     }
     ansible-proxmox-apps = {
       url = "https://github.com/dryvist/ansible-proxmox-apps.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-apps
-      branch           = "v5.7.2"
+      branch           = "v5.7.3"
       preview_branches = ["develop"]
     }
     ansible-secrets-management = {
@@ -95,7 +95,7 @@ variable "ansible_repositories" {
     ansible-splunk = {
       url = "https://github.com/dryvist/ansible-splunk.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-splunk
-      branch = "v0.99.11"
+      branch = "v0.99.12"
     }
   }
 
