@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.0](https://github.com/dryvist/iac-platform/compare/v1.24.5...v1.25.0) (2026-10-20)
+
+
+### Features
+
+* **semaphore:** expose node-wide startall and stopall on the guest-power template ([#280](https://github.com/dryvist/iac-platform/issues/280)) ([a99f493](https://github.com/dryvist/iac-platform/commit/a99f493b4ffb94f7efd3deaeaf2f6886941a723d))
+
 ## [1.24.5](https://github.com/dryvist/iac-platform/compare/v1.24.4...v1.24.5) (2026-10-20)
 
 
