@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.1](https://github.com/dryvist/iac-platform/compare/v1.25.0...v1.25.1) (2026-10-20)
+
+
+### Bug Fixes
+
+* **deps:** pin the ansible-splunk Semaphore repository to v0.99.9 ([#282](https://github.com/dryvist/iac-platform/issues/282)) ([2e95131](https://github.com/dryvist/iac-platform/commit/2e95131533f21b8425cf15595e15dc1b9b89c25c))
+
 ## [1.25.0](https://github.com/dryvist/iac-platform/compare/v1.24.5...v1.25.0) (2026-10-20)
 
 
