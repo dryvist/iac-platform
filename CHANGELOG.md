@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.5](https://github.com/dryvist/iac-platform/compare/v1.24.4...v1.24.5) (2026-10-20)
+
+
+### Bug Fixes
+
+* **deploy:** refuse pins and real-domain values in compose/.env ([#267](https://github.com/dryvist/iac-platform/issues/267)) ([f0c335d](https://github.com/dryvist/iac-platform/commit/f0c335ddb93af8cd331584412a6bc6d5b20baa1b))
+
 ## [1.24.4](https://github.com/dryvist/iac-platform/compare/v1.24.3...v1.24.4) (2026-10-20)
 
 
