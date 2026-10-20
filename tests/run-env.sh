@@ -145,4 +145,9 @@ check "--restart passes the same guards before recreating" 1 "DEPLOY_HOST missin
 check "the exec chain reads only the stack's own paths" 0 "" \
   bash -c "! grep -q 'platform/ansible/env' \"\$1\"" _ "$REPO_ROOT/scripts/deploy.sh"
 
+# The environment PUT reads its body from a pipe. An `exec -i` without one would
+# drain the project loop's stdin, so only the first project would sync.
+check "the environment PUT takes its payload on stdin" 0 "" \
+  grep -q 'printf .%s. "[$]payload" | docker --host "[$]host" exec -i semaphore curl' "$REPO_ROOT/scripts/deploy.sh"
+
 exit "$FAIL"
