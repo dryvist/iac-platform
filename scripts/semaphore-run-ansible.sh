@@ -104,6 +104,7 @@ benchmark_context_list=""
 benchmark_power_cap_w=""
 benchmark_endpoint_root=""
 benchmark_cache_path=""
+previous_option_takes_value=0
 
 survey_value() {
   local name="$1" value="$2" current="$3"
@@ -112,6 +113,11 @@ survey_value() {
 }
 
 for arg in "$@"; do
+  if [ "$previous_option_takes_value" -eq 1 ]; then
+    run_args+=("$arg")
+    previous_option_takes_value=0
+    continue
+  fi
   case "$arg" in
     llm_active_profile=*)
       [ -z "$active_profile" ] || { echo "semaphore-run-ansible.sh: duplicate llm_active_profile survey variable" >&2; exit 2; }
@@ -175,11 +181,23 @@ for arg in "$@"; do
       survey_value power_cap_w "$value" "$benchmark_power_cap_w"
       benchmark_power_cap_w="$value"
       ;;
+    -e|--extra-vars|-l|--limit|-t|--tags|--skip-tags|-i|--inventory)
+      run_args+=("$arg")
+      previous_option_takes_value=1
+      ;;
     --rail-sec|--rail-sec=*)
       echo "semaphore-run-ansible.sh: --rail-sec is honoured only as the first argument, set by the template" >&2
       exit 2
       ;;
-    *) run_args+=("$arg") ;;
+    *)
+      # Bare survey assignments become JSON extra vars; option values stay positional.
+      if [[ "$arg" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+        survey_json="$(jq -cn --arg name "${BASH_REMATCH[1]}" --arg value "${BASH_REMATCH[2]}" '{($name): $value}')"
+        run_args+=(--extra-vars "$survey_json")
+      else
+        run_args+=("$arg")
+      fi
+      ;;
   esac
 done
 rail_sec="${rail_sec:-900}"

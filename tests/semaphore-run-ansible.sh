@@ -37,6 +37,19 @@ check() { # name expected-status recap wrapper-args...
   echo "ok   $name"
 }
 
+expect_args() { # name expected-args...
+  local name="$1"
+  shift
+  printf '%s\n' "$@" >"$STUB_DIR/expected-args"
+  if diff -u "$STUB_DIR/expected-args" "$STUB_ARGS" >/dev/null; then
+    echo "ok   $name"
+  else
+    echo "FAIL $name"
+    diff -u "$STUB_DIR/expected-args" "$STUB_ARGS"
+    FAIL=1
+  fi
+}
+
 real='localhost : ok=3 changed=0 unreachable=0 failed=0\nweb-01 : ok=9 changed=1 unreachable=0 failed=0'
 only_local='localhost : ok=3 changed=0 unreachable=0 failed=0'
 
@@ -97,6 +110,16 @@ else
   diff -u "$STUB_DIR/expected-args" "$STUB_ARGS"
   FAIL=1
 fi
+check "plain survey value is passed as one JSON extra var" 0 "$real" playbooks/site.yml guest_power_type=qemu
+expect_args "plain survey value uses one JSON extra var" playbooks/site.yml --extra-vars '{"guest_power_type":"qemu"}'
+check "blank survey value is passed as an empty string" 0 "$real" playbooks/site.yml optional_value=
+expect_args "blank survey value is preserved" playbooks/site.yml --extra-vars '{"optional_value":""}'
+check "survey value preserves spaces, quotes, and equals" 0 "$real" playbooks/site.yml 'survey_note=manual "operator" action = retry'
+expect_args "survey value is JSON-escaped without changing content" playbooks/site.yml --extra-vars '{"survey_note":"manual \"operator\" action = retry"}'
+check "values after extra-vars and limit options pass through untouched" 0 "$real" playbooks/site.yml -e foo=bar --limit a,b
+expect_args "values after extra-vars and limit options stay positional" playbooks/site.yml -e foo=bar --limit a,b
+check "long option equals arguments pass through untouched" 0 "$real" playbooks/site.yml --tags=site,guest
+expect_args "long option equals arguments stay positional" playbooks/site.yml --tags=site,guest
 check "invalid profile survey value fails" 2 "$real" playbooks/site.yml --limit web_group,localhost llm_active_profile=unknown
 
 # The ai-llm-profile template keeps its serving and router tags. Both profile
