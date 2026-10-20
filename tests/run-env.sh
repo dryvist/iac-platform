@@ -161,4 +161,23 @@ check "compose loads tracked defaults before local overrides" 0 "" \
     END { exit !(pairs == 2 && example == 0) }
   ' "$REPO_ROOT/scripts/deploy.sh"
 
+# compose/.env holds site values only. A copy of the repo keeps the case away
+# from any real compose/.env in this checkout.
+fake_repo="$STUB_DIR/repo"
+mkdir -p "$fake_repo/compose"
+cp -R "$REPO_ROOT/scripts" "$fake_repo/"
+cp "$REPO_ROOT/compose/.env.example" "$fake_repo/compose/"
+for case in "SEMAPHORE_VERSION=v0.0.1:an image pin" "DOMAIN=example.test:a real-domain value"; do
+  printf '%s\n' "${case%%:*}" >"$fake_repo/compose/.env"
+  check "refuses ${case#*:} in compose/.env" 1 "${case%%=*} must not be set" \
+    env -u DEPLOY_HOST "${prereqs[@]}" \
+    OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret \
+    bash "$fake_repo/scripts/deploy.sh" --inner
+done
+printf 'DEX_GITHUB_ORG=org\n' >"$fake_repo/compose/.env"
+check "accepts site values in compose/.env" 1 "DEPLOY_HOST missing" \
+  env -u DEPLOY_HOST "${prereqs[@]}" \
+  OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret \
+  bash "$fake_repo/scripts/deploy.sh" --inner
+
 exit "$FAIL"
