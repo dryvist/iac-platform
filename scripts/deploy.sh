@@ -264,11 +264,13 @@ if [ "${1:-}" = "--inner" ]; then
       # This PUT is the only writer of that environment: a failed write
       # leaves whatever was there before, so it fails the deploy instead of
       # reporting a sync that did not happen. The response body echoes the
-      # environment and is never printed.
-      put_status="$(docker --host "$host" exec -i semaphore curl -s -o /dev/null -w '%{http_code}' -X PUT \
+      # environment and is never printed. The payload goes in on stdin: it keeps
+      # the AppRole pair out of curl's argv, and `exec -i` must not inherit the
+      # loop's stdin, which would swallow every remaining project id.
+      put_status="$(printf '%s' "$payload" | docker --host "$host" exec -i semaphore curl -s -o /dev/null -w '%{http_code}' -X PUT \
         -H "Authorization: Bearer $sem_token" \
         -H "Content-Type: application/json" \
-        -d "$payload" \
+        --data-binary @- \
         "http://127.0.0.1:3000/api/project/$project_id/environment/$environment_id" 2>/dev/null)" || put_status="000"
       case "$put_status" in
         2*) echo "Synced runtime credentials to Semaphore project '$project_name' (HTTP $put_status)." ;;
