@@ -40,6 +40,39 @@ check() { # name expected-status recap wrapper-args...
 real='localhost : ok=3 changed=0 unreachable=0 failed=0\nweb-01 : ok=9 changed=1 unreachable=0 failed=0'
 only_local='localhost : ok=3 changed=0 unreachable=0 failed=0'
 
+DOC_LOG="$STUB_DIR/env-docs"
+cat >"$STUB_DIR/openbao-exec-env.sh" <<'ENV_STUB'
+#!/usr/bin/env bash
+printf '%s\n' "$1" >>"$DOC_LOG"
+shift 2
+exec "$@"
+ENV_STUB
+chmod +x "$STUB_DIR/openbao-exec-env.sh"
+
+check_env_docs() { # name expected-docs wrapper-args...
+  local name="$1" want_docs="$2" got_docs rc
+  shift 2
+  : >"$DOC_LOG"
+  (cd "$STUB_DIR" && env -u SEMAPHORE_RUN_ENV_LOADED -u BAO_TOKEN -u VAULT_TOKEN \
+    BAO_ADDR=https://openbao.invalid DOC_LOG="$DOC_LOG" PATH="$STUB_DIR:$PATH" \
+    STUB_RECAP="$real" bash "$WRAPPER" --rail-sec=0 ./run-ansible.sh "$@") >/dev/null 2>&1
+  rc=$?
+  got_docs="$(cat "$DOC_LOG")"
+  if [ "$rc" != 2 ] || [ "$got_docs" != "$want_docs" ]; then
+    echo "FAIL $name (exit $rc; loaded docs: ${got_docs//$'\n'/, })"
+    FAIL=1
+    return
+  fi
+  echo "ok   $name"
+}
+
+check_env_docs "regular playbooks select all run-environment documents" \
+  $'config/platform/ansible/env\nsecret/platform/ansible/env\nsecrets-external/platform/ansible/env' \
+  playbooks/site.yml
+check_env_docs "the AppRole bounds verifier omits host credentials" \
+  $'config/platform/ansible/env\nsecrets-external/platform/ansible/env' \
+  playbooks/verify-approle-ttls.yml
+
 echo "== semaphore-run-ansible.sh recap rules =="
 check "a real host in the recap passes" 0 "$real" playbooks/site.yml --limit web_group,localhost
 check "a failed host fails" 1 'web-01 : ok=2 changed=0 unreachable=0 failed=1' playbooks/site.yml --limit web_group,localhost

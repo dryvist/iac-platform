@@ -51,10 +51,25 @@ export SEMAPHORE_RAIL_STARTED="${SEMAPHORE_RAIL_STARTED:-$(date +%s)}"
 # exporter once; the marker stops the second entry from doing it again.
 if [ -z "${SEMAPHORE_RUN_ENV_LOADED:-}" ] && [ -n "${BAO_ADDR:-}" ]; then
   export SEMAPHORE_RUN_ENV_LOADED=1
-  exec openbao-exec-env.sh config/platform/ansible/env -- \
-    openbao-exec-env.sh secret/platform/ansible/env -- \
-    openbao-exec-env.sh secrets-external/platform/ansible/env -- \
-    bash "$0" "$@"
+  run_env_docs=(config/platform/ansible/env)
+  verify_approle_bounds=0
+  for arg in "$@"; do
+    if [[ "${arg##*/}" == verify-approle-ttls.yml ]]; then
+      verify_approle_bounds=1
+      break
+    fi
+  done
+  # This read-only check has no consumer for the host credentials in this
+  # document; let it test only the execution plane's own ambient AppRole.
+  if [ "$verify_approle_bounds" -eq 0 ]; then
+    run_env_docs+=(secret/platform/ansible/env)
+  fi
+  run_env_docs+=(secrets-external/platform/ansible/env)
+  run_command=(bash "$0" "$@")
+  for ((i=${#run_env_docs[@]} - 1; i >= 0; i--)); do
+    run_command=(openbao-exec-env.sh "${run_env_docs[i]}" -- "${run_command[@]}")
+  done
+  exec "${run_command[@]}"
 fi
 
 # Semaphore builds a shell task's arguments in this order: the script, the
