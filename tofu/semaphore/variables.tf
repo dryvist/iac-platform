@@ -87,7 +87,7 @@ variable "ansible_repositories" {
     ansible-proxmox-ai = {
       url = "https://github.com/dryvist/ansible-proxmox-ai.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-ai
-      branch           = "v2.4.3"
+      branch           = "v2.4.4"
       preview_branches = ["develop"]
     }
     # No develop branch upstream: this repository releases from main only, so
