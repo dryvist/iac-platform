@@ -191,6 +191,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 1800
       description      = "Status stack (Gatus + Uptime Kuma) converge only, via --tags status."
     }
 
