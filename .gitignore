@@ -16,7 +16,7 @@ terraform.rc
 # direnv
 .direnv/
 
-# Environment files — the ONLY committed env files are compose/.env
+# Environment files — the only committed env files are compose/.env.example
 # (non-secrets) and secrets/*.sops.env (encrypted). Everything else stays out.
 .env
 .env.*

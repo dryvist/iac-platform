@@ -66,9 +66,9 @@ Providers persist in the `executor_plugin_cache` volume (`TF_PLUGIN_CACHE_DIR`).
 
 ## Upgrades
 
-Image pins live in `compose/.env` (renovate-tracked). Bump → `deploy.sh` →
-`smoke-test.sh`. Terrakube api runs Liquibase migrations on start; take a
-manual `pg_dumpall` before major-version bumps.
+Renovate tracks pin defaults in `compose/.env.example`. `deploy.sh` loads
+it before site values and overrides in gitignored `compose/.env`. Smoke-test
+after bumps; take `pg_dumpall` before major-version bumps.
 
 ## Semaphore SSO
 

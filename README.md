@@ -55,8 +55,9 @@ recovery, backups, and rotation: [docs/runbook.md](docs/runbook.md).
 ## Contributing
 
 Conventional commits, GPG-signed. Runtime secrets live in OpenBao
-(`secret/platform/terrakube/main`), never in the repo. Image pins live in
-`compose/.env`.
+(`secret/platform/terrakube/main`), never in the repo. Image pin defaults live
+in committed `compose/.env.example`; gitignored `compose/.env` carries
+site-specific values and optional overrides.
 
 ## License
 

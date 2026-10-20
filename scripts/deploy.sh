@@ -49,20 +49,20 @@ if [ "${1:-}" = "--inner" ]; then
       exit 1 ;;
   esac
 
-  # Layer compose/.env in the same precedence order docker compose itself uses:
-  # the shell environment wins over --env-file. Without this the guards below
-  # read only the OpenBao-exported half of the config and reject a correct
-  # setup, because the non-secret identifiers (DEX_GITHUB_ORG/TEAM,
-  # DEX_AUTHELIA_CLIENT_ID) deliberately live in compose/.env — see
-  # compose/.env.example — and never in OpenBao. Guarding a value against a
-  # source it was never meant to come from is a guard that can only ever fail.
-  if [ -f "$REPO_ROOT/compose/.env" ]; then
-    # `|| [ -n "$k" ]` so a final line with no trailing newline is not dropped.
-    while IFS='=' read -r k v || [ -n "$k" ]; do
-      case "$k" in '' | \#*) continue ;; esac
-      [ -n "${!k:-}" ] || export "$k=$v"
-    done <"$REPO_ROOT/compose/.env"
-  fi
+  # Compose reads env files in order; inherited shell values take precedence.
+  # Check only the inherited names so compose/.env can override the example.
+  inherited_env="$(compgen -e)"
+  for env_file in "$REPO_ROOT/compose/.env.example" "$REPO_ROOT/compose/.env"; do
+    if [ -f "$env_file" ]; then
+      # `|| [ -n "$k" ]` so a final line with no trailing newline is not dropped.
+      while IFS='=' read -r k v || [ -n "$k" ]; do
+        case "$k" in '' | \#*) continue ;; esac
+        if ! grep -qxF -- "$k" <<<"$inherited_env"; then
+          export "$k=$v"
+        fi
+      done <"$env_file"
+    fi
+  done
 
   # DEX_GITHUB_ORG/TEAM are required because docker-compose composes
   # TERRAKUBE_ADMIN_GROUP from them. Unset, compose interpolates empty strings
@@ -74,7 +74,7 @@ if [ "${1:-}" = "--inner" ]; then
     [ -n "${!name:-}" ] || { echo "$name missing from OpenBao $BAO_PATH" >&2; exit 1; }
   done
   for name in DEX_GITHUB_ORG DEX_GITHUB_TEAM DEX_AUTHELIA_CLIENT_ID; do
-    [ -n "${!name:-}" ] || { echo "$name missing from $REPO_ROOT/compose/.env" >&2; exit 1; }
+    [ -n "${!name:-}" ] || { echo "$name missing from the compose env files under $REPO_ROOT/compose" >&2; exit 1; }
   done
   # Non-secret workspace selectors consumed by the OpenBao role defaults in
   # ansible-proxmox-apps. The API sync below is the runtime environment source.
@@ -120,6 +120,7 @@ if [ "${1:-}" = "--inner" ]; then
     compose=(docker --host "$host" compose
       --project-name iac-platform
       --project-directory "$REPO_ROOT/compose"
+      --env-file "$REPO_ROOT/compose/.env.example"
       --env-file "$REPO_ROOT/compose/.env")
     if ! "${compose[@]}" config --services | grep -qxF -- "$restart_service"; then
       echo "Unknown service '$restart_service'; compose services:" >&2
@@ -161,6 +162,7 @@ if [ "${1:-}" = "--inner" ]; then
   docker --host "$host" compose \
     --project-name iac-platform \
     --project-directory "$REPO_ROOT/compose" \
+    --env-file "$REPO_ROOT/compose/.env.example" \
     --env-file "$REPO_ROOT/compose/.env" \
     up -d --remove-orphans --build
 
