@@ -52,11 +52,25 @@ if [ "${1:-}" = "--inner" ]; then
   # Compose reads env files in order; inherited shell values take precedence.
   # Check only the inherited names so compose/.env can override the example.
   inherited_env="$(compgen -e)"
+  # compose/.env holds site values only. A pin there would shadow the
+  # Renovate-tracked one, and real-domain values come from OpenBao alone.
+  local_forbidden="$(awk '/^# renovate:/ { getline; sub(/=.*/, ""); print }' "$REPO_ROOT/compose/.env.example")
+DOMAIN
+TK_OUTPUT_ENDPOINT
+DEPLOY_HOST
+OPENBAO_OIDC_ISSUER
+SEMAPHORE_ADMIN_EMAIL"
   for env_file in "$REPO_ROOT/compose/.env.example" "$REPO_ROOT/compose/.env"; do
+    forbidden=""
+    [ "$env_file" = "$REPO_ROOT/compose/.env.example" ] || forbidden="$local_forbidden"
     if [ -f "$env_file" ]; then
       # `|| [ -n "$k" ]` so a final line with no trailing newline is not dropped.
       while IFS='=' read -r k v || [ -n "$k" ]; do
         case "$k" in '' | \#*) continue ;; esac
+        if grep -qxF -- "$k" <<<"$forbidden"; then
+          echo "$k must not be set in compose/.env: pins come from compose/.env.example, real-domain values from OpenBao" >&2
+          exit 1
+        fi
         if ! grep -qxF -- "$k" <<<"$inherited_env"; then
           export "$k=$v"
         fi
