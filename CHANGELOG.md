@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.4](https://github.com/dryvist/iac-platform/compare/v1.24.3...v1.24.4) (2026-10-20)
+
+
+### Bug Fixes
+
+* **deploy:** take image pins from the tracked env example ([#265](https://github.com/dryvist/iac-platform/issues/265)) ([05bafa1](https://github.com/dryvist/iac-platform/commit/05bafa1de5cfbdb288769e40c2132630713940f0))
+
 ## [1.24.3](https://github.com/dryvist/iac-platform/compare/v1.24.2...v1.24.3) (2026-10-20)
 
 
