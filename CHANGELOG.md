@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.3](https://github.com/dryvist/iac-platform/compare/v1.24.2...v1.24.3) (2026-10-20)
+
+
+### Bug Fixes
+
+* **deploy:** sync every Semaphore project environment ([#260](https://github.com/dryvist/iac-platform/issues/260)) ([3622ac4](https://github.com/dryvist/iac-platform/commit/3622ac43451a36656f7d2abdfc80613bdb58adc3))
+
 ## [1.24.2](https://github.com/dryvist/iac-platform/compare/v1.24.1...v1.24.2) (2026-10-20)
 
 
