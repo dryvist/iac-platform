@@ -141,15 +141,15 @@ locals {
         {
           name        = "guest_power_vmid"
           title       = "Guest VMID"
-          description = "Numeric VMID of the guest to act on."
-          required    = true
+          description = "Guest VMID. Guest actions only."
+          required    = false
           type        = "string"
         },
         {
           name        = "guest_power_type"
           title       = "Guest type"
-          description = "Guest kind: qemu or lxc."
-          required    = true
+          description = "qemu or lxc. Guest actions only."
+          required    = false
           type        = "enum"
           enum_values = {
             qemu = "qemu"
@@ -159,19 +159,27 @@ locals {
         {
           name        = "guest_power_action"
           title       = "Power action"
-          description = "Action to run; reset applies to qemu only."
+          description = "Action to run; reset is qemu only."
           required    = true
           type        = "enum"
-          enum_values = {
-            start    = "start"
-            stop     = "stop"
-            shutdown = "shutdown"
-            reboot   = "reboot"
-            reset    = "reset"
-          }
+          enum_values = { start = "start", stop = "stop", shutdown = "shutdown", reboot = "reboot", reset = "reset", startall = "startall", stopall = "stopall" }
+        },
+        {
+          name        = "guest_power_node"
+          title       = "Node"
+          description = "Proxmox inventory host. startall and stopall only."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "guest_power_vms"
+          title       = "VMIDs"
+          description = "Optional comma VMIDs. Blank means every guest on the node."
+          required    = false
+          type        = "string"
         },
       ]
-      description = "Power action (start, stop, shutdown, reboot, reset) on one guest by VMID, on the node that hosts it."
+      description = "Power action on one guest by VMID, or startall and stopall on one node."
     }
 
     proxmox-guest-recovery = {
