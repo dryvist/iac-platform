@@ -49,16 +49,6 @@
       "dependencyDashboardApproval": false,
       "automerge": true,
       "automergeType": "pr"
-    },
-    {
-      "description": "Hold ansible-proxmox-apps major auto-merge through the 2026-10-20T00:00Z research freeze; remove this rule after the freeze.",
-      "matchDepNames": [
-        "dryvist/ansible-proxmox-apps"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "automerge": false
     }
   ]
 }
