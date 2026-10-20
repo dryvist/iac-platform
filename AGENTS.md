@@ -38,8 +38,9 @@ here; all fleet roots use native OpenTofu through Terrakube.
   There is deliberately no CI plan/apply and no CI token.
 - **Secrets never in git plaintext**: deploy-time secrets live in OpenBao
   (`secret/platform/terrakube/main`), fetched at deploy by
-  `scripts/openbao-exec-env.sh`. `compose/.env` carries only non-secrets (pins,
-  ports, hostnames).
+  `scripts/openbao-exec-env.sh`. `compose/.env.example` carries committed
+  non-secret defaults, including image pins; the gitignored `compose/.env`
+  carries site-specific values and optional overrides.
 - **The compose layer stays imperative** (`scripts/deploy.sh`): it must be
   rebuildable from git + native OpenBao authentication + a vzdump restore even
   when Terrakube is down. Only `tofu/terrakube/` (workspaces-as-code) uses
@@ -60,10 +61,10 @@ here; all fleet roots use native OpenTofu through Terrakube.
   tofu-proxmox `constants.tf` — the ingress rows reference those
   constants, this repo's `compose/.env` carries the same numbers.
 - The Terrakube **executor is never published or fronted** — API-internal only.
-- Image pins bump in `compose/.env.example` (renovate-tracked, committed);
-  `compose/.env` is gitignored, so Renovate cannot see it — copy the bumped
-  pin into the live `compose/.env` at deploy time, then redeploy + smoke test.
-  Manual `pg_dumpall` before major bumps.
+- Image pins come from committed, Renovate-tracked `compose/.env.example`;
+  `deploy.sh` loads it before gitignored `compose/.env`, which carries
+  site-specific values and optional overrides. Redeploy + smoke test after
+  every bump. Manual `pg_dumpall` before major bumps.
 - Conventional commits; GPG-signed; never commit secrets — store references.
 - Onboarding a new consumer root = one `terrakube_workspace_cli` in
   `workspaces.tf`, an exact-claim OpenBao JWT role in the OpenBao-owning repo,
