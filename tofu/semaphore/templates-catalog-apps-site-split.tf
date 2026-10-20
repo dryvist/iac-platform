@@ -26,6 +26,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 2400
       description      = "LXC-side baseline converge (apt cache/proxy, Zot, syslog forwarder, RustFS, PBS, ssh_ca_trust/ntp/node_exporter/cadvisor on LXCs), via --tags baseline,apt_proxy,apt_cacher_ng,zot,syslog_forwarder,object-storage,pbs."
     }
 
@@ -38,6 +39,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 1800
       description      = "Guest node_exporter converge only (LXC + VM), via --tags node_exporter."
     }
 
@@ -80,7 +82,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      rail_sec         = 1800
+      rail_sec         = 3600
       description      = "Notifications and core apps converge (mailpit, ntfy, healthchecks, deadman, mssql, postgres, nautobot, n8n, openproject, ...), via --tags mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker."
     }
 
