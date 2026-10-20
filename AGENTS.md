@@ -59,7 +59,7 @@ here; all fleet roots use native OpenTofu through Terrakube.
 
 - Host ports 28080-28084 must stay in lockstep with `iac_platform_ports` in
   tofu-proxmox `constants.tf` — the ingress rows reference those
-  constants, this repo's `compose/.env` carries the same numbers.
+  constants, this repo's `compose/.env.example` carries the same numbers.
 - The Terrakube **executor is never published or fronted** — API-internal only.
 - Image pins come from committed, Renovate-tracked `compose/.env.example`;
   `deploy.sh` loads it before gitignored `compose/.env`, which carries
