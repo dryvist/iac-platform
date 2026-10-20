@@ -130,8 +130,7 @@ locals {
     }
 
     # One power action on one guest by VMID; the node is read from live
-    # placement by the playbook. startall and stopall act on one node instead,
-    # from guest_power_node. Entry is guest-power.yml, which needs no tag.
+    # placement by the playbook. Entry is guest-power.yml, which needs no tag.
     proxmox-guest-power = {
       repository       = "ansible-proxmox"
       playbook         = "playbooks/guest-power.yml"
@@ -142,14 +141,14 @@ locals {
         {
           name        = "guest_power_vmid"
           title       = "Guest VMID"
-          description = "Numeric VMID of the guest to act on. Guest actions only."
+          description = "Guest VMID. Guest actions only."
           required    = false
           type        = "string"
         },
         {
           name        = "guest_power_type"
           title       = "Guest type"
-          description = "Guest kind: qemu or lxc. Guest actions only."
+          description = "qemu or lxc. Guest actions only."
           required    = false
           type        = "enum"
           enum_values = {
@@ -160,35 +159,27 @@ locals {
         {
           name        = "guest_power_action"
           title       = "Power action"
-          description = "Action to run; reset applies to qemu only. startall and stopall act on guest_power_node."
+          description = "Action to run; reset is qemu only."
           required    = true
           type        = "enum"
-          enum_values = {
-            start    = "start"
-            stop     = "stop"
-            shutdown = "shutdown"
-            reboot   = "reboot"
-            reset    = "reset"
-            startall = "startall"
-            stopall  = "stopall"
-          }
+          enum_values = { start = "start", stop = "stop", shutdown = "shutdown", reboot = "reboot", reset = "reset", startall = "startall", stopall = "stopall" }
         },
         {
           name        = "guest_power_node"
           title       = "Node"
-          description = "Inventory host name from the proxmox group. startall and stopall only."
+          description = "Proxmox inventory host. startall and stopall only."
           required    = false
           type        = "string"
         },
         {
           name        = "guest_power_vms"
           title       = "VMIDs"
-          description = "Optional comma list of VMIDs to limit startall or stopall to. Blank acts on every guest on the node."
+          description = "Optional comma VMIDs. Blank means every guest on the node."
           required    = false
           type        = "string"
         },
       ]
-      description = "Power action on one guest by VMID (start, stop, shutdown, reboot, reset), or startall and stopall on one node."
+      description = "Power action on one guest by VMID, or startall and stopall on one node."
     }
 
     proxmox-guest-recovery = {
