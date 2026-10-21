@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.1](https://github.com/dryvist/iac-platform/compare/v1.26.0...v1.26.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* **semaphore:** give apps-collab a 3600-second rail ([#318](https://github.com/dryvist/iac-platform/issues/318)) ([44da32c](https://github.com/dryvist/iac-platform/commit/44da32ca308c93cbc657181df4ec8a9dd5d46302))
+
 ## [1.26.0](https://github.com/dryvist/iac-platform/compare/v1.25.2...v1.26.0) (2026-10-20)
 
 
