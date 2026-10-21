@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.3](https://github.com/dryvist/iac-platform/compare/v1.26.2...v1.26.3) (2026-10-21)
+
+
+### Bug Fixes
+
+* **semaphore:** give apps-media a 2400-second rail ([#327](https://github.com/dryvist/iac-platform/issues/327)) ([200d2ef](https://github.com/dryvist/iac-platform/commit/200d2ef25bb0694a40e88b24ac65c0a321612930))
+
 ## [1.26.2](https://github.com/dryvist/iac-platform/compare/v1.26.1...v1.26.2) (2026-10-21)
 
 
