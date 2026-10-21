@@ -69,6 +69,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 2400
       description      = "DNS and syslog/netflow pipeline converge (Technitium, HAProxy, netmon, exporters), via --tags technitium_install,technitium_dns,haproxy,netmon,smokeping,prometheus_pve_exporter,github_exporter,unifi_metrics."
     }
 
