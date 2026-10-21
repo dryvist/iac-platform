@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.2](https://github.com/dryvist/iac-platform/compare/v1.26.1...v1.26.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* **semaphore:** give apps-dns-pipeline a 2400-second rail ([#324](https://github.com/dryvist/iac-platform/issues/324)) ([303f7da](https://github.com/dryvist/iac-platform/commit/303f7daeebdae5258a734f1c2caaced13f3877c7))
+
 ## [1.26.1](https://github.com/dryvist/iac-platform/compare/v1.26.0...v1.26.1) (2026-10-21)
 
 
