@@ -141,6 +141,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 3600
       description      = "Remaining collaboration apps converge (immich, homeassistant, phpipam, homarr, homepage, glance, status, traefik), via --tags immich,homeassistant,phpipam,homarr,homepage,glance,status,traefik."
     }
 
