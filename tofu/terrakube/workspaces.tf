@@ -234,17 +234,6 @@ resource "terrakube_workspace_variable" "openbao_auth_path" {
   hcl             = false
 }
 
-resource "terrakube_workspace_variable" "plan_artifacts" {
-  organization_id = terrakube_organization.org.id
-  workspace_id    = terrakube_workspace_cli.tofu_runs_on.id
-  key             = "TERRAKUBE_PLAN_ARTIFACTS"
-  value           = ".terraform/*.zip"
-  description     = "Plan-built files to restore before apply"
-  category        = "ENV"
-  sensitive       = false
-  hcl             = false
-}
-
 # The semaphore workspace's root module takes openbao_address as a TERRAFORM
 # variable and derives every endpoint from it. Terrakube does not forward a CLI
 # -var or a local TF_VAR_* to a remote run, so the value must exist on the
