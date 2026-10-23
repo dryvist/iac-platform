@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.0](https://github.com/dryvist/iac-platform/compare/v1.26.3...v1.27.0) (2026-10-23)
+
+
+### Features
+
+* **terrakube:** preserve plan-built artifacts for apply ([#339](https://github.com/dryvist/iac-platform/issues/339)) ([046e772](https://github.com/dryvist/iac-platform/commit/046e772ff423af6a3dbd1d18ca1b2464212f5405))
+
 ## [1.26.3](https://github.com/dryvist/iac-platform/compare/v1.26.2...v1.26.3) (2026-10-21)
 
 
