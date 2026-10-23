@@ -20,6 +20,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
+      rail_sec         = 3600
       description      = "Full application-layer converge."
     }
 
