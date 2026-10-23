@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.2](https://github.com/dryvist/iac-platform/compare/v1.27.1...v1.27.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* remove RunsOn plan artifact variable ([#346](https://github.com/dryvist/iac-platform/issues/346)) ([870d5c1](https://github.com/dryvist/iac-platform/commit/870d5c1a8bf6d9c7593dcf7be71104e22dc2474d))
+
 ## [1.27.1](https://github.com/dryvist/iac-platform/compare/v1.27.0...v1.27.1) (2026-10-23)
 
 
