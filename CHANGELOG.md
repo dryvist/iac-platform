@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.3](https://github.com/dryvist/iac-platform/compare/v1.27.2...v1.27.3) (2026-10-23)
+
+
+### Bug Fixes
+
+* pin apps repository to main ([#349](https://github.com/dryvist/iac-platform/issues/349)) ([a9655ab](https://github.com/dryvist/iac-platform/commit/a9655ab906d90ca01b01fa8ac9fa652060f983d3))
+
 ## [1.27.2](https://github.com/dryvist/iac-platform/compare/v1.27.1...v1.27.2) (2026-10-23)
 
 
