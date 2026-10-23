@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.5](https://github.com/dryvist/iac-platform/compare/v1.27.4...v1.27.5) (2026-10-23)
+
+
+### Bug Fixes
+
+* publish the repository clone URL to Semaphore runs ([#353](https://github.com/dryvist/iac-platform/issues/353)) ([c22ddcc](https://github.com/dryvist/iac-platform/commit/c22ddcc1d171cb15be6c890d054e03c659ed5a5a))
+
 ## [1.27.4](https://github.com/dryvist/iac-platform/compare/v1.27.3...v1.27.4) (2026-10-23)
 
 
