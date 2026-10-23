@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.1](https://github.com/dryvist/iac-platform/compare/v1.27.0...v1.27.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* **compose:** allow the Terrakube API to dispatch to the private executor ([#343](https://github.com/dryvist/iac-platform/issues/343)) ([782ff04](https://github.com/dryvist/iac-platform/commit/782ff04cc4047d9d2e6ebbe8439c06b2919ea7d0))
+
 ## [1.27.0](https://github.com/dryvist/iac-platform/compare/v1.26.3...v1.27.0) (2026-10-23)
 
 
