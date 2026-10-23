@@ -68,6 +68,10 @@ x-api: &api_env
   AuthenticationValidationType: DEX
   TerrakubeHostname: terrakube-api.${DOMAIN}
   AzBuilderExecutorUrl: http://terrakube-executor:8090/api/v1/terraform-rs
+  # The executor is reached on the compose network's private address; the agent
+  # URL guard (2.34.0+) blocks private destinations unless this is false.
+  # Link-local and metadata addresses stay blocked either way.
+  IO_TERRAKUBE_AGENT_SSRF_BLOCKPRIVATENETWORKS: "false"
   PatSecret: ${PAT_SECRET}
   InternalSecret: ${INTERNAL_SECRET}
   DexIssuerUri: https://terrakube-dex.${DOMAIN}/dex
