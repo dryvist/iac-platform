@@ -49,6 +49,25 @@
       "dependencyDashboardApproval": false,
       "automerge": true,
       "automergeType": "pr"
+    },
+    {
+      "description": "Update Terrakube API and executor images from stable releases after a three-day release age.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "azbuilder/api-server",
+        "azbuilder/executor"
+      ],
+      "allowedVersions": "/^[0-9]+\\.[0-9]+\\.[0-9]+$/",
+      "schedule": [
+        "at any time"
+      ],
+      "groupName": "Terrakube API and executor",
+      "minimumReleaseAge": "3 days",
+      "dependencyDashboardApproval": false,
+      "automerge": true,
+      "automergeType": "pr"
     }
   ]
 }
