@@ -10,13 +10,14 @@ shows the commit it landed on but not the branch it came from. Nothing in the
 product tags a template, and a template that silently overrode its repository's
 branch would be worse — so the ref is made visible three times instead:
 
-- **Repository name** — `ansible-proxmox-apps (<release tag>)`,
-  `ansible-proxmox-apps (develop)`, plus `ansible-secrets-management
+- **Repository name** — `ansible-proxmox-apps (main)` for the deployed ref,
+  `ansible-proxmox-apps (develop)` for previews, plus `ansible-secrets-management
   (<release tag>)` for scheduled OpenBao rotation and `ansible-secrets-management
   (develop)` for the manual host secret-zero seed. One entry per ref; deployed
-  refs are release tags that Renovate updates from upstream without release-age
-  or weekend delays, then auto-merges after checks pass. Temporary exceptions
-  are recorded beside the rules in `renovate.json`.
+  apps runs use `main`, which advances only when a release is promoted. Other
+  deployed refs are release tags that Renovate updates from upstream without
+  release-age or weekend delays, then auto-merges after checks pass. Temporary
+  exceptions are recorded beside the rules in `renovate.json`.
 - **Template name** — the deployed ref keeps the bare name (`apps-site`); a
   preview ref is suffixed (`apps-site @ develop`).
 - **View** — the tabs across the top of the template list. `Deployed` is
