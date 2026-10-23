@@ -21,7 +21,8 @@ direnv allow   # uses the committed .envrc → nix flake dev shell
 
 ```bash
 # Authenticate with a native OpenBao human/workload method first, then:
-# Set OPENBAO_TERRAKUBE_NETWORK_WORKSPACE and OPENBAO_TERRAKUBE_AWS_WORKSPACE to declared workspace names, and MEDIA_STACK_REPO_URL to the repository clone URL first.
+# Set OPENBAO_TERRAKUBE_NETWORK_WORKSPACE and OPENBAO_TERRAKUBE_AWS_WORKSPACE to declared workspace names first.
+# Set MEDIA_STACK_REPO_URL to the media-stack repository clone URL first.
 ./scripts/deploy.sh
 # Force-recreate one service only (e.g. a hung executor); name must be a compose service:
 ./scripts/deploy.sh --restart terrakube-executor
