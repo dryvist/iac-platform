@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.4](https://github.com/dryvist/iac-platform/compare/v1.27.3...v1.27.4) (2026-10-23)
+
+
+### Bug Fixes
+
+* set apps-site task rail ([#351](https://github.com/dryvist/iac-platform/issues/351)) ([667a15b](https://github.com/dryvist/iac-platform/commit/667a15bf798e41db229beda98072104842245216))
+
 ## [1.27.3](https://github.com/dryvist/iac-platform/compare/v1.27.2...v1.27.3) (2026-10-23)
 
 
