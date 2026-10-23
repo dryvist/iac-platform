@@ -110,6 +110,7 @@ prereqs=(
   DEX_GITHUB_ORG=org DEX_GITHUB_TEAM=team DEX_AUTHELIA_CLIENT_ID=client
   SEMAPHORE_OIDC_CLIENT_SECRET=sem DEX_AUTHELIA_CLIENT_SECRET=dex
   OPENBAO_TERRAKUBE_NETWORK_WORKSPACE=net OPENBAO_TERRAKUBE_AWS_WORKSPACE=aws
+  MEDIA_STACK_REPO_URL=https://example.invalid/media-stack.git
 )
 
 # The plane's own pair is the only thing a run cannot fetch for itself, so a

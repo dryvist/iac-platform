@@ -94,6 +94,7 @@ SEMAPHORE_ADMIN_EMAIL"
   # ansible-proxmox-apps. The API sync below is the runtime environment source.
   : "${OPENBAO_TERRAKUBE_NETWORK_WORKSPACE:?OPENBAO_TERRAKUBE_NETWORK_WORKSPACE must be set in the deploy environment}"
   : "${OPENBAO_TERRAKUBE_AWS_WORKSPACE:?OPENBAO_TERRAKUBE_AWS_WORKSPACE must be set in the deploy environment}"
+  : "${MEDIA_STACK_REPO_URL:?MEDIA_STACK_REPO_URL must be set in the deploy environment}"
 
   # The Authelia path stores these under the Ansible role's own per-client
   # variable names (roles/authelia in ansible-proxmox-apps declares them in
@@ -262,6 +263,7 @@ SEMAPHORE_ADMIN_EMAIL"
         --arg sem_secret "$OPENBAO_APPROLE_SEMAPHORE_SECRET_ID" \
         --arg network_workspace "$OPENBAO_TERRAKUBE_NETWORK_WORKSPACE" \
         --arg aws_workspace "$OPENBAO_TERRAKUBE_AWS_WORKSPACE" \
+        --arg media_stack_repo_url "$MEDIA_STACK_REPO_URL" \
         --arg issues_channel "C0B42KTRF6G" \
         '{
           id: $id,
@@ -273,6 +275,7 @@ SEMAPHORE_ADMIN_EMAIL"
             OPENBAO_APPROLE_SEMAPHORE_SECRET_ID: $sem_secret,
             OPENBAO_TERRAKUBE_NETWORK_WORKSPACE: $network_workspace,
             OPENBAO_TERRAKUBE_AWS_WORKSPACE: $aws_workspace,
+            MEDIA_STACK_REPO_URL: $media_stack_repo_url,
             SLACK_HERMES_ISSUES_CHANNEL: $issues_channel
           } | tojson),
           json: "{}"

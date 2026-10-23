@@ -65,6 +65,7 @@ via the Proxmox API for the one clone).
 
 ```bash
 # Set OPENBAO_TERRAKUBE_NETWORK_WORKSPACE and OPENBAO_TERRAKUBE_AWS_WORKSPACE to declared workspace names first.
+# Set MEDIA_STACK_REPO_URL to the media-stack repository clone URL first.
 ./scripts/deploy.sh   # compose up (by FQDN)
 ./scripts/openbao-exec-env.sh secret/platform/terrakube/main -- \
   ./scripts/smoke-test.sh                 # health + S3 roundtrip
