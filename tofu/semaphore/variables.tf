@@ -41,9 +41,9 @@ variable "ansible_repositories" {
 
     `url` is the public clone URL. `branch` is the DEPLOYED ref — the one the
     unsuffixed template runs and the only one anything scheduled may touch. It
-    names a release tag (SemaphoreUI's branch field accepts a tag), so a
-    deployed run executes a published release; the annotation above each value
-    lets Renovate propose the next tag.
+    may name a branch or a release tag. The apps repository uses `main`, which
+    advances only when a release is promoted; other tag-pinned values use the
+    Renovate annotation above them to propose the next tag.
     `preview_branches` names further refs the same repository may be run from
     on demand; each gets its own repository entry, its own templates and its
     own tab in the UI, so which ref a run used is never inferred.
@@ -73,9 +73,8 @@ variable "ansible_repositories" {
       preview_branches = ["develop"]
     }
     ansible-proxmox-apps = {
-      url = "https://github.com/dryvist/ansible-proxmox-apps.git"
-      # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-apps
-      branch           = "v5.8.1"
+      url              = "https://github.com/dryvist/ansible-proxmox-apps.git"
+      branch           = "main"
       preview_branches = ["develop"]
     }
     ansible-secrets-management = {
