@@ -26,7 +26,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      rail_sec         = 2400
+      rail_sec         = 3600
       description      = "LXC-side baseline converge (apt cache/proxy, Zot, syslog forwarder, RustFS, PBS, ssh_ca_trust/ntp/node_exporter/cadvisor on LXCs), via --tags baseline,apt_proxy,apt_cacher_ng,zot,syslog_forwarder,object-storage,pbs."
     }
 
