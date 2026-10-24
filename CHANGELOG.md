@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.7](https://github.com/dryvist/iac-platform/compare/v1.27.6...v1.27.7) (2026-10-24)
+
+
+### Bug Fixes
+
+* **deps:** pin ansible-splunk to v0.102.1 ([#359](https://github.com/dryvist/iac-platform/issues/359)) ([0b8a679](https://github.com/dryvist/iac-platform/commit/0b8a679522a937b5ab31c61d0b875d4dd6bbe4ae))
+
 ## [1.27.6](https://github.com/dryvist/iac-platform/compare/v1.27.5...v1.27.6) (2026-10-24)
 
 
