@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.6](https://github.com/dryvist/iac-platform/compare/v1.27.5...v1.27.6) (2026-10-24)
+
+
+### Bug Fixes
+
+* give the LXC baseline template a 3600 s rail ([#355](https://github.com/dryvist/iac-platform/issues/355)) ([a03c596](https://github.com/dryvist/iac-platform/commit/a03c5960916eddef05d11bcf352b41aa7ffce858))
+
 ## [1.27.5](https://github.com/dryvist/iac-platform/compare/v1.27.4...v1.27.5) (2026-10-23)
 
 
