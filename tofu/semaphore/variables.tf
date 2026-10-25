@@ -94,7 +94,7 @@ variable "ansible_repositories" {
     ansible-splunk = {
       url = "https://github.com/dryvist/ansible-splunk.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-splunk
-      branch = "v0.103.1"
+      branch = "v0.103.2"
     }
   }
 
