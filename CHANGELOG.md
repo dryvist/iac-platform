@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.0](https://github.com/dryvist/iac-platform/compare/v1.27.8...v1.28.0) (2026-10-25)
+
+
+### Features
+
+* **semaphore:** add the read-only hardware-facts template ([#365](https://github.com/dryvist/iac-platform/issues/365)) ([7592669](https://github.com/dryvist/iac-platform/commit/7592669d0fac02fcbbaa1ef96c8e9b938f96ea4d))
+
 ## [1.27.8](https://github.com/dryvist/iac-platform/compare/v1.27.7...v1.27.8) (2026-10-24)
 
 
