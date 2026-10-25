@@ -25,13 +25,13 @@ run "nautobot_backup_template_contract" {
 
   assert {
     condition = can(regex(
-      "extra_args\\s*=\\s*\\[\\\"--skip-tags\\\",\\s*\\\"nautobot_server,nautobot_jobs\\\"\\]",
+      "extra_args\\s*=\\s*\\[\\\"--skip-tags\\\",\\s*\\\"nautobot_server,nautobot_jobs\\\",\\s*\\\"-e\\\",\\s*\\\"nautobot_server_via_collection=true\\\"\\]",
       regex(
         "apps-nautobot-backup = \\{([^{}]*)\\}",
         file("${path.module}/../../../templates-catalog-apps-nautobot.tf")
       )[0]
     ))
-    error_message = "apps-nautobot-backup must skip the nautobot_server and nautobot_jobs parts of the role."
+    error_message = "apps-nautobot-backup must skip the nautobot_server and nautobot_jobs parts of the role and set nautobot_server_via_collection, which the role requires before it accepts either skip tag."
   }
 
   assert {

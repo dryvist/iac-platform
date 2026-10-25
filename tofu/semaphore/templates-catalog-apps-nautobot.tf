@@ -6,7 +6,10 @@
 # task arguments only add to a template's own, so this entry carries its
 # narrowing itself: the stored --tags keeps the play selected and the skip tags
 # leave only the role's untagged guards and the nautobot_backup part (the role
-# README and tasks/main.yml describe the split).
+# README and tasks/main.yml describe the split). The role refuses either skip tag
+# while nautobot_server_via_collection is false, its default until the cutover, so
+# the entry sets the flag. With both parts skipped the flag changes no task: it
+# only satisfies that guard.
 locals {
   ansible_templates_apps_nautobot = {
     apps-nautobot-backup = {
@@ -16,8 +19,8 @@ locals {
       tags             = "nautobot"
       mutating         = true
       schedule_enabled = false
-      extra_args       = ["--skip-tags", "nautobot_server,nautobot_jobs"]
-      description      = "Nautobot nightly database backup units only (restic to Backblaze B2), via --tags nautobot --skip-tags nautobot_server,nautobot_jobs."
+      extra_args       = ["--skip-tags", "nautobot_server,nautobot_jobs", "-e", "nautobot_server_via_collection=true"]
+      description      = "Nautobot nightly database backup units only (restic to Backblaze B2), via --tags nautobot --skip-tags nautobot_server,nautobot_jobs -e nautobot_server_via_collection=true."
     }
   }
 }
