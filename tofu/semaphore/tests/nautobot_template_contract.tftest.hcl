@@ -191,6 +191,77 @@ run "nautobot_drift_collection_contract" {
   }
 }
 
+run "homebox_feed_contract" {
+  command = plan
+
+  module {
+    source = "./tests/fixtures/noop"
+  }
+
+  assert {
+    condition = can(regex(
+      "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"playbooks/homebox-feed\\.yml\\\"",
+      regex(
+        "resource \\\"semaphoreui_project_template\\\" \\\"homebox_feed\\\" \\{([^}]*)\\}",
+        file("${path.module}/../../../templates-nautobot.tf")
+      )[0]
+    ))
+    error_message = "homebox_feed must pass playbooks/homebox-feed.yml to the runner."
+  }
+
+  assert {
+    condition = can(regex(
+      "arguments\\s*=\\s*\\[[\\s\\S]*?\\\"--limit\\\"\\s*,\\s*\\\"localhost\\\"",
+      regex(
+        "resource \\\"semaphoreui_project_template\\\" \\\"homebox_feed\\\" \\{([^}]*)\\}",
+        file("${path.module}/../../../templates-nautobot.tf")
+      )[0]
+    ))
+    error_message = "homebox_feed must set --limit to exactly localhost."
+  }
+
+  assert {
+    condition = can(regex(
+      "allow_override_args_in_task\\s*=\\s*false",
+      regex(
+        "resource \\\"semaphoreui_project_template\\\" \\\"homebox_feed\\\" \\{([^}]*)\\}",
+        file("${path.module}/../../../templates-nautobot.tf")
+      )[0]
+    ))
+    error_message = "homebox_feed must disallow task argument overrides."
+  }
+
+  assert {
+    condition = can(regex(
+      "view_id\\s*=\\s*semaphoreui_project_view[.]each\\[\\\"apps/deployed\\\"\\][.]id",
+      regex(
+        "resource \\\"semaphoreui_project_template\\\" \\\"homebox_feed\\\" \\{([^}]*)\\}",
+        file("${path.module}/../../../templates-nautobot.tf")
+      )[0]
+    ))
+    error_message = "homebox_feed must use the deployed-ref view."
+  }
+
+  assert {
+    condition = length(flatten([
+      for f in fileset("${path.module}/../../..", "*.tf") :
+      regexall("semaphoreui_project_template[.]homebox_feed", file("${path.module}/../../../${f}"))
+      ])) == 0 && length(regexall(
+      "homebox-feed|homebox_feed",
+      file("${path.module}/../../../schedules.tf")
+    )) == 0
+    error_message = "homebox_feed must not be referenced by any schedule."
+  }
+
+  assert {
+    condition = can(regex(
+      "name\\s*=\\s*\\\"homebox_feed_apply\\\"[\\s\\S]*?required\\s*=\\s*false[\\s\\S]*?type\\s*=\\s*\\\"enum\\\"",
+      file("${path.module}/../../../templates-nautobot.tf")
+    ))
+    error_message = "homebox_feed must offer the apply switch as an optional enum, so an unset run stays render-only."
+  }
+}
+
 run "nautobot_limit_contract_rejects_other_values" {
   command = plan
 
