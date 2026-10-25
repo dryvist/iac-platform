@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.2](https://github.com/dryvist/iac-platform/compare/v1.31.1...v1.31.2) (2026-10-25)
+
+
+### Bug Fixes
+
+* **semaphore:** set the server-layer flag on the Nautobot backup entry ([#376](https://github.com/dryvist/iac-platform/issues/376)) ([3d85093](https://github.com/dryvist/iac-platform/commit/3d850938da9cd4c328372cac47b21b1df757fe62))
+
 ## [1.31.1](https://github.com/dryvist/iac-platform/compare/v1.31.0...v1.31.1) (2026-10-25)
 
 
