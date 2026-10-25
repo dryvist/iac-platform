@@ -67,16 +67,37 @@ resource "semaphoreui_project_template" "nautobot_drift_collection" {
 
 # Nautobot -> Homebox feed. The playbook's default is a render-only run that logs
 # the feed size and calls nothing in Homebox. The survey value `true` makes it
-# read the Homebox API key and post the import. Manual only: no schedule reaches it.
+# read the Homebox API key and post the import. Manual only: no schedule reaches
+# it. The develop twin lets a change be run before the next release moves the
+# deployed ref.
+locals {
+  homebox_feed_refs = {
+    deployed = {
+      repository  = "apps/ansible-proxmox-apps"
+      view        = "apps/deployed"
+      name        = "homebox-feed"
+      description = "Feeds Homebox from Nautobot. Renders only, unless the apply survey value is true."
+    }
+    develop = {
+      repository  = "apps/ansible-proxmox-apps@develop"
+      view        = "apps/develop"
+      name        = "homebox-feed @ develop"
+      description = "Feeds Homebox from Nautobot. Renders only, unless the apply survey value is true. Runs the develop ref, on demand only."
+    }
+  }
+}
+
 resource "semaphoreui_project_template" "homebox_feed" {
+  for_each = local.homebox_feed_refs
+
   project_id     = semaphoreui_project.each["apps"].id
-  repository_id  = semaphoreui_project_repository.ansible["apps/ansible-proxmox-apps"].id
+  repository_id  = semaphoreui_project_repository.ansible[each.value.repository].id
   inventory_id   = semaphoreui_project_inventory.homelab_nautobot.id
   environment_id = semaphoreui_project_environment.homelab["apps"].id
-  view_id        = semaphoreui_project_view.each["apps/deployed"].id
+  view_id        = semaphoreui_project_view.each[each.value.view].id
 
-  name        = "homebox-feed"
-  description = "Feeds Homebox from Nautobot. Renders only, unless the apply survey value is true."
+  name        = each.value.name
+  description = each.value.description
 
   app      = "bash"
   playbook = "semaphore-run-ansible.sh"
