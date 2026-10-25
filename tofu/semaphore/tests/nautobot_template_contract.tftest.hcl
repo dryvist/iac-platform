@@ -233,13 +233,24 @@ run "homebox_feed_contract" {
 
   assert {
     condition = can(regex(
-      "view_id\\s*=\\s*semaphoreui_project_view[.]each\\[\\\"apps/deployed\\\"\\][.]id",
+      "view_id\\s*=\\s*semaphoreui_project_view[.]each\\[each[.]value[.]view\\][.]id",
       regex(
         "resource \\\"semaphoreui_project_template\\\" \\\"homebox_feed\\\" \\{([^}]*)\\}",
         file("${path.module}/../../../templates-nautobot.tf")
       )[0]
     ))
-    error_message = "homebox_feed must use the deployed-ref view."
+    error_message = "homebox_feed must take its view from the ref map."
+  }
+
+  assert {
+    condition = can(regex(
+      "deployed\\s*=\\s*\\{[^}]*?repository\\s*=\\s*\\\"apps/ansible-proxmox-apps\\\"[^}]*?view\\s*=\\s*\\\"apps/deployed\\\"",
+      file("${path.module}/../../../templates-nautobot.tf")
+      )) && can(regex(
+      "develop\\s*=\\s*\\{[^}]*?repository\\s*=\\s*\\\"apps/ansible-proxmox-apps@develop\\\"[^}]*?view\\s*=\\s*\\\"apps/develop\\\"",
+      file("${path.module}/../../../templates-nautobot.tf")
+    ))
+    error_message = "homebox_feed must run the deployed ref from the deployed view and its twin from the develop ref and view."
   }
 
   assert {
