@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.0](https://github.com/dryvist/iac-platform/compare/v1.28.0...v1.29.0) (2026-10-25)
+
+
+### Features
+
+* **semaphore:** add the Homebox feed template ([#367](https://github.com/dryvist/iac-platform/issues/367)) ([4e41b17](https://github.com/dryvist/iac-platform/commit/4e41b17b9356298bb525bbacbd2db069bb3998dd))
+
 ## [1.28.0](https://github.com/dryvist/iac-platform/compare/v1.27.8...v1.28.0) (2026-10-25)
 
 
