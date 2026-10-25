@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.31.0](https://github.com/dryvist/iac-platform/compare/v1.30.0...v1.31.0) (2026-10-25)
+
+
+### Features
+
+* **semaphore:** add a template for the Nautobot backup units ([#371](https://github.com/dryvist/iac-platform/issues/371)) ([6cd6936](https://github.com/dryvist/iac-platform/commit/6cd6936c7585f28a766096ee2e943da63ab59c4a))
+
+
+### Bug Fixes
+
+* deploy ansible-splunk v0.103.2 ([#372](https://github.com/dryvist/iac-platform/issues/372)) ([3c46abd](https://github.com/dryvist/iac-platform/commit/3c46abd867da0cd7d9005c518802517a87ec2bf5))
+
 ## [1.30.0](https://github.com/dryvist/iac-platform/compare/v1.29.0...v1.30.0) (2026-10-25)
 
 
