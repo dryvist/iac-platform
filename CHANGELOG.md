@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.1](https://github.com/dryvist/iac-platform/compare/v1.31.0...v1.31.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **semaphore:** run ansible-secrets-management templates at v0.44.1 ([#374](https://github.com/dryvist/iac-platform/issues/374)) ([845bb5f](https://github.com/dryvist/iac-platform/commit/845bb5f7c7e4f9f306b68b32e76b8a3566eeecca))
+
 ## [1.31.0](https://github.com/dryvist/iac-platform/compare/v1.30.0...v1.31.0) (2026-10-25)
 
 
