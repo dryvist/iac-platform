@@ -18,7 +18,7 @@ run "proxmox_hardware_facts_template_contract" {
       ] :
       can(regex(p, regex(
         "hardware-facts\\s*=\\s*\\{([\\s\\S]*?)\\n    \\}",
-        file("${path.module}/../../../templates-catalog-proxmox.tf")
+        file("${path.module}/../../../templates-catalog-proxmox-facts.tf")
       )[0]))
     ])
     error_message = "The hardware-facts template must use the facts playbook, stay read-only and remain unscheduled."
@@ -31,7 +31,7 @@ run "proxmox_hardware_facts_template_contract" {
         "name\\s*=\\s*\"${v}\"\\s+title\\s*=\\s*\"[^\"]*\"\\s+description\\s*=\\s*\"[^\"]*\"\\s+required\\s*=\\s*true",
         regex(
           "hardware-facts\\s*=\\s*\\{([\\s\\S]*?)\\n    \\}",
-          file("${path.module}/../../../templates-catalog-proxmox.tf")
+          file("${path.module}/../../../templates-catalog-proxmox-facts.tf")
         )[0]
       ))
     ])
@@ -43,7 +43,7 @@ run "proxmox_hardware_facts_template_contract" {
       "name\\s*=\\s*\"hardware_facts_output\"[\\s\\S]*?enum_values\\s*=\\s*\\{[^}]*?report\\s*=\\s*\"report\"[^}]*?artifact\\s*=\\s*\"artifact\"",
       regex(
         "hardware-facts\\s*=\\s*\\{([\\s\\S]*?)\\n    \\}",
-        file("${path.module}/../../../templates-catalog-proxmox.tf")
+        file("${path.module}/../../../templates-catalog-proxmox-facts.tf")
       )[0]
     ))
     error_message = "The hardware-facts template must offer exactly the report and artifact outputs."

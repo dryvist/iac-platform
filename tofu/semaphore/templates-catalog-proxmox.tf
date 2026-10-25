@@ -68,43 +68,6 @@ locals {
       description      = "Offline fixtures that prove the pre-flight gate rejects over-committed memory, a wrong or missing storage pool and an unsafe HA recovery node."
     }
 
-    hardware-facts = {
-      repository       = "ansible-proxmox"
-      playbook         = "playbooks/hardware-facts.yml"
-      limit            = "all"
-      mutating         = false
-      schedule_enabled = false
-      extra_args       = []
-      survey_vars = [
-        {
-          name        = "hardware_facts_hosts"
-          title       = "Hosts"
-          description = "Inventory host name or group to read."
-          required    = true
-          type        = "string"
-        },
-        {
-          name        = "hardware_facts_categories"
-          title       = "Categories"
-          description = "Comma-separated: board, cpu, memory, pci, disks, gpus, psu, pools. Empty reads all."
-          required    = false
-          type        = "string"
-        },
-        {
-          name        = "hardware_facts_output"
-          title       = "Output"
-          description = "report prints to the task log; artifact also writes one JSON file on the controller."
-          required    = true
-          type        = "enum"
-          enum_values = {
-            report   = "report"
-            artifact = "artifact"
-          }
-        },
-      ]
-      description = "Read-only board, CPU, memory, PCI, GPU, drive, power-supply and pool facts for any inventory host or group."
-    }
-
     proxmox-access-verification = {
       repository       = "ansible-proxmox"
       playbook         = "tests/access_verification/verify.yml"
