@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.30.0](https://github.com/dryvist/iac-platform/compare/v1.29.0...v1.30.0) (2026-10-25)
+
+
+### Features
+
+* **semaphore:** run the Homebox feed from the develop ref too ([#369](https://github.com/dryvist/iac-platform/issues/369)) ([04b315b](https://github.com/dryvist/iac-platform/commit/04b315bc9ff8154644d49cb0648905954273e4fe))
+
 ## [1.29.0](https://github.com/dryvist/iac-platform/compare/v1.28.0...v1.29.0) (2026-10-25)
 
 
