@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.5](https://github.com/dryvist/iac-platform/compare/v1.31.4...v1.31.5) (2026-10-27)
+
+
+### Bug Fixes
+
+* **terrakube:** limit per-org bypass apps to apps installed in each org ([#384](https://github.com/dryvist/iac-platform/issues/384)) ([2a5b28a](https://github.com/dryvist/iac-platform/commit/2a5b28a3dfb9ba0c6159d7eda8d81419e3ead906))
+
 ## [1.31.4](https://github.com/dryvist/iac-platform/compare/v1.31.3...v1.31.4) (2026-10-27)
 
 
