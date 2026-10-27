@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.32.0](https://github.com/dryvist/iac-platform/compare/v1.31.5...v1.32.0) (2026-10-27)
+
+
+### Features
+
+* **semaphore:** run weekly upgrades Saturday 06:40-06:50 UTC ([#386](https://github.com/dryvist/iac-platform/issues/386)) ([edc2b59](https://github.com/dryvist/iac-platform/commit/edc2b59a3dd1ef0d651f0bb7b3cbadd5395a4841))
+
 ## [1.31.5](https://github.com/dryvist/iac-platform/compare/v1.31.4...v1.31.5) (2026-10-27)
 
 
