@@ -31,10 +31,18 @@ run "monthly_upgrade_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "apps-upgrade\\s*=\\s*\"30 14 \\* \\* 6\"[\\s\\S]*?proxmox-upgrade\\s*=\\s*\"0 14 \\* \\* 6\"",
+      "apps-upgrade\\s*=\\s*\"45 6 \\* \\* 6\"[\\s\\S]*?proxmox-upgrade\\s*=\\s*\"50 6 \\* \\* 6\"",
       file("${path.module}/../../../schedules.tf")
     ))
-    error_message = "The Proxmox and Debian guest upgrades must be scheduled on Saturday at their specified times."
+    error_message = "The Proxmox and Debian guest upgrades must be scheduled Saturday at 06:45 and 06:50 UTC."
+  }
+
+  assert {
+    condition = can(regex(
+      "splunk-weekly-update\\s*=\\s*\"40 6 \\* \\* 6\"",
+      file("${path.module}/../../../schedules.tf")
+    ))
+    error_message = "The weekly Splunk update must be scheduled Saturday at 06:40 UTC."
   }
 
   assert {

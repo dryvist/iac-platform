@@ -1,4 +1,7 @@
 locals {
+  # Semaphore v2.19.16 (pinned in compose/.env.example) defaults its schedule
+  # timezone to UTC. Neither compose/docker-compose.yml nor .env.example
+  # overrides SEMAPHORE_SCHEDULE_TIMEZONE, so these cron values are UTC.
   scheduled_mutating_templates = [
     "splunk-weekly-update",
     "apps-agent-sandbox-credentials",
@@ -13,10 +16,10 @@ locals {
   schedule_crons = {
     apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"
-    apps-upgrade                   = "30 14 * * 6"
-    proxmox-upgrade                = "0 14 * * 6"
+    apps-upgrade                   = "45 6 * * 6"
+    proxmox-upgrade                = "50 6 * * 6"
     splunk-validate                = "37 6 * * *"
-    splunk-weekly-update           = "17 13 * * 6"
+    splunk-weekly-update           = "40 6 * * 6"
   }
 }
 
