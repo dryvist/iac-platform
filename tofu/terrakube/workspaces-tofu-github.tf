@@ -39,13 +39,23 @@ locals {
   tofu_github_org_overrides = {
     org_automerge_manual_enforcement = "evaluate"
     dryvist_org_extras               = "false"
+    automation_bypass_app_ids        = "[2956476, 3923580, 4282473]"
+  }
+
+  # GitHub rejects a bypass actor whose app is not installed in the org.
+  tofu_github_org_bypass_app_ids = {
+    JacobPEvans = "[2956476, 3923580, 4241562, 4282473]"
   }
 
   tofu_github_org_inputs = {
     for pair in setproduct(local.tofu_github_orgs, keys(local.tofu_github_inputs)) : "${pair[0]}:${pair[1]}" => {
-      org         = pair[0]
-      key         = pair[1]
-      value       = pair[1] == "github_owner" ? pair[0] : lookup(local.tofu_github_org_overrides, pair[1], local.tofu_github_inputs[pair[1]].value)
+      org = pair[0]
+      key = pair[1]
+      value = (
+        pair[1] == "github_owner" ? pair[0] :
+        pair[1] == "automation_bypass_app_ids" ? lookup(local.tofu_github_org_bypass_app_ids, pair[0], local.tofu_github_org_overrides[pair[1]]) :
+        lookup(local.tofu_github_org_overrides, pair[1], local.tofu_github_inputs[pair[1]].value)
+      )
       description = local.tofu_github_inputs[pair[1]].description
       hcl         = local.tofu_github_inputs[pair[1]].hcl
     }
