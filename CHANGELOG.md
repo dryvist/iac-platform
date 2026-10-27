@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.4](https://github.com/dryvist/iac-platform/compare/v1.31.3...v1.31.4) (2026-10-27)
+
+
+### Bug Fixes
+
+* **terrakube:** disable dryvist-only policies in per-org tofu-github workspaces ([#382](https://github.com/dryvist/iac-platform/issues/382)) ([7de48ea](https://github.com/dryvist/iac-platform/commit/7de48ea4c2226fb58fdc15d673ae24e2da7adfce))
+
 ## [1.31.3](https://github.com/dryvist/iac-platform/compare/v1.31.2...v1.31.3) (2026-10-26)
 
 
