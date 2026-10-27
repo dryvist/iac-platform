@@ -28,13 +28,24 @@ locals {
       description = "Organization manual-automerge enforcement mode"
       hcl         = false
     }
+    dryvist_org_extras = {
+      value       = "true"
+      description = "Enable dryvist-only organization policies"
+      hcl         = true
+    }
+  }
+
+  # Per-org workspaces differ from dryvist only in these inputs.
+  tofu_github_org_overrides = {
+    org_automerge_manual_enforcement = "evaluate"
+    dryvist_org_extras               = "false"
   }
 
   tofu_github_org_inputs = {
     for pair in setproduct(local.tofu_github_orgs, keys(local.tofu_github_inputs)) : "${pair[0]}:${pair[1]}" => {
       org         = pair[0]
       key         = pair[1]
-      value       = pair[1] == "github_owner" ? pair[0] : pair[1] == "org_automerge_manual_enforcement" ? "evaluate" : local.tofu_github_inputs[pair[1]].value
+      value       = pair[1] == "github_owner" ? pair[0] : lookup(local.tofu_github_org_overrides, pair[1], local.tofu_github_inputs[pair[1]].value)
       description = local.tofu_github_inputs[pair[1]].description
       hcl         = local.tofu_github_inputs[pair[1]].hcl
     }
