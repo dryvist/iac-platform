@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.33.0](https://github.com/dryvist/iac-platform/compare/v1.32.1...v1.33.0) (2026-10-29)
+
+
+### Features
+
+* **semaphore:** add narrow Proxmox timer templates ([#393](https://github.com/dryvist/iac-platform/issues/393)) ([28b753b](https://github.com/dryvist/iac-platform/commit/28b753b911f5b7cc8cdab45eb75907e9709946f3))
+
 ## [1.32.1](https://github.com/dryvist/iac-platform/compare/v1.32.0...v1.32.1) (2026-10-28)
 
 
