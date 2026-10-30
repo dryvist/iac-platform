@@ -85,6 +85,8 @@ COPY scripts/openbao-exec-env.sh /usr/local/bin/openbao-exec-env.sh
 # The git credential helper. Installed WITHOUT the .sh suffix because git
 # resolves `credential.helper openbao` to `git-credential-openbao` on PATH.
 COPY scripts/git-credential-openbao.sh /usr/local/bin/git-credential-openbao
+# Shared AppRole CLI pinned to homelab-contracts v5.38.0.
+ADD --checksum=sha256:0cc36e4c745ad9163e39aca521789a0733070059a69670c790e8b9e867c14c8e --chmod=0755 https://raw.githubusercontent.com/dryvist/homelab-contracts/2be2e713ed203f1fd02304a157b706d4d0b1cbed/ansible/roles/bao_approle_cli/files/bao-approle /usr/local/bin/bao-approle
 RUN chmod +x /usr/local/bin/semaphore-run-ansible.sh /usr/local/bin/openbao-exec-env.sh \
       /usr/local/bin/git-credential-openbao
 

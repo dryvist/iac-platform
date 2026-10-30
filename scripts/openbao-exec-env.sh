@@ -13,6 +13,11 @@
 #   e.g. openbao-exec-env.sh secret/platform/terrakube/main -- sh -c 'docker ...'
 set -euo pipefail
 
+bao_approle() {
+  if command -v bao-approle >/dev/null 2>&1; then bao-approle "$@"
+  else nix run "github:dryvist/homelab-contracts/2be2e713ed203f1fd02304a157b706d4d0b1cbed#bao-approle" -- "$@"; fi
+}
+
 path="${1:?usage: openbao-exec-env.sh <kv/path> -- <cmd...>}"
 shift
 [ "${1:-}" = "--" ] && shift
@@ -21,10 +26,11 @@ shift
 : "${BAO_ADDR:?BAO_ADDR missing}"
 token="${BAO_TOKEN:-${VAULT_TOKEN:-}}"
 # No ambient token but a workload AppRole pair (how the Semaphore container
-# runs): log in once and hand the token down the exec chain, so nested calls
-# and the wrapped command reuse it instead of each minting their own. The
-# execution plane's own pair wins over the shared ansible pair, so the store's
-# audit log names the plane rather than the identity every workstation shares.
+# runs): use the shared CLI to log in once and hand the token down the exec
+# chain, so nested calls and the wrapped command reuse it instead of each
+# minting their own. The execution plane's own pair wins over the shared
+# ansible pair, so the store's audit log names the plane rather than the
+# identity every workstation shares.
 role_id="${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}"
 secret_id="${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}"
 if [ -z "$role_id" ] || [ -z "$secret_id" ]; then
@@ -32,9 +38,9 @@ if [ -z "$role_id" ] || [ -z "$secret_id" ]; then
   secret_id="${OPENBAO_APPROLE_ANSIBLE_SECRET_ID:-}"
 fi
 if [ -z "$token" ] && [ -n "$role_id" ] && [ -n "$secret_id" ]; then
-  token="$(jq -nc --arg r "$role_id" --arg s "$secret_id" '{role_id: $r, secret_id: $s}' \
-    | curl -sf --max-time 45 --retry 2 --retry-all-errors -H 'Content-Type: application/json' --data @- "${BAO_ADDR}/v1/auth/approle/login" \
-    | jq -er '.auth.client_token')" || { echo "openbao-exec-env.sh: AppRole login failed" >&2; exit 1; }
+  token="$(BAO_ADDR="$BAO_ADDR" BAO_APPROLE_ROLE_ID="$role_id" \
+    BAO_APPROLE_SECRET_ID="$secret_id" FLOW_LOCK_API_MAX_TIME=45 \
+    bao_approle login)" || { echo "openbao-exec-env.sh: AppRole login failed" >&2; exit 1; }
   export BAO_TOKEN="$token"
 fi
 [ -n "$token" ] || { echo "openbao-exec-env.sh: authenticate to OpenBao and set BAO_TOKEN" >&2; exit 1; }

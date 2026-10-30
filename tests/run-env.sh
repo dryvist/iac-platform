@@ -19,17 +19,19 @@ cat >"$STUB_DIR/curl" <<'STUB'
 #!/usr/bin/env bash
 url=""
 for a in "$@"; do case "$a" in http*) url="$a" ;; esac; done
-case "$url" in */auth/approle/login)
-  cat >"$STUB_KV_DIR/login-body.json"
-  printf '{"auth":{"client_token":"stub-login-token"}}'
-  exit 0 ;;
-esac
 mount="${url#*/v1/}"; mount="${mount%%/*}"
 body="$STUB_KV_DIR/$mount.json"
 [ -f "$body" ] || exit 22   # curl -f's exit code for a 4xx, i.e. no such document
 cat "$body"
 STUB
-chmod +x "$STUB_DIR/curl"
+# The shared AppRole CLI: records the pair it was handed and prints a token.
+cat >"$STUB_DIR/bao-approle" <<'STUB'
+#!/usr/bin/env bash
+[ "$1" = login ] || exit 64
+jq -nc '{role_id: env.BAO_APPROLE_ROLE_ID, secret_id: env.BAO_APPROLE_SECRET_ID}' >"$STUB_KV_DIR/login-body.json"
+echo stub-login-token
+STUB
+chmod +x "$STUB_DIR/curl" "$STUB_DIR/bao-approle"
 export STUB_KV_DIR="$STUB_DIR/kv"
 mkdir -p "$STUB_KV_DIR"
 PATH="$STUB_DIR:$PATH"
