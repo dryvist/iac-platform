@@ -19,6 +19,11 @@ set -euo pipefail
 
 die() { echo "git-credential-openbao: $*" >&2; exit 1; }
 
+bao_approle() {
+  if command -v bao-approle >/dev/null 2>&1; then bao-approle "$@"
+  else nix run "github:dryvist/homelab-contracts/2be2e713ed203f1fd02304a157b706d4d0b1cbed#bao-approle" -- "$@"; fi
+}
+
 [ "${1:-}" = "get" ] || exit 0
 
 # The credential request: key=value lines terminated by a blank line. Consume
@@ -34,24 +39,29 @@ case "${host}" in github.com|gist.github.com) : ;; *) exit 0 ;; esac
 
 bao_addr="${BAO_ADDR:-${VAULT_ADDR:-}}"
 [ -n "${bao_addr}" ] || die "BAO_ADDR is not set in the container environment"
-[ -n "${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}" ] && [ -n "${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}" ] \
+role_id="${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID:-}"
+secret_id="${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID:-}"
+[ -n "$role_id" ] && [ -n "$secret_id" ] \
   || die "OPENBAO_APPROLE_SEMAPHORE_ROLE_ID / _SECRET_ID are not in the container environment"
 
-# Secret-zero travels on stdin, never argv — argv is readable by any other
-# process in the container.
-bao_token="$(jq -n --arg r "${OPENBAO_APPROLE_SEMAPHORE_ROLE_ID}" \
-                   --arg s "${OPENBAO_APPROLE_SEMAPHORE_SECRET_ID}" \
-                   '{role_id: $r, secret_id: $s}' \
-  | curl -sf --max-time 10 -X POST --data-binary @- "${bao_addr}/v1/auth/approle/login" \
-  | jq -r '.auth.client_token // empty')"
+# The shared CLI sends secret-zero on stdin, never argv — argv is readable by
+# any other process in the container.
+if ! bao_token="$(BAO_ADDR="$bao_addr" \
+  BAO_APPROLE_ROLE_ID="$role_id" \
+  BAO_APPROLE_SECRET_ID="$secret_id" \
+  FLOW_LOCK_API_MAX_TIME=10 bao_approle login)"; then
+  die "AppRole login failed"
+fi
 [ -n "${bao_token}" ] || die "AppRole login failed"
 
 # The all-repo READ permission set: its permission map is stored server-side
 # and the endpoint ignores request bodies, so this helper cannot widen what it
 # gets. A push with it fails at GitHub, which is the intended boundary — the
 # execution plane reads repositories, it does not write them.
-gh_token="$(curl -sf --max-time 10 -X POST -H "X-Vault-Token: ${bao_token}" \
-  "${bao_addr}/v1/github/token/read-dryvist-all" | jq -r '.data.token // empty')"
+if ! gh_token="$(BAO_ADDR="$bao_addr" BAO_TOKEN="$bao_token" \
+  BAO_APPROLE_API_MAX_TIME=10 bao_approle gh-token github read-dryvist-all)"; then
+  die "minting a GitHub installation token failed"
+fi
 [ -n "${gh_token}" ] || die "minting a GitHub installation token failed"
 
 # The one and only place the token is emitted.

@@ -28,4 +28,22 @@ set -e
 case "$out" in *BAO_ADDR*) : ;; *) echo "FAIL: unclear message: $out" >&2; exit 1 ;; esac
 case "$out" in *password=*) echo "FAIL: emitted a password line on failure" >&2; exit 1 ;; esac
 
+# A github.com get logs in with the plane's pair and mints from the read-only
+# set, through the shared AppRole CLI (stubbed here).
+STUB_DIR="$(mktemp -d)"
+trap 'rm -rf "$STUB_DIR"' EXIT
+cat >"$STUB_DIR/bao-approle" <<'STUB'
+#!/usr/bin/env bash
+case "$*" in
+  login) [ "$BAO_APPROLE_ROLE_ID/$BAO_APPROLE_SECRET_ID" = plane-role/plane-secret ] && echo stub-login-token ;;
+  "gh-token github read-dryvist-all") [ "$BAO_TOKEN" = stub-login-token ] && echo stub-github-token ;;
+  *) exit 64 ;;
+esac
+STUB
+chmod +x "$STUB_DIR/bao-approle"
+out="$(printf 'protocol=https\nhost=github.com\n\n' | env PATH="$STUB_DIR:$PATH" BAO_ADDR=https://openbao.invalid \
+  OPENBAO_APPROLE_SEMAPHORE_ROLE_ID=plane-role OPENBAO_APPROLE_SEMAPHORE_SECRET_ID=plane-secret "$helper" get)"
+[ "$out" = "$(printf 'username=x-access-token\npassword=stub-github-token')" ] \
+  || { echo "FAIL: unexpected credentials: $out" >&2; exit 1; }
+
 echo "git-credential-openbao: all checks passed"
