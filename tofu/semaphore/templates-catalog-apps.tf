@@ -5,12 +5,12 @@ locals {
     apps-upgrade = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/upgrade.yml"
-      limit            = "all"
+      limit            = "upgrade_wave_0"
       mutating         = true
       schedule_enabled = true
       extra_args       = []
-      rail_sec         = 3600
-      description      = "Monthly Debian guest OS upgrade; first Saturday only."
+      rail_sec         = 3000
+      description      = "Weekly Debian guest OS upgrade, LXC wave 0; every Saturday, sibling waves in templates-catalog-apps-upgrade.tf."
     }
 
     apps-site = {

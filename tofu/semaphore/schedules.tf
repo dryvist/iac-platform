@@ -7,6 +7,11 @@ locals {
     "apps-agent-sandbox-credentials",
     "proxmox-upgrade",
     "apps-upgrade",
+    "apps-upgrade-lxc-1",
+    "apps-upgrade-lxc-2",
+    "apps-upgrade-lxc-3",
+    "apps-upgrade-lxc-rest",
+    "apps-upgrade-vms",
   ]
 
   scheduled_templates = {
@@ -17,7 +22,12 @@ locals {
     apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"
     apps-upgrade                   = "45 6 * * 6"
+    apps-upgrade-lxc-1             = "46 6 * * 6"
+    apps-upgrade-lxc-2             = "47 6 * * 6"
+    apps-upgrade-lxc-3             = "48 6 * * 6"
+    apps-upgrade-lxc-rest          = "49 6 * * 6"
     proxmox-upgrade                = "50 6 * * 6"
+    apps-upgrade-vms               = "51 6 * * 6"
     splunk-validate                = "37 6 * * *"
     splunk-weekly-update           = "40 6 * * 6"
   }
