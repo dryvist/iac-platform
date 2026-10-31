@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.0](https://github.com/dryvist/iac-platform/compare/v1.33.0...v1.34.0) (2026-10-31)
+
+
+### Features
+
+* **semaphore:** split the weekly apps upgrade into per-wave templates ([#397](https://github.com/dryvist/iac-platform/issues/397)) ([c46a8dd](https://github.com/dryvist/iac-platform/commit/c46a8dd2f748ce618aebd75f2a15a5ea9dee6109))
+
 ## [1.33.0](https://github.com/dryvist/iac-platform/compare/v1.32.1...v1.33.0) (2026-10-29)
 
 
