@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.1](https://github.com/dryvist/iac-platform/compare/v1.34.0...v1.34.1) (2026-10-31)
+
+
+### Bug Fixes
+
+* **semaphore:** pin the runner OpenBao CLI to 2.7.2 and track it ([#399](https://github.com/dryvist/iac-platform/issues/399)) ([11b68c9](https://github.com/dryvist/iac-platform/commit/11b68c9acb0768b6f412562bee68aededb69159c))
+
 ## [1.34.0](https://github.com/dryvist/iac-platform/compare/v1.33.0...v1.34.0) (2026-10-31)
 
 
