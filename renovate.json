@@ -30,6 +30,16 @@
       ],
       "depNameTemplate": "astral-sh/uv",
       "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "OpenBao CLI release pin in the Semaphore runner image, read from its renovate annotation",
+      "managerFilePatterns": [
+        "/^compose/semaphore/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+)\\s+ARG BAO_VERSION=(?<currentValue>[^\\s]+)"
+      ]
     }
   ],
   "packageRules": [
