@@ -25,8 +25,8 @@ run "promotion_rail_contract" {
     condition = length(flatten([
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
-    ])) == 25
-    error_message = "rail_sec may be set only by the twenty-five allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
+    ])) == 30
+    error_message = "rail_sec may be set only by the thirty allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
   }
 
   assert {
@@ -60,11 +60,16 @@ run "promotion_rail_contract" {
       "apps-grafana"          = 2400
       "apps-status"           = 1800
       "apps-collab"           = 3600
-      "apps-upgrade"          = 3600
+      "apps-upgrade"          = 3000
+      "apps-upgrade-lxc-1"    = 3000
+      "apps-upgrade-lxc-2"    = 3000
+      "apps-upgrade-lxc-3"    = 3000
+      "apps-upgrade-lxc-rest" = 3000
+      "apps-upgrade-vms"      = 3000
       "proxmox-site"          = 3600
       "proxmox-upgrade"       = 3600
     }
-    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 2400, ai-llm-serving = 2400, ai-llm-router = 2400, ai-llm-gpu-profile = 3600, ai-benchmark-run = 3600, apps-openbao-tagged = 3600, apps-openbao-rotators = 2400, apps-site = 3600, apps-baseline-lxc = 3600, apps-dns-pipeline = 2400, apps-media = 2400, apps-node-exporter = 1800, apps-core-apps = 3600, apps-postgres-roles = 1800, apps-agent-sandbox = 1800, apps-cribl = 2400, apps-cribl-stream = 2400, apps-cribl-packs = 1800, apps-grafana = 2400, apps-status = 1800, apps-collab = 3600, apps-upgrade = 3600, proxmox-site = 3600 and proxmox-upgrade = 3600."
+    error_message = "The entries carrying rail_sec must be exactly ai-site-promotion = 3600, ai-hermes-agent = 2400, ai-llm-serving = 2400, ai-llm-router = 2400, ai-llm-gpu-profile = 3600, ai-benchmark-run = 3600, apps-openbao-tagged = 3600, apps-openbao-rotators = 2400, apps-site = 3600, apps-baseline-lxc = 3600, apps-dns-pipeline = 2400, apps-media = 2400, apps-node-exporter = 1800, apps-core-apps = 3600, apps-postgres-roles = 1800, apps-agent-sandbox = 1800, apps-cribl = 2400, apps-cribl-stream = 2400, apps-cribl-packs = 1800, apps-grafana = 2400, apps-status = 1800, apps-collab = 3600, apps-upgrade = 3000, apps-upgrade-lxc-1 = 3000, apps-upgrade-lxc-2 = 3000, apps-upgrade-lxc-3 = 3000, apps-upgrade-lxc-rest = 3000, apps-upgrade-vms = 3000, proxmox-site = 3600 and proxmox-upgrade = 3600."
   }
 
   assert {
