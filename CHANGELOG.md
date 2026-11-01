@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.36.0](https://github.com/dryvist/iac-platform/compare/v1.35.0...v1.36.0) (2026-11-01)
+
+
+### Features
+
+* **semaphore:** offer the Dify eval instance in the specialist-eval template ([#405](https://github.com/dryvist/iac-platform/issues/405)) ([0f066b9](https://github.com/dryvist/iac-platform/commit/0f066b9cb8108be6b87e8126536625e9e0f6c654))
+
 ## [1.35.0](https://github.com/dryvist/iac-platform/compare/v1.34.1...v1.35.0) (2026-11-01)
 
 
