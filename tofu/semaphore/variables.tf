@@ -80,7 +80,7 @@ variable "ansible_repositories" {
     ansible-secrets-management = {
       url = "https://github.com/dryvist/ansible-secrets-management.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-secrets-management
-      branch           = "v0.47.0"
+      branch           = "v0.53.0"
       preview_branches = ["develop"]
     }
     ansible-proxmox-ai = {
