@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.36.1](https://github.com/dryvist/iac-platform/compare/v1.36.0...v1.36.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* **semaphore:** pin ansible-secrets-management to v0.53.0 ([#407](https://github.com/dryvist/iac-platform/issues/407)) ([125e3a0](https://github.com/dryvist/iac-platform/commit/125e3a045cb85d1b98b7d3998177066bb7a2bc63))
+
 ## [1.36.0](https://github.com/dryvist/iac-platform/compare/v1.35.0...v1.36.0) (2026-11-01)
 
 
