@@ -133,7 +133,7 @@ for arg in "$@"; do
       [ -z "$specialist_eval_tag" ] || { echo "semaphore-run-ansible.sh: duplicate specialist_eval_tag survey variable" >&2; exit 2; }
       specialist_eval_tag="${arg#*=}"
       case "$specialist_eval_tag" in
-        sim_docker|langflow_docker) ;;
+        sim_docker|langflow_docker|dify_docker) ;;
         *) echo "semaphore-run-ansible.sh: invalid specialist_eval_tag survey value" >&2; exit 2 ;;
       esac
       ;;

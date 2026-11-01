@@ -213,12 +213,12 @@ if [ "$gpu_profile_count" -ne 4 ]; then
   FAIL=1
 fi
 
-# The specialist-eval template offers exactly the two instance tags the wrapper
-# accepts, and its limit names only the two eval groups those tags select between.
+# The specialist-eval template offers exactly the three instance tags the wrapper
+# accepts, and its limit names only the three eval groups those tags select between.
 specialist_block="$(awk '/^    ai-specialist-eval = \{/{f=1} f{print} f && /^    \}$/{exit}' "$REPO_ROOT/tofu/semaphore/templates-catalog-ai.tf")"
 specialist_limit="$(sed -n 's/^ *limit *= *"\(.*\)"$/\1/p' <<<"$specialist_block")"
-if [ "$specialist_limit" = "sim_eval_group,langflow_eval_group" ]; then
-  echo "ok   ai-specialist-eval template limits the run to the sim and LangFlow eval groups"
+if [ "$specialist_limit" = "sim_eval_group,langflow_eval_group,dify_eval_group" ]; then
+  echo "ok   ai-specialist-eval template limits the run to the Sim, LangFlow and Dify eval groups"
 else
   echo "FAIL ai-specialist-eval template limit is '$specialist_limit'"
   FAIL=1
@@ -244,12 +244,12 @@ while IFS= read -r tag; do
     FAIL=1
   fi
 done < <(sed -n 's/^ *\([a-z_]*\) *= *"\([a-z_]*\)"$/\2/p' <<<"$(sed -n '/enum_values = {/,/}/p' <<<"$specialist_block")")
-if [ "$specialist_count" -ne 2 ]; then
-  echo "FAIL the specialist-eval dropdown offers $specialist_count tags, wanted 2"
+if [ "$specialist_count" -ne 3 ]; then
+  echo "FAIL the specialist-eval dropdown offers $specialist_count tags, wanted 3"
   FAIL=1
 fi
 check "a specialist tag outside the dropdown is rejected" 2 "$real" playbooks/specialist-eval.yml \
-  --limit "$specialist_limit,localhost" --diff specialist_eval_tag=dify_docker
+  --limit "$specialist_limit,localhost" --diff specialist_eval_tag=n8n_docker
 check "a blank specialist tag is rejected" 2 "$real" playbooks/specialist-eval.yml \
   --limit "$specialist_limit,localhost" --diff specialist_eval_tag=
 check "a repeated specialist tag is rejected" 2 "$real" playbooks/specialist-eval.yml \
