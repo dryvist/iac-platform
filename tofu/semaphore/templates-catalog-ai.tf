@@ -261,7 +261,7 @@ locals {
     ai-specialist-eval = {
       repository  = "ansible-proxmox-ai"
       playbook    = "playbooks/specialist-eval.yml"
-      limit       = "sim_eval_group,langflow_eval_group"
+      limit       = "sim_eval_group,langflow_eval_group,dify_eval_group"
       only_branch = "develop"
       mutating    = true
       survey_vars = [
@@ -274,10 +274,11 @@ locals {
           enum_values = {
             sim_docker      = "sim_docker"
             langflow_docker = "langflow_docker"
+            dify_docker     = "dify_docker"
           }
         },
       ]
-      description = "Converge one specialist evaluation instance (Sim or LangFlow)."
+      description = "Converge one specialist evaluation instance (Sim, LangFlow or Dify)."
     }
   }
 }
