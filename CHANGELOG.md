@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.0](https://github.com/dryvist/iac-platform/compare/v1.34.1...v1.35.0) (2026-11-01)
+
+
+### Features
+
+* **semaphore:** add the specialist-eval template ([#402](https://github.com/dryvist/iac-platform/issues/402)) ([4ae124b](https://github.com/dryvist/iac-platform/commit/4ae124b3e14d09b81cd37e8831be52f86ea04f86))
+
 ## [1.34.1](https://github.com/dryvist/iac-platform/compare/v1.34.0...v1.34.1) (2026-10-31)
 
 
