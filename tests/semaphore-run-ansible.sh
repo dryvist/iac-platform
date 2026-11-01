@@ -213,6 +213,48 @@ if [ "$gpu_profile_count" -ne 4 ]; then
   FAIL=1
 fi
 
+# The specialist-eval template offers exactly the two instance tags the wrapper
+# accepts, and its limit names only the two eval groups those tags select between.
+specialist_block="$(awk '/^    ai-specialist-eval = \{/{f=1} f{print} f && /^    \}$/{exit}' "$REPO_ROOT/tofu/semaphore/templates-catalog-ai.tf")"
+specialist_limit="$(sed -n 's/^ *limit *= *"\(.*\)"$/\1/p' <<<"$specialist_block")"
+if [ "$specialist_limit" = "sim_eval_group,langflow_eval_group" ]; then
+  echo "ok   ai-specialist-eval template limits the run to the sim and LangFlow eval groups"
+else
+  echo "FAIL ai-specialist-eval template limit is '$specialist_limit'"
+  FAIL=1
+fi
+if grep -q '^ *only_branch *= *"develop"$' <<<"$specialist_block"; then
+  echo "ok   ai-specialist-eval template builds only from the develop ref"
+else
+  echo "FAIL ai-specialist-eval template does not pin only_branch = \"develop\""
+  FAIL=1
+fi
+specialist_count=0
+while IFS= read -r tag; do
+  specialist_count=$((specialist_count + 1))
+  check "specialist tag $tag from the dropdown is accepted" 0 "$real" \
+    playbooks/specialist-eval.yml --limit "$specialist_limit,localhost" --diff "specialist_eval_tag=$tag"
+  printf '%s\n' playbooks/specialist-eval.yml --limit "$specialist_limit,localhost" --diff --tags "$tag" \
+    >"$STUB_DIR/expected-args"
+  if diff -u "$STUB_DIR/expected-args" "$STUB_ARGS" >/dev/null; then
+    echo "ok   specialist tag $tag reaches Ansible as --tags beside the limit"
+  else
+    echo "FAIL specialist tag $tag reaches Ansible as --tags beside the limit"
+    diff -u "$STUB_DIR/expected-args" "$STUB_ARGS"
+    FAIL=1
+  fi
+done < <(sed -n 's/^ *\([a-z_]*\) *= *"\([a-z_]*\)"$/\2/p' <<<"$(sed -n '/enum_values = {/,/}/p' <<<"$specialist_block")")
+if [ "$specialist_count" -ne 2 ]; then
+  echo "FAIL the specialist-eval dropdown offers $specialist_count tags, wanted 2"
+  FAIL=1
+fi
+check "a specialist tag outside the dropdown is rejected" 2 "$real" playbooks/specialist-eval.yml \
+  --limit "$specialist_limit,localhost" --diff specialist_eval_tag=dify_docker
+check "a blank specialist tag is rejected" 2 "$real" playbooks/specialist-eval.yml \
+  --limit "$specialist_limit,localhost" --diff specialist_eval_tag=
+check "a repeated specialist tag is rejected" 2 "$real" playbooks/specialist-eval.yml \
+  --limit "$specialist_limit,localhost" --diff specialist_eval_tag=sim_docker specialist_eval_tag=langflow_docker
+
 check "benchmark survey parameters are accepted" 0 "$real" playbooks/llm-model-campaign.yml \
   config_name=mlx/cross-card machine=benchmark_target engine=mlx_lm model_size=small \
   concurrency_list=1,2 context_list=8192 power_cap_w=0 \

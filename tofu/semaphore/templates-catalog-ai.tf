@@ -254,5 +254,30 @@ locals {
       rail_sec    = 2400
       description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
     }
+
+    # An entry point in its own right: the playbook imports its inventory loader,
+    # so it is not reached through site.yml. The survey picks one instance tag,
+    # which the wrapper passes as --tags; the limit names both eval groups.
+    ai-specialist-eval = {
+      repository  = "ansible-proxmox-ai"
+      playbook    = "playbooks/specialist-eval.yml"
+      limit       = "sim_eval_group,langflow_eval_group"
+      only_branch = "develop"
+      mutating    = true
+      survey_vars = [
+        {
+          name        = "specialist_eval_tag"
+          title       = "Evaluation instance"
+          description = "Evaluation instance to converge."
+          required    = true
+          type        = "enum"
+          enum_values = {
+            sim_docker      = "sim_docker"
+            langflow_docker = "langflow_docker"
+          }
+        },
+      ]
+      description = "Converge one specialist evaluation instance (Sim or LangFlow)."
+    }
   }
 }

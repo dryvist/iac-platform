@@ -89,11 +89,13 @@ fi
 
 # Semaphore's bash templates append survey variables as name=value script
 # arguments. Translate the profile selector into the Ansible extra-var expected
-# by the site playbook. Benchmark survey values are validated here, encoded as
-# JSON (including numeric lists), and validated against the selected config by
-# its playbook before any benchmark command runs.
+# by the site playbook. The specialist-eval selector becomes --tags, so the
+# survey alone picks the evaluation instance converged. Benchmark survey values
+# are validated here, encoded as JSON (including numeric lists), and validated
+# against the selected config by its playbook before any benchmark command runs.
 run_args=()
 active_profile=""
+specialist_eval_tag=""
 benchmark_seen=0
 benchmark_config=""
 benchmark_machine=""
@@ -125,6 +127,14 @@ for arg in "$@"; do
       case "$active_profile" in
         small|medium-a|medium-b|max) ;;
         *) echo "semaphore-run-ansible.sh: invalid llm_active_profile survey value" >&2; exit 2 ;;
+      esac
+      ;;
+    specialist_eval_tag=*)
+      [ -z "$specialist_eval_tag" ] || { echo "semaphore-run-ansible.sh: duplicate specialist_eval_tag survey variable" >&2; exit 2; }
+      specialist_eval_tag="${arg#*=}"
+      case "$specialist_eval_tag" in
+        sim_docker|langflow_docker) ;;
+        *) echo "semaphore-run-ansible.sh: invalid specialist_eval_tag survey value" >&2; exit 2 ;;
       esac
       ;;
     config_name=*)
@@ -270,6 +280,10 @@ fi
 
 if [ -n "$active_profile" ]; then
   run_args+=(--extra-vars "llm_active_profile=$active_profile")
+fi
+
+if [ -n "$specialist_eval_tag" ]; then
+  run_args+=(--tags "$specialist_eval_tag")
 fi
 
 log="$(mktemp)"
