@@ -21,7 +21,6 @@ locals {
   }
 
   schedule_crons = {
-    ai-laya-finetune-collect       = "9,24,39,54 * * * *"
     ai-llm-model-campaign-nightly  = "17 2 * * *"
     apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"

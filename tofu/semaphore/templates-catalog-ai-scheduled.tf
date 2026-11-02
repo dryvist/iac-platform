@@ -9,7 +9,7 @@ locals {
       limit            = "llm_classify"
       tags             = "laya_systemone"
       mutating         = true
-      schedule_enabled = true
+      schedule_enabled = false
       extra_args = [
         "--extra-vars",
         "laya_systemone_finetune_enabled=true laya_systemone_finetune_action=collect",
