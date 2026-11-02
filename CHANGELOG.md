@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.37.0](https://github.com/dryvist/iac-platform/compare/v1.36.1...v1.37.0) (2026-11-02)
+
+
+### Features
+
+* **semaphore:** schedule a nightly lm-eval quality campaign ([#409](https://github.com/dryvist/iac-platform/issues/409)) ([7ac5185](https://github.com/dryvist/iac-platform/commit/7ac51856cc6574ae763a2f5ce220307fb94796a1))
+
 ## [1.36.1](https://github.com/dryvist/iac-platform/compare/v1.36.0...v1.36.1) (2026-11-01)
 
 
