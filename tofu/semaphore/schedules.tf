@@ -14,6 +14,8 @@ locals {
     "apps-upgrade-lxc-3",
     "apps-upgrade-lxc-rest",
     "apps-upgrade-vms",
+    "apps-leantime",
+    "proxmox-oci-app-upgrade",
   ]
 
   scheduled_templates = {
@@ -33,6 +35,8 @@ locals {
     apps-upgrade-vms               = "51 6 * * 6"
     splunk-validate                = "37 6 * * *"
     splunk-weekly-update           = "40 6 * * 6"
+    apps-leantime                  = "55 6 * * 6"
+    proxmox-oci-app-upgrade        = "5 7 * * 6"
   }
 }
 
