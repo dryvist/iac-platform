@@ -217,6 +217,7 @@ resource "semaphoreui_project_template" "openbao_rotate_scheduled" {
   playbook = "semaphore-run-ansible.sh"
   arguments = [
     "./scripts/run-ansible.sh", "playbooks/openbao-rotate-approles.yml",
+    "-i", "localhost,",
     "--limit", "localhost", "--diff",
   ]
 
@@ -240,6 +241,7 @@ resource "semaphoreui_project_template" "openbao_seed_host_secret_zero" {
   playbook = "semaphore-run-ansible.sh"
   arguments = [
     "./scripts/run-ansible.sh", "playbooks/openbao-seed-host-secret-zero.yml",
+    "-i", "localhost,",
     "--limit", "localhost", "--diff",
   ]
 
