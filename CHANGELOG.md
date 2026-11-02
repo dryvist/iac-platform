@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.1](https://github.com/dryvist/iac-platform/compare/v1.38.0...v1.38.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* **semaphore:** unschedule the Laya fine-tune collect template ([#414](https://github.com/dryvist/iac-platform/issues/414)) ([77eb439](https://github.com/dryvist/iac-platform/commit/77eb4396dbeb8f739d1ac1900e379aaff9ec49b6))
+
 ## [1.38.0](https://github.com/dryvist/iac-platform/compare/v1.37.0...v1.38.0) (2026-11-02)
 
 
