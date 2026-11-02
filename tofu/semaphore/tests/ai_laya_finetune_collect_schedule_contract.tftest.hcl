@@ -7,18 +7,18 @@ run "ai_laya_finetune_collect_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "ai-laya-finetune-collect = \\{[^}]*?repository\\s*=\\s*\"ansible-proxmox-ai\"[^}]*?playbook\\s*=\\s*\"playbooks/site.yml\"[^}]*?limit\\s*=\\s*\"llm_classify\"[^}]*?tags\\s*=\\s*\"laya_systemone\"[^}]*?mutating\\s*=\\s*true[^}]*?schedule_enabled\\s*=\\s*true[^}]*?extra_args\\s*=\\s*\\[\\s*\"--extra-vars\",\\s*\"laya_systemone_finetune_enabled=true laya_systemone_finetune_action=collect\"",
+      "ai-laya-finetune-collect = \\{[^}]*?repository\\s*=\\s*\"ansible-proxmox-ai\"[^}]*?playbook\\s*=\\s*\"playbooks/site.yml\"[^}]*?limit\\s*=\\s*\"llm_classify\"[^}]*?tags\\s*=\\s*\"laya_systemone\"[^}]*?mutating\\s*=\\s*true[^}]*?schedule_enabled\\s*=\\s*false[^}]*?extra_args\\s*=\\s*\\[\\s*\"--extra-vars\",\\s*\"laya_systemone_finetune_enabled=true laya_systemone_finetune_action=collect\"",
       file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
     ))
-    error_message = "The Laya collect template must target the classifier group and run only the collect action."
+    error_message = "The Laya collect template must target the classifier group, run only the collect action, and stay unscheduled."
   }
 
   assert {
-    condition = can(regex(
-      "ai-laya-finetune-collect\\s*=\\s*\"9,24,39,54 \\* \\* \\* \\*\"",
+    condition = !can(regex(
+      "ai-laya-finetune-collect\\s*=\\s*\"[^\"]*\\*",
       file("${path.module}/../../../schedules.tf")
     ))
-    error_message = "The Laya collect schedule must run every 15 minutes at an offset cron."
+    error_message = "The Laya collect schedule must stay disabled until the detached fine-tune role is deployed."
   }
 
   assert {
