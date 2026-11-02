@@ -5,6 +5,7 @@ locals {
   scheduled_mutating_templates = [
     "splunk-weekly-update",
     "apps-agent-sandbox-credentials",
+    "ai-llm-model-campaign-nightly",
     "proxmox-upgrade",
     "apps-upgrade",
     "apps-upgrade-lxc-1",
@@ -19,6 +20,7 @@ locals {
   }
 
   schedule_crons = {
+    ai-llm-model-campaign-nightly  = "17 2 * * *"
     apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"
     apps-upgrade                   = "45 6 * * 6"
