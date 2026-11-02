@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.0](https://github.com/dryvist/iac-platform/compare/v1.38.1...v1.39.0) (2026-11-02)
+
+
+### Features
+
+* **semaphore:** add the ai-laya-heldout template with a 540-second rail ([#417](https://github.com/dryvist/iac-platform/issues/417)) ([8c5a5e2](https://github.com/dryvist/iac-platform/commit/8c5a5e2a069deac715eeabe514edd1e46539b431))
+
 ## [1.38.1](https://github.com/dryvist/iac-platform/compare/v1.38.0...v1.38.1) (2026-11-02)
 
 
