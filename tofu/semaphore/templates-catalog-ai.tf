@@ -255,6 +255,19 @@ locals {
       description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
     }
 
+    # The held-out evaluation is an on-demand, classifier-scoped run with its
+    # own 540-second job rail.
+    ai-laya-heldout = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/site.yml"
+      limit            = "llm_classify"
+      tags             = "laya_systemone_heldout"
+      mutating         = true
+      rail_sec         = 540
+      schedule_enabled = false
+      description      = "Run the Laya held-out evaluation on the classifier group."
+    }
+
     # An entry point in its own right: the playbook imports its inventory loader,
     # so it is not reached through site.yml. The survey picks one instance tag,
     # which the wrapper passes as --tags; the limit names both eval groups.
