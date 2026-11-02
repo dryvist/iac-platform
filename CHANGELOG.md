@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.0](https://github.com/dryvist/iac-platform/compare/v1.37.0...v1.38.0) (2026-11-02)
+
+
+### Features
+
+* **semaphore:** schedule Laya fine-tune collection ([#412](https://github.com/dryvist/iac-platform/issues/412)) ([6822d2e](https://github.com/dryvist/iac-platform/commit/6822d2ee1dde897108a45a39cabe4ed472ad0d77))
+
 ## [1.37.0](https://github.com/dryvist/iac-platform/compare/v1.36.1...v1.37.0) (2026-11-02)
 
 
