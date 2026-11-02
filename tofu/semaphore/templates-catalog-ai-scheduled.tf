@@ -3,6 +3,20 @@
 
 locals {
   ansible_templates_ai_scheduled = {
+    ai-laya-finetune-collect = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/site.yml"
+      limit            = "llm_classify"
+      tags             = "laya_systemone"
+      mutating         = true
+      schedule_enabled = true
+      extra_args = [
+        "--extra-vars",
+        "laya_systemone_finetune_enabled=true laya_systemone_finetune_action=collect",
+      ]
+      description = "Collect detached Laya fine-tune jobs and restore services."
+    }
+
     # Fixed inputs keep the unattended run to one recipe on the medium vLLM
     # lane. The wrapper appends localhost to the selected target limit.
     ai-llm-model-campaign-nightly = {
