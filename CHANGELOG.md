@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.3](https://github.com/dryvist/iac-platform/compare/v1.39.2...v1.39.3) (2026-11-02)
+
+
+### Bug Fixes
+
+* **semaphore:** pass -i localhost, to the OpenBao rotate and seed templates ([#423](https://github.com/dryvist/iac-platform/issues/423)) ([d5c13da](https://github.com/dryvist/iac-platform/commit/d5c13daf6fa596d71813e60ca9702312dc066cbb))
+
 ## [1.39.2](https://github.com/dryvist/iac-platform/compare/v1.39.1...v1.39.2) (2026-11-02)
 
 
