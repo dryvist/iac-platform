@@ -19,9 +19,10 @@ For each workspace, in an approved production window:
 8. Retire legacy state objects, lock tables, IAM roles, and local credential
    profiles only after the retention period and a restore drill.
 
-Never use targeted apply during migration. Never copy provider credentials
-into a workspace variable; Terrakube workload identity and OpenBao remain the
-only machine path.
+Targeted applies during migration go through the gated targeted path in
+[targeted-apply.md](targeted-apply.md). Never copy provider credentials into a
+workspace variable; Terrakube workload identity and OpenBao remain the only
+machine path.
 
 ## Break-glass recovery (Terrakube or the platform is down)
 

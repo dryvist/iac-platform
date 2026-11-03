@@ -18,6 +18,16 @@ POST /api/v1/organization/<org-id>/job
 
 Nothing is stored on the workspace and later runs are unaffected. A
 `TF_CLI_ARGS_plan` workspace variable takes precedence over `targetAddrs`, so
-none may be set. Use it only to unblock an apply while unrelated drift is being
-resolved: a targeted run leaves everything else unreconciled, and a full plan
-follows once the drift is fixed.
+none may be set.
+
+Targeted applies are allowed through this template. Follow these rules:
+
+- Run every targeted apply through this template, never a hand-built CLI
+  `-target` apply that skips the approval gate. The gated converge script in
+  JacobPEvans/.github takes the same targets as `TARGET_ADDRS`, with the
+  template ID in `TERRAKUBE_TARGETED_TEMPLATE_ID`.
+- The plan must show zero destroys and zero replaces unless the operator
+  approved those exact resources. The gated converge script enforces zero
+  destroys.
+- A targeted run leaves everything outside its targets unreconciled. Run a full
+  plan afterward to see what remains.
