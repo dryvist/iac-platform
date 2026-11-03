@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.5](https://github.com/dryvist/iac-platform/compare/v1.39.4...v1.39.5) (2026-11-03)
+
+
+### Bug Fixes
+
+* deploy ansible-proxmox-ai v2.13.1 ([#428](https://github.com/dryvist/iac-platform/issues/428)) ([79f4493](https://github.com/dryvist/iac-platform/commit/79f4493a1c1800c5c97ddc64b55b1ca5bdc48ea1))
+
 ## [1.39.4](https://github.com/dryvist/iac-platform/compare/v1.39.3...v1.39.4) (2026-11-02)
 
 
