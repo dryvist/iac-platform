@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.40.0](https://github.com/dryvist/iac-platform/compare/v1.39.5...v1.40.0) (2026-11-03)
+
+
+### Features
+
+* allow gated targeted applies ([#430](https://github.com/dryvist/iac-platform/issues/430)) ([eb74393](https://github.com/dryvist/iac-platform/commit/eb743939928e49a4e450cb900b6a5c39317037a0))
+
 ## [1.39.5](https://github.com/dryvist/iac-platform/compare/v1.39.4...v1.39.5) (2026-11-03)
 
 
