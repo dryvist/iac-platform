@@ -77,4 +77,5 @@ here; all fleet roots use native OpenTofu through Terrakube.
   env vars (PAT from the UI). `TF_VAR_openbao_address` supplies the non-secret
   internal OpenBao HTTPS endpoint; provider credentials never pass through this
   configuration.
-- `deploy.sh` needs: age key locally, SSH to `<vm-fqdn>`.
+- `deploy.sh` needs: OpenBao access for `scripts/openbao-exec-env.sh`, and SSH
+  to `<vm-fqdn>`.
