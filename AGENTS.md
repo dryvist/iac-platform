@@ -30,8 +30,9 @@ here; all fleet roots use native OpenTofu through Terrakube.
   degrade gracefully when the platform is unreachable (maintenance, redeploy)
   via a reachability pre-check → clean skip. See
   [docs/runbook.md](docs/runbook.md).
-- **OpenBao owns Terrakube identity and secrets**: Dex delegates human login to
-  OpenBao OIDC. Terrakube jobs exchange their signed workspace identity for a
+- **OpenBao owns Terrakube workload identity and secrets**: Dex brokers human
+  login through its GitHub and Authelia connectors (`compose/dex/config.yaml`).
+  Terrakube jobs exchange their signed workspace identity for a
   short-lived, least-privilege OpenBao token. Never store provider credentials
   as Terrakube workspace variables; workspaces contain only the four non-secret
   dynamic-credential controls. Humans `tofu login` once per machine (browser).
@@ -76,4 +77,5 @@ here; all fleet roots use native OpenTofu through Terrakube.
   env vars (PAT from the UI). `TF_VAR_openbao_address` supplies the non-secret
   internal OpenBao HTTPS endpoint; provider credentials never pass through this
   configuration.
-- `deploy.sh` needs: age key locally, SSH to `<vm-fqdn>`.
+- `deploy.sh` needs: OpenBao access for `scripts/openbao-exec-env.sh`, and SSH
+  to `<vm-fqdn>`.

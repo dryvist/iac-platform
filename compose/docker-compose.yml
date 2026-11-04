@@ -9,8 +9,9 @@
 #     to back onto.
 #   - no bundled minio: state/output/module storage is the existing RustFS
 #     object store, reached ONLY by FQDN (S3 ingress row) — never an IP:port.
-#   - no openldap: Dex delegates human authentication to OpenBao's native OIDC
-#     provider; OpenBao identity groups are Terrakube's authorization source.
+#   - no openldap: Dex brokers human authentication through its GitHub and
+#     Authelia connectors (dex/config.yaml); the GitHub team claim is
+#     Terrakube's admin group.
 #
 # Secrets are NOT in this file or compose/.env — they interpolate from the
 # environment at deploy time, exported from OpenBao by
@@ -76,7 +77,7 @@ x-api: &api_env
   InternalSecret: ${INTERNAL_SECRET}
   DexIssuerUri: https://terrakube-dex.${DOMAIN}/dex
   DexClientId: terrakube-app
-  # Admin group forwarded from the OpenBao OIDC provider through Dex.
+  # Admin group forwarded by Dex's GitHub connector.
   # Composed, never written out: this must equal the group claim Dex's GitHub
   # connector emits (org-qualified "org:team-slug") and the terrakube_team
   # resource in tofu/terrakube. Deriving it from the same two variables the
