@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.41.0](https://github.com/dryvist/iac-platform/compare/v1.40.1...v1.41.0) (2026-11-04)
+
+
+### Features
+
+* **semaphore:** schedule apps-leantime and proxmox-oci-app-upgrade on Saturdays ([4a9d227](https://github.com/dryvist/iac-platform/commit/4a9d22753f882ef51565623ec171834634cc8835))
+* **semaphore:** schedule Saturday Leantime converge and OCI app upgrade ([#442](https://github.com/dryvist/iac-platform/issues/442)) ([4a9d227](https://github.com/dryvist/iac-platform/commit/4a9d22753f882ef51565623ec171834634cc8835))
+
 ## [1.40.1](https://github.com/dryvist/iac-platform/compare/v1.40.0...v1.40.1) (2026-11-04)
 
 
