@@ -30,8 +30,9 @@ here; all fleet roots use native OpenTofu through Terrakube.
   degrade gracefully when the platform is unreachable (maintenance, redeploy)
   via a reachability pre-check → clean skip. See
   [docs/runbook.md](docs/runbook.md).
-- **OpenBao owns Terrakube identity and secrets**: Dex delegates human login to
-  OpenBao OIDC. Terrakube jobs exchange their signed workspace identity for a
+- **OpenBao owns Terrakube workload identity and secrets**: Dex brokers human
+  login through its GitHub and Authelia connectors (`compose/dex/config.yaml`).
+  Terrakube jobs exchange their signed workspace identity for a
   short-lived, least-privilege OpenBao token. Never store provider credentials
   as Terrakube workspace variables; workspaces contain only the four non-secret
   dynamic-credential controls. Humans `tofu login` once per machine (browser).
