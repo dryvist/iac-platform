@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.40.1](https://github.com/dryvist/iac-platform/compare/v1.40.0...v1.40.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* deploy ansible-secrets-management v0.66.1 ([#432](https://github.com/dryvist/iac-platform/issues/432)) ([11b3dfd](https://github.com/dryvist/iac-platform/commit/11b3dfdab372ffd9a937e6048eed83aed7cba141))
+
 ## [1.40.0](https://github.com/dryvist/iac-platform/compare/v1.39.5...v1.40.0) (2026-11-03)
 
 
