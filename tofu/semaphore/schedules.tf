@@ -1,5 +1,5 @@
 locals {
-  # Semaphore v2.19.16 (pinned in compose/.env.example) defaults its schedule
+  # Semaphore (SEMAPHORE_VERSION in compose/.env.example) defaults its schedule
   # timezone to UTC. Neither compose/docker-compose.yml nor .env.example
   # overrides SEMAPHORE_SCHEDULE_TIMEZONE, so these cron values are UTC.
   scheduled_mutating_templates = [
