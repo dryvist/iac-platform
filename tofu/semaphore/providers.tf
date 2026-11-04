@@ -11,8 +11,8 @@ terraform {
   required_providers {
     # Vendor namespace. The 0.3.x releases are cut by Semaphore's own author and
     # the provider is tested against the three most recent Semaphore minor lines
-    # (v2.16-v2.18); the deployed pin is v2.18.18, inside that window. Bump the
-    # provider and the server pin together, not independently.
+    # (v2.16-v2.18); the deployed pin is SEMAPHORE_VERSION in compose/.env.example.
+    # Bump the provider and the server pin together, not independently.
     #
     # Known and accepted: the provider's README describes itself as
     # "AI-supported, not actively maintained", and its client is generated from
