@@ -73,20 +73,6 @@ locals {
       description      = "Vikunja converge only, via --tags vikunja."
     }
 
-    # The youtrack play runs on localhost (the YouTrack guest is an oci-app
-    # container outside the inventory) and only under --tags youtrack.
-    apps-youtrack = {
-      repository       = "ansible-proxmox-apps"
-      playbook         = "playbooks/site.yml"
-      limit            = "localhost"
-      tags             = "youtrack"
-      mutating         = true
-      schedule_enabled = false
-      deployed_only    = true
-      extra_args       = []
-      description      = "YouTrack Hub settings reconcile (auth module, identity links), via --tags youtrack."
-    }
-
     # The 3600-second rail: a full store reconciliation runs past 2400 seconds.
     apps-openbao-tagged = {
       repository       = "ansible-proxmox-apps"
