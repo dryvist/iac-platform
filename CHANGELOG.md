@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.1](https://github.com/dryvist/iac-platform/compare/v1.42.0...v1.42.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* **semaphore:** build no develop twin for two new templates ([#447](https://github.com/dryvist/iac-platform/issues/447)) ([c417197](https://github.com/dryvist/iac-platform/commit/c417197e1e9d0202d1d85b9b41734db486bb049a))
+
 ## [1.42.0](https://github.com/dryvist/iac-platform/compare/v1.41.0...v1.42.0) (2026-11-05)
 
 
