@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.0](https://github.com/dryvist/iac-platform/compare/v1.41.0...v1.42.0) (2026-11-05)
+
+
+### Features
+
+* **semaphore:** add the apps-youtrack template ([#445](https://github.com/dryvist/iac-platform/issues/445)) ([96437a0](https://github.com/dryvist/iac-platform/commit/96437a01fca31745276ff8d35665bfd1ca578763))
+
 ## [1.41.0](https://github.com/dryvist/iac-platform/compare/v1.40.1...v1.41.0) (2026-11-04)
 
 
