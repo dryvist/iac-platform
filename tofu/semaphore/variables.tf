@@ -41,9 +41,8 @@ variable "ansible_repositories" {
 
     `url` is the public clone URL. `branch` is the DEPLOYED ref — the one the
     unsuffixed template runs and the only one anything scheduled may touch. It
-    may name a branch or a release tag. The apps repository uses `main`, which
-    advances only when a release is promoted; other tag-pinned values use the
-    Renovate annotation above them to propose the next tag.
+    may name a branch or a release tag. Each release-tag value has a Renovate
+    annotation above it that proposes the next tag.
     `preview_branches` names further refs the same repository may be run from
     on demand; each gets its own repository entry, its own templates and its
     own tab in the UI, so which ref a run used is never inferred.
@@ -73,8 +72,9 @@ variable "ansible_repositories" {
       preview_branches = ["develop"]
     }
     ansible-proxmox-apps = {
-      url              = "https://github.com/dryvist/ansible-proxmox-apps.git"
-      branch           = "main"
+      url = "https://github.com/dryvist/ansible-proxmox-apps.git"
+      # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-apps
+      branch           = "v5.17.0"
       preview_branches = ["develop"]
     }
     ansible-secrets-management = {
@@ -86,7 +86,7 @@ variable "ansible_repositories" {
     ansible-proxmox-ai = {
       url = "https://github.com/dryvist/ansible-proxmox-ai.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-ai
-      branch           = "v2.16.1"
+      branch           = "v2.16.2"
       preview_branches = ["develop"]
     }
     # No develop branch upstream: this repository releases from main only, so
