@@ -82,6 +82,7 @@ locals {
       tags             = "youtrack"
       mutating         = true
       schedule_enabled = false
+      deployed_only    = true
       extra_args       = []
       description      = "YouTrack Hub settings reconcile (auth module, identity links), via --tags youtrack."
     }

@@ -21,6 +21,7 @@ locals {
       limit            = "proxmox"
       mutating         = true
       schedule_enabled = true
+      deployed_only    = true
       extra_args       = []
       rail_sec         = 3600
       description      = "Saturday OCI app upgrade on the proxmox group."
