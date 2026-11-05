@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.2](https://github.com/dryvist/iac-platform/compare/v1.42.1...v1.42.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **semaphore:** drop the apps-youtrack template ([#449](https://github.com/dryvist/iac-platform/issues/449)) ([c01dcae](https://github.com/dryvist/iac-platform/commit/c01dcae6d91696e37e705917b6b6bda52a2449bb))
+
 ## [1.42.1](https://github.com/dryvist/iac-platform/compare/v1.42.0...v1.42.1) (2026-11-05)
 
 
