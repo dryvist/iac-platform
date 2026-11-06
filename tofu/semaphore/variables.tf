@@ -74,7 +74,7 @@ variable "ansible_repositories" {
     ansible-proxmox-apps = {
       url = "https://github.com/dryvist/ansible-proxmox-apps.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-apps
-      branch           = "v5.19.1"
+      branch           = "v5.21.1"
       preview_branches = ["develop"]
     }
     ansible-secrets-management = {
@@ -86,7 +86,7 @@ variable "ansible_repositories" {
     ansible-proxmox-ai = {
       url = "https://github.com/dryvist/ansible-proxmox-ai.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-ai
-      branch           = "v2.20.0"
+      branch           = "v2.20.3"
       preview_branches = ["develop"]
     }
     # No develop branch upstream: this repository releases from main only, so
