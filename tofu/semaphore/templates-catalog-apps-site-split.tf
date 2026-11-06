@@ -78,13 +78,13 @@ locals {
     apps-core-apps = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"
-      limit            = "mailpit_group,ntfy_group,healthchecks_group,technitium_dns_group,traefik_group,haproxy_group,openbao_group,docker_vms,mssql_group,postgres_group,postgres_ai_group,nautobot_group,idrac_kvm_group,n8n_group,openproject_group"
-      tags             = "mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker"
+      limit            = "mailpit_group,ntfy_group,healthchecks_group,technitium_dns_group,traefik_group,haproxy_group,openbao_group,docker_vms,mssql_group,postgres_group,postgres_ai_group,nautobot_group,idrac_kvm_group,n8n_group"
+      tags             = "mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker"
       mutating         = true
       schedule_enabled = false
       extra_args       = []
       rail_sec         = 3600
-      description      = "Notifications and core apps converge (mailpit, ntfy, healthchecks, deadman, mssql, postgres, nautobot, n8n, openproject, ...), via --tags mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker,openproject_docker."
+      description      = "Notifications and core apps converge (mailpit, ntfy, healthchecks, deadman, mssql, postgres, nautobot, n8n, ...), via --tags mailpit,ntfy,healthchecks,service_deadman,mssql_docker,postgres,postgres_ai,nautobot,agent_sandbox,opentofu_cli,idrac_kvm_docker,n8n_docker."
     }
 
     # Phase 4 of the postgres role (managed roles, databases, pg_hba) plus the
