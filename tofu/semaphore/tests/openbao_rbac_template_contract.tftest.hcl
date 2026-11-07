@@ -7,11 +7,16 @@ run "openbao_rbac_template_contract" {
   }
 
   assert {
-    condition = can(regex(
-      "apps-openbao-rbac = \\{\\s*repository\\s*=\\s*\"ansible-proxmox-apps\"\\s*project\\s*=\\s*\"secrets\"\\s*playbook\\s*=\\s*\"playbooks/site[.]yml\"\\s*limit\\s*=\\s*\"openbao_group\"\\s*tags\\s*=\\s*\"openbao_rbac\"\\s*mutating\\s*=\\s*true\\s*schedule_enabled\\s*=\\s*false\\s*extra_args\\s*=\\s*\\[\\]\\s*description\\s*=\\s*\"[^\"]+\"\\s*\\}",
-      file("${path.module}/../../../templates-catalog-apps.tf")
-    ))
-    error_message = "apps-openbao-rbac must run only the RBAC phase in secrets, with the OpenBao group limit, no schedule, extra arguments or rail override."
+    condition = alltrue([
+      for name, tag in {
+        apps-openbao-rbac           = "openbao_rbac"
+        apps-openbao-approle-config = "openbao_approle_config"
+        } : can(regex(
+          "${name} = \\{\\s*repository\\s*=\\s*\"ansible-proxmox-apps\"\\s*project\\s*=\\s*\"secrets\"\\s*playbook\\s*=\\s*\"playbooks/site[.]yml\"\\s*limit\\s*=\\s*\"openbao_group\"\\s*tags\\s*=\\s*\"${tag}\"\\s*mutating\\s*=\\s*true\\s*schedule_enabled\\s*=\\s*false\\s*extra_args\\s*=\\s*\\[\\]\\s*description\\s*=\\s*\"[^\"]+\"\\s*\\}",
+          file("${path.module}/../../../templates-catalog-apps.tf")
+      ))
+    ])
+    error_message = "OpenBao phase templates must run only their named phase in secrets, with the OpenBao group limit, no schedule, extra arguments or rail override."
   }
 
   assert {
@@ -24,7 +29,7 @@ run "openbao_rbac_template_contract" {
 
   assert {
     condition = alltrue([
-      for tag in ["openbao", "openbao_rbac", "openbao_rotate"] : can(regex(
+      for tag in ["openbao", "openbao_rbac", "openbao_approle_config", "openbao_rotate"] : can(regex(
         regex("for tag in split[^\n]+can\\(regex\\(\"([^\"]+)\", tag\\)", file("${path.module}/../../../templates.tf"))[0],
         tag
       ))
