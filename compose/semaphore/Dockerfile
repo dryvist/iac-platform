@@ -18,7 +18,7 @@ ARG BAO_VERSION=2.7.2
 # uv runs the pinned benchmark converter during campaign preflight. Install the
 # official musl release in the image so the execution plane owns the binary.
 # renovate: datasource=github-releases depName=astral-sh/uv
-ARG UV_VERSION=0.13.1
+ARG UV_VERSION=0.13.6
 
 USER root
 # Every tool and library below is reached by a role that runs ON THE
