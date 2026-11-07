@@ -85,16 +85,16 @@ resource "terraform_data" "limit_guard" {
       ])
       error_message = "Every ansible_templates entry needs a non-empty limit that does not itself name localhost; the argument list appends it."
     }
-    # `secrets` holds only the openbao-tagged ansible-proxmox-apps runs.
+    # `secrets`: openbao*-tagged apps runs only.
     precondition {
       condition = alltrue([
         for t in local.ansible_templates : try(t.project, local.repository_projects[t.repository]) != "secrets" || (
-          t.repository == "ansible-proxmox-apps" && contains(split(",", try(t.tags, "")), "openbao")
+          t.repository == "ansible-proxmox-apps" && alltrue([for tag in split(",", try(t.tags, "")) : can(regex("^openbao(_|$)", tag))])
         )
       ])
-      error_message = "Only openbao-tagged ansible-proxmox-apps templates may name project = \"secrets\"."
+      error_message = "Only openbao*-tagged ansible-proxmox-apps templates may name project = \"secrets\"."
     }
-    # An only_branch that is not a preview ref of its repository would build no template at all.
+    # An only_branch that is no preview ref of its repository builds no template.
     precondition {
       condition = alltrue([
         for t in local.ansible_templates : try(t.only_branch, null) == null || contains(

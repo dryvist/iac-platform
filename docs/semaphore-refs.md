@@ -59,6 +59,14 @@ the wrapper honours. Thirty entries do. Examples:
 - `ai-site-promotion @ develop`, the develop-to-main promotion check, at 3600
   seconds and only from the develop ref (`only_branch`).
 - `proxmox-site` and `apps-openbao-tagged` at 3600 seconds.
+- `apps-openbao-rbac` and `apps-openbao-rbac @ develop` run only the
+  `openbao_rbac` phase in the secrets project, limited to
+  `openbao_group,localhost`, with the default 900-second rail. Pass
+  `-e openbao_rbac_policy_name=<policy>` to select one policy; both are unscheduled.
+- `apps-openbao-approle-config` and `apps-openbao-approle-config @ develop` run
+  only the `openbao_approle_config` phase in the secrets project, limited to
+  `openbao_group,localhost`, with the default 900-second rail. Pass
+  `-e openbao_approle_config_name=<approle>` to select one AppRole; both are unscheduled.
 - `ai-llm-router` and `apps-openbao-rotators` at 2400 seconds.
 - `ai-hermes-agent` at 2400 seconds.
 - `apps-upgrade` and its five wave siblings, `apps-upgrade-lxc-1` through
