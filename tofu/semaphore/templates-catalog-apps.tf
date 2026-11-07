@@ -87,11 +87,22 @@ locals {
       description      = "Store reconciliation only, via --tags openbao. Skips the baseline phase."
     }
 
+    apps-openbao-rbac = {
+      repository       = "ansible-proxmox-apps"
+      project          = "secrets"
+      playbook         = "playbooks/site.yml"
+      limit            = "openbao_group"
+      tags             = "openbao_rbac"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "OpenBao RBAC policy phase only, via --tags openbao_rbac; pass -e openbao_rbac_policy_name to write one policy."
+    }
+
     # Rotator and secret-age env files only, via --tags. The openbao role is
     # entered through an include_role that carries every phase tag, so the
     # inner tags select the tasks; the play-level tags stay on the same play.
-    # No project = "secrets": templates.tf allows that project only for a tag
-    # that is exactly "openbao", and these tags are finer than that.
+    # These templates retain the repository's default project.
     # The 2400-second rail, as for apps-openbao-tagged.
     apps-openbao-rotators = {
       repository       = "ansible-proxmox-apps"
