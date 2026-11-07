@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.43.0](https://github.com/dryvist/iac-platform/compare/v1.42.2...v1.43.0) (2026-11-07)
+
+
+### Features
+
+* **semaphore:** add OpenBao RBAC and AppRole-config phase templates ([#479](https://github.com/dryvist/iac-platform/issues/479)) ([6c9f332](https://github.com/dryvist/iac-platform/commit/6c9f3323e1556031812205548872d8bfda4782f1))
+
 ## [1.42.2](https://github.com/dryvist/iac-platform/compare/v1.42.1...v1.42.2) (2026-11-05)
 
 
