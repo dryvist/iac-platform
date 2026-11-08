@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.44.0](https://github.com/dryvist/iac-platform/compare/v1.43.0...v1.44.0) (2026-11-08)
+
+
+### Features
+
+* **semaphore:** give apps-media the full task rail ([#492](https://github.com/dryvist/iac-platform/issues/492)) ([354fbd4](https://github.com/dryvist/iac-platform/commit/354fbd41e5060eea7a3f3ebf432802817e89924c))
+
 ## [1.43.0](https://github.com/dryvist/iac-platform/compare/v1.42.2...v1.43.0) (2026-11-07)
 
 
