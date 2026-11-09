@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.45.0](https://github.com/dryvist/iac-platform/compare/v1.44.0...v1.45.0) (2026-11-09)
+
+
+### Features
+
+* **agent:** autonomous zcode run j-ab08c784ce4d7dbb ([#513](https://github.com/dryvist/iac-platform/issues/513)) ([fb3b579](https://github.com/dryvist/iac-platform/commit/fb3b5793c6b00f4c211ca1ba93bd1b1141a7f1ef))
+* **agent:** zcode run j-ab08c784ce4d7dbb ([fb3b579](https://github.com/dryvist/iac-platform/commit/fb3b5793c6b00f4c211ca1ba93bd1b1141a7f1ef))
+
 ## [1.44.0](https://github.com/dryvist/iac-platform/compare/v1.43.0...v1.44.0) (2026-11-08)
 
 
