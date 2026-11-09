@@ -255,6 +255,22 @@ locals {
       description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
     }
 
+    # Ansible unions repeated --tags, so the hermes_crons component cannot be
+    # selected by adding a tag to ai-hermes-agent: it needs its own template.
+    # diff = false for the same reason as ai-hermes-agent; the 540-second rail
+    # fits the 10-minute component rule.
+    ai-hermes-crons = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/site.yml"
+      limit            = "hermes_agent_group"
+      tags             = "hermes_crons"
+      mutating         = true
+      schedule_enabled = false
+      diff             = false
+      rail_sec         = 540
+      description      = "Hermes cron reconcile only: prompt catalog, pre-reconcile checks and the cron fleet."
+    }
+
     # The held-out evaluation is an on-demand, classifier-scoped run with its
     # own 540-second job rail.
     ai-laya-heldout = {
