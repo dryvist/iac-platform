@@ -241,20 +241,6 @@ locals {
       description      = "LiteLLM router converge with llm_router_seed_mode=rebuild: re-seeds roles, fallbacks and router_settings from git."
     }
 
-    # diff = false: the role syncs a full source tree, and its --diff output
-    # is too large to store as task output. The 2400-second rail: a full converge
-    # of the Hermes identities runs past the 900-second default.
-    ai-hermes-agent = {
-      repository  = "ansible-proxmox-ai"
-      playbook    = "playbooks/site.yml"
-      limit       = "hermes_agent_group"
-      tags        = "hermes_agent"
-      mutating    = true
-      diff        = false
-      rail_sec    = 2400
-      description = "Hermes Agent (and companion identities) converge only, scoped by tag and limit."
-    }
-
     # The held-out evaluation is an on-demand, classifier-scoped run with its
     # own 540-second job rail.
     ai-laya-heldout = {
