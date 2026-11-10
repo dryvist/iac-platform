@@ -1,11 +1,10 @@
-# Model-trial ansible-proxmox-ai templates. Kept apart from the on-demand
-# catalog to keep both Terraform files below the repository size gate.
+# Model-trial ansible-proxmox-ai templates: the GPU container runtime converge
+# and the bounded model trial.
 
 locals {
   ansible_templates_ai_trial = {
-    # Entry points in their own right: each playbook imports its inventory loader.
-    # The container runtime converge names the one trial guest in both the limit
-    # and the playbook's host variable; the playbook refuses the live medium guest.
+    # Each playbook imports its inventory loader. The container runtime converge
+    # names the one trial guest in both the limit and the playbook's host variable.
     ai-llm-gpu-container-trial = {
       repository       = "ansible-proxmox-ai"
       playbook         = "playbooks/llm-gpu-container-trial.yml"
