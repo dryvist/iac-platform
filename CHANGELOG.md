@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.0](https://github.com/dryvist/iac-platform/compare/v1.45.0...v1.46.0) (2026-11-10)
+
+
+### Features
+
+* **semaphore:** add the GPU container trial and model trial templates ([#517](https://github.com/dryvist/iac-platform/issues/517)) ([73d251b](https://github.com/dryvist/iac-platform/commit/73d251b600454d8b4277bf337575b78b11ae4c75))
+
 ## [1.45.0](https://github.com/dryvist/iac-platform/compare/v1.44.0...v1.45.0) (2026-11-09)
 
 
