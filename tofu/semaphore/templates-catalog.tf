@@ -62,6 +62,7 @@ locals {
     local.ansible_templates_ai,
     local.ansible_templates_ai_hermes,
     local.ansible_templates_ai_scheduled,
+    local.ansible_templates_ai_trial,
     local.ansible_templates_ai_benchmark,
     local.ansible_templates_saturday_deploys,
   )
