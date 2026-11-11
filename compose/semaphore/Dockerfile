@@ -20,6 +20,11 @@ ARG BAO_VERSION=2.7.2
 # renovate: datasource=github-releases depName=astral-sh/uv
 ARG UV_VERSION=0.13.6
 
+# The Hugging Face CLI (`hf`) the model-trial preflight runs on the controller:
+# Hub metadata, the revision-pinned file tree, and downloads.
+# renovate: datasource=pypi depName=huggingface_hub
+ARG HF_HUB_VERSION=2.4.0
+
 USER root
 # Every tool and library below is reached by a role that runs ON THE
 # CONTROLLER, so a missing one fails the play rather than the target. Each
@@ -74,6 +79,12 @@ RUN set -eu \
     && install -m 0755 "uv-${UV_ARCH}-unknown-linux-musl/uvx" /usr/local/bin/uvx \
     && rm -rf "${UV_ARCHIVE}" "${UV_ARCHIVE}.sha256" "uv-${UV_ARCH}-unknown-linux-musl" \
     && uv --version
+
+# Installed as a uv tool in its own environment on the system Python, with the
+# entry point on PATH for every user.
+RUN UV_TOOL_DIR=/opt/uv-tools UV_TOOL_BIN_DIR=/usr/local/bin \
+      uv tool install --no-cache --python /usr/bin/python3 "huggingface_hub==${HF_HUB_VERSION}" \
+    && hf version
 
 # The PLAY RECAP assertion wrapper every Ansible template invokes instead of
 # calling run-ansible.sh directly — see the script for why.
