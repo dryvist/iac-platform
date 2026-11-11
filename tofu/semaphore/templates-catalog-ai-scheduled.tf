@@ -2,7 +2,40 @@
 # catalog to keep both Terraform files below the repository size gate.
 
 locals {
-  ansible_templates_ai_scheduled = {
+  # One entry per tau2 benchmark lane. Each lane becomes one scheduled template
+  # named ai-benchmark-tau2-<name>, and schedules.tf reads its cron from here.
+  # guest_key names the lane's entry in the benchmark_lane_guest_vmids variable.
+  benchmark_tau2_lanes = [
+    {
+      name            = "medium"
+      model           = "medium"
+      tokenizer       = "nvidia/Qwen3.8-27B-NVFP4"
+      tau2_domain     = "banking_knowledge"
+      concurrency     = 10
+      tau2_num_trials = 1
+      cron            = "7 * * * *"
+      rail_sec        = 3300
+      guest_key       = "medium"
+    },
+    {
+      name            = "small"
+      model           = "small"
+      tokenizer       = "Qwen/Qwen3.5-9B"
+      tau2_domain     = "retail"
+      concurrency     = 2
+      tau2_num_trials = 1
+      cron            = "23 * * * *"
+      rail_sec        = 3300
+      guest_key       = "small"
+    },
+  ]
+
+  # Template name -> lane. The only place a lane's template name is built.
+  benchmark_tau2_templates = {
+    for lane in local.benchmark_tau2_lanes : "ai-benchmark-tau2-${lane.name}" => lane
+  }
+
+  ansible_templates_ai_scheduled_fixed = {
     ai-laya-finetune-collect = {
       repository       = "ansible-proxmox-ai"
       playbook         = "playbooks/site.yml"
@@ -32,35 +65,43 @@ locals {
       ]
       description = "Run the quick-intelligence quality recipe nightly on the medium vLLM lane."
     }
-
-    # Hourly tau2 lanes, one per model size. Node, client and guest VMIDs and
-    # the router URL are supplied at run time as TF_VAR_* values, never here.
-    ai-benchmark-tau2-medium = {
-      repository       = "ansible-proxmox-ai"
-      playbook         = "playbooks/benchmark-run.yml"
-      limit            = "all"
-      mutating         = true
-      schedule_enabled = true
-      rail_sec         = 3300
-      extra_args = [
-        "--extra-vars",
-        "suite=tau2-banking-knowledge tau2_domain=banking_knowledge tau2_max_concurrency=10 tau2_num_trials=1 concurrency=10 model=medium tokenizer=nvidia/Qwen3.8-27B-NVFP4 upgrade=false publish=false api_key_kv_path=apps/evals api_key_kv_field=evals_llm_router_key run_id=tau2-medium-{{ now(utc=true, fmt='%Y%m%dT%H%M') }} node=${var.benchmark_client_node} client_vmid=${var.benchmark_client_vmid} gpu_guest_vmid=${var.benchmark_medium_guest_vmid} engine_url=${var.benchmark_router_url}",
-      ]
-      description = "Run the tau2 banking-knowledge suite hourly on the medium lane."
-    }
-
-    ai-benchmark-tau2-small = {
-      repository       = "ansible-proxmox-ai"
-      playbook         = "playbooks/benchmark-run.yml"
-      limit            = "all"
-      mutating         = true
-      schedule_enabled = true
-      rail_sec         = 3300
-      extra_args = [
-        "--extra-vars",
-        "suite=tau2-banking-knowledge tau2_domain=airline tau2_max_concurrency=2 tau2_num_trials=1 concurrency=2 model=small tokenizer=Qwen/Qwen3.5-9B upgrade=false publish=false api_key_kv_path=apps/evals api_key_kv_field=evals_llm_router_key run_id=tau2-small-{{ now(utc=true, fmt='%Y%m%dT%H%M') }} node=${var.benchmark_client_node} client_vmid=${var.benchmark_client_vmid} gpu_guest_vmid=${var.benchmark_small_guest_vmid} engine_url=${var.benchmark_router_url}",
-      ]
-      description = "Run the tau2 airline suite hourly on the small lane."
-    }
   }
+
+  # The fixed entries above and one generated template per tau2 lane, merged the
+  # same way templates-catalog.tf merges the per-repository maps. Every lane
+  # shares one extra-vars builder; only the lane's own values differ.
+  ansible_templates_ai_scheduled = merge(local.ansible_templates_ai_scheduled_fixed, {
+    for tname, lane in local.benchmark_tau2_templates : tname => {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/benchmark-run.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = true
+      rail_sec         = lane.rail_sec
+      extra_args = [
+        "--extra-vars",
+        join(" ", [
+          for k, v in {
+            suite                = "tau2-${replace(lane.tau2_domain, "_", "-")}"
+            tau2_domain          = lane.tau2_domain
+            tau2_max_concurrency = lane.concurrency
+            tau2_num_trials      = lane.tau2_num_trials
+            concurrency          = lane.concurrency
+            model                = lane.model
+            tokenizer            = lane.tokenizer
+            upgrade              = "false"
+            publish              = "false"
+            api_key_kv_path      = var.benchmark_api_key_kv_path
+            api_key_kv_field     = var.benchmark_api_key_kv_field
+            run_id               = "tau2-${lane.name}-{{ now(utc=true, fmt='%Y%m%dT%H%M') }}"
+            node                 = var.benchmark_client_node
+            client_vmid          = var.benchmark_client_vmid
+            gpu_guest_vmid       = var.benchmark_lane_guest_vmids[lane.guest_key]
+            engine_url           = var.benchmark_router_url
+          } : "${k}=${v}"
+        ]),
+      ]
+      description = "Run the tau2 ${replace(lane.tau2_domain, "_", "-")} suite hourly on the ${lane.name} lane."
+    }
+  })
 }

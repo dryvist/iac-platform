@@ -23,7 +23,7 @@ run "ai_laya_finetune_collect_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "scheduled_mutating_templates = \\[[^\\]]*\"ai-laya-finetune-collect\"",
+      "scheduled_mutating_templates = (concat\\()?\\[[^\\]]*\"ai-laya-finetune-collect\"",
       file("${path.module}/../../../schedules.tf")
     ))
     error_message = "The scheduled Laya collect template must be explicitly allowed as mutating."

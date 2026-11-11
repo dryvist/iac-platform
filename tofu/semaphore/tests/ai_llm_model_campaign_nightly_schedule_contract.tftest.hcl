@@ -29,7 +29,7 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
       "ai-llm-model-campaign-nightly\\s*=\\s*\"17 2 \\* \\* \\*\"",
       file("${path.module}/../../../schedules.tf")
       )) && can(regex(
-      "scheduled_mutating_templates = \\[[^\\]]*\"ai-llm-model-campaign-nightly\"",
+      "scheduled_mutating_templates = (concat\\()?\\[[^\\]]*\"ai-llm-model-campaign-nightly\"",
       file("${path.module}/../../../schedules.tf")
     ))
     error_message = "The nightly campaign must have its UTC cron and appear in the mutating schedule allowlist."

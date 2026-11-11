@@ -2,13 +2,11 @@ locals {
   # Semaphore (SEMAPHORE_VERSION in compose/.env.example) defaults its schedule
   # timezone to UTC. Neither compose/docker-compose.yml nor .env.example
   # overrides SEMAPHORE_SCHEDULE_TIMEZONE, so these cron values are UTC.
-  scheduled_mutating_templates = [
+  scheduled_mutating_templates = concat([
     "splunk-weekly-update",
     "apps-agent-sandbox-credentials",
     "ai-laya-finetune-collect",
     "ai-llm-model-campaign-nightly",
-    "ai-benchmark-tau2-medium",
-    "ai-benchmark-tau2-small",
     "proxmox-upgrade",
     "apps-upgrade",
     "apps-upgrade-lxc-1",
@@ -18,15 +16,13 @@ locals {
     "apps-upgrade-vms",
     "apps-leantime",
     "proxmox-oci-app-upgrade",
-  ]
+  ], keys(local.benchmark_tau2_templates))
 
   scheduled_templates = {
     for k, t in local.ansible_templates : k => t if try(t.schedule_enabled, false)
   }
 
-  schedule_crons = {
-    ai-benchmark-tau2-medium       = "7 * * * *"
-    ai-benchmark-tau2-small        = "23 * * * *"
+  schedule_crons = merge({
     ai-llm-model-campaign-nightly  = "17 2 * * *"
     apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"
@@ -41,7 +37,9 @@ locals {
     splunk-weekly-update           = "40 6 * * 6"
     apps-leantime                  = "55 6 * * 6"
     proxmox-oci-app-upgrade        = "5 7 * * 6"
-  }
+    }, {
+    for tname, lane in local.benchmark_tau2_templates : tname => lane.cron
+  })
 }
 
 resource "terraform_data" "schedule_guard" {
@@ -69,6 +67,12 @@ resource "terraform_data" "schedule_guard" {
         try(local.ansible_template_refs[k].deployed, false)
       ])
       error_message = "A cron is declared for a template that is not built from its repository's deployed branch. Scheduled runs are for the deployed ref only."
+    }
+    # Every benchmark lane names a guest VMID key; a missing key would build a
+    # lane with no guest to measure.
+    precondition {
+      condition     = alltrue([for lane in local.benchmark_tau2_lanes : contains(keys(var.benchmark_lane_guest_vmids), lane.guest_key)])
+      error_message = "Every benchmark_tau2_lanes guest_key must be a key of benchmark_lane_guest_vmids."
     }
   }
 }

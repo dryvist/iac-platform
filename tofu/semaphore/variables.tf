@@ -194,31 +194,49 @@ variable "benchmark_client_vmid" {
   }
 }
 
-variable "benchmark_medium_guest_vmid" {
+variable "benchmark_lane_guest_vmids" {
   description = <<-EOT
-    VMID of the measured GPU guest for the medium tau2 lane, whose package versions are recorded.
+    VMID of the measured GPU guest for each tau2 benchmark lane, keyed by the
+    guest_key that the lane names in benchmark_tau2_lanes.
 
-    Supplied as TF_VAR_benchmark_medium_guest_vmid in the run environment.
+    Supplied as TF_VAR_benchmark_lane_guest_vmids in the run environment, as a
+    JSON object. A lane whose key is missing here fails the schedule guard.
   EOT
-  type        = string
+  type        = map(string)
 
   validation {
-    condition     = can(regex("^[0-9]{3,9}$", var.benchmark_medium_guest_vmid))
-    error_message = "benchmark_medium_guest_vmid must be a numeric VMID of 3 to 9 digits."
+    condition     = alltrue([for v in values(var.benchmark_lane_guest_vmids) : can(regex("^[0-9]{3,9}$", v))])
+    error_message = "Every benchmark_lane_guest_vmids value must be a numeric VMID of 3 to 9 digits."
   }
 }
 
-variable "benchmark_small_guest_vmid" {
+variable "benchmark_api_key_kv_path" {
   description = <<-EOT
-    VMID of the measured GPU guest for the small tau2 lane, whose package versions are recorded.
+    OpenBao KV path of the router API key that the tau2 lanes send.
 
-    Supplied as TF_VAR_benchmark_small_guest_vmid in the run environment.
+    Defaults to the evals path. Override with TF_VAR_benchmark_api_key_kv_path.
   EOT
   type        = string
+  default     = "apps/evals"
 
   validation {
-    condition     = can(regex("^[0-9]{3,9}$", var.benchmark_small_guest_vmid))
-    error_message = "benchmark_small_guest_vmid must be a numeric VMID of 3 to 9 digits."
+    condition     = can(regex("^[A-Za-z0-9_/.-]+$", var.benchmark_api_key_kv_path))
+    error_message = "benchmark_api_key_kv_path must be a KV path of letters, digits, slashes, dots, underscores and hyphens."
+  }
+}
+
+variable "benchmark_api_key_kv_field" {
+  description = <<-EOT
+    Field name, under benchmark_api_key_kv_path, that holds the router API key.
+
+    Defaults to the evals field. Override with TF_VAR_benchmark_api_key_kv_field.
+  EOT
+  type        = string
+  default     = "evals_llm_router_key"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_-]+$", var.benchmark_api_key_kv_field))
+    error_message = "benchmark_api_key_kv_field must be a field name of letters, digits, underscores and hyphens."
   }
 }
 
