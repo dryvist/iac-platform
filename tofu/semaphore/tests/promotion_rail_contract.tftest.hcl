@@ -25,8 +25,8 @@ run "promotion_rail_contract" {
     condition = length(flatten([
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
-    ])) == 36
-    error_message = "rail_sec may be set only by the thirty-six allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
+    ])) == 37
+    error_message = "rail_sec may be set only by the thirty-seven allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
   }
 
   assert {

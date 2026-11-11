@@ -131,18 +131,6 @@ locals {
       description      = "Agent sandbox host converge only, via --tags agent_sandbox."
     }
 
-    apps-openhands = {
-      repository       = "ansible-proxmox-apps"
-      playbook         = "playbooks/site.yml"
-      limit            = "openhands_host"
-      tags             = "apt_proxy,node_exporter,syslog_forwarder,openhands"
-      mutating         = true
-      schedule_enabled = false
-      extra_args       = []
-      rail_sec         = 1800
-      description      = "OpenHands host converge only (apt proxy, node_exporter, log forwarding, OpenHands), via --tags apt_proxy,node_exporter,syslog_forwarder,openhands."
-    }
-
     # site/04-secrets-and-collab-apps.yml, minus openbao (apps-openbao-tagged),
     # zammad, vikunja, authelia and grafana, which already have their own
     # scoped templates in templates-catalog-apps.tf.
