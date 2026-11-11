@@ -2,6 +2,10 @@
 # catalog to keep both Terraform files below the repository size gate.
 
 locals {
+  # Suite id the benchmark-run playbook accepts for tau2; each lane picks its
+  # domain through tau2_domain.
+  benchmark_tau2_suite = "tau2-banking-knowledge"
+
   # One entry per tau2 benchmark lane. Each lane becomes one scheduled template
   # named ai-benchmark-tau2-<name>, and schedules.tf reads its cron from here.
   # guest_key names the lane's entry in the benchmark_lane_guest_vmids variable.
@@ -82,7 +86,7 @@ locals {
         "--extra-vars",
         join(" ", [
           for k, v in {
-            suite                = "tau2-${replace(lane.tau2_domain, "_", "-")}"
+            suite                = local.benchmark_tau2_suite
             tau2_domain          = lane.tau2_domain
             tau2_max_concurrency = lane.concurrency
             tau2_num_trials      = lane.tau2_num_trials
