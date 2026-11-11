@@ -249,8 +249,8 @@ variable "benchmark_router_url" {
   type        = string
 
   validation {
-    condition     = can(regex("^https://.+/v1$", var.benchmark_router_url))
-    error_message = "benchmark_router_url must be an https:// URL ending in /v1."
+    condition     = can(regex("^https://([a-z0-9-]+\\.)+[a-z]{2,}/v1$", var.benchmark_router_url))
+    error_message = "benchmark_router_url must be https://<DNS name>/v1, with no IP address, port or extra path."
   }
 }
 
