@@ -32,5 +32,35 @@ locals {
       ]
       description = "Run the quick-intelligence quality recipe nightly on the medium vLLM lane."
     }
+
+    # Hourly tau2 lanes, one per model size. Node, client and guest VMIDs and
+    # the router URL are supplied at run time as TF_VAR_* values, never here.
+    ai-benchmark-tau2-medium = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/benchmark-run.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = true
+      rail_sec         = 3300
+      extra_args = [
+        "--extra-vars",
+        "suite=tau2-banking-knowledge tau2_domain=banking_knowledge tau2_max_concurrency=10 tau2_num_trials=1 concurrency=10 model=medium tokenizer=nvidia/Qwen3.8-27B-NVFP4 upgrade=false publish=false api_key_kv_path=apps/evals api_key_kv_field=evals_llm_router_key run_id=tau2-medium-{{ now(utc=true, fmt='%Y%m%dT%H%M') }} node=${var.benchmark_client_node} client_vmid=${var.benchmark_client_vmid} gpu_guest_vmid=${var.benchmark_medium_guest_vmid} engine_url=${var.benchmark_router_url}",
+      ]
+      description = "Run the tau2 banking-knowledge suite hourly on the medium lane."
+    }
+
+    ai-benchmark-tau2-small = {
+      repository       = "ansible-proxmox-ai"
+      playbook         = "playbooks/benchmark-run.yml"
+      limit            = "all"
+      mutating         = true
+      schedule_enabled = true
+      rail_sec         = 3300
+      extra_args = [
+        "--extra-vars",
+        "suite=tau2-banking-knowledge tau2_domain=airline tau2_max_concurrency=2 tau2_num_trials=1 concurrency=2 model=small tokenizer=Qwen/Qwen3.5-9B upgrade=false publish=false api_key_kv_path=apps/evals api_key_kv_field=evals_llm_router_key run_id=tau2-small-{{ now(utc=true, fmt='%Y%m%dT%H%M') }} node=${var.benchmark_client_node} client_vmid=${var.benchmark_client_vmid} gpu_guest_vmid=${var.benchmark_small_guest_vmid} engine_url=${var.benchmark_router_url}",
+      ]
+      description = "Run the tau2 airline suite hourly on the small lane."
+    }
   }
 }

@@ -7,6 +7,8 @@ locals {
     "apps-agent-sandbox-credentials",
     "ai-laya-finetune-collect",
     "ai-llm-model-campaign-nightly",
+    "ai-benchmark-tau2-medium",
+    "ai-benchmark-tau2-small",
     "proxmox-upgrade",
     "apps-upgrade",
     "apps-upgrade-lxc-1",
@@ -23,6 +25,8 @@ locals {
   }
 
   schedule_crons = {
+    ai-benchmark-tau2-medium       = "7 * * * *"
+    ai-benchmark-tau2-small        = "23 * * * *"
     ai-llm-model-campaign-nightly  = "17 2 * * *"
     apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"

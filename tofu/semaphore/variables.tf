@@ -165,3 +165,74 @@ variable "max_parallel_tasks" {
   }
 }
 
+variable "benchmark_client_node" {
+  description = <<-EOT
+    Published Proxmox inventory name of the node that hosts the benchmark client.
+
+    Supplied as TF_VAR_benchmark_client_node in the run environment. Like
+    openbao_address, the value is kept out of this repository.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]+$", var.benchmark_client_node))
+    error_message = "benchmark_client_node must be a lowercase inventory name of letters, digits and hyphens."
+  }
+}
+
+variable "benchmark_client_vmid" {
+  description = <<-EOT
+    VMID of the running LXC tagged benchmark-client that the tau2 lanes run from.
+
+    Supplied as TF_VAR_benchmark_client_vmid in the run environment.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]{3,9}$", var.benchmark_client_vmid))
+    error_message = "benchmark_client_vmid must be a numeric VMID of 3 to 9 digits."
+  }
+}
+
+variable "benchmark_medium_guest_vmid" {
+  description = <<-EOT
+    VMID of the measured GPU guest for the medium tau2 lane, whose package versions are recorded.
+
+    Supplied as TF_VAR_benchmark_medium_guest_vmid in the run environment.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]{3,9}$", var.benchmark_medium_guest_vmid))
+    error_message = "benchmark_medium_guest_vmid must be a numeric VMID of 3 to 9 digits."
+  }
+}
+
+variable "benchmark_small_guest_vmid" {
+  description = <<-EOT
+    VMID of the measured GPU guest for the small tau2 lane, whose package versions are recorded.
+
+    Supplied as TF_VAR_benchmark_small_guest_vmid in the run environment.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]{3,9}$", var.benchmark_small_guest_vmid))
+    error_message = "benchmark_small_guest_vmid must be a numeric VMID of 3 to 9 digits."
+  }
+}
+
+variable "benchmark_router_url" {
+  description = <<-EOT
+    OpenAI-compatible /v1 endpoint the tau2 lanes send their requests to.
+
+    Supplied as TF_VAR_benchmark_router_url in the run environment.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^https://.+/v1$", var.benchmark_router_url))
+    error_message = "benchmark_router_url must be an https:// URL ending in /v1."
+  }
+}
+
