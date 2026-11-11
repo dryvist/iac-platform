@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.48.0](https://github.com/dryvist/iac-platform/compare/v1.47.0...v1.48.0) (2026-11-11)
+
+
+### Features
+
+* **semaphore:** add the Hugging Face CLI to the runner image ([#523](https://github.com/dryvist/iac-platform/issues/523)) ([a2f2363](https://github.com/dryvist/iac-platform/commit/a2f2363c4c04c7d5429d0b7f7d5552ca2fa199f9))
+
 ## [1.47.0](https://github.com/dryvist/iac-platform/compare/v1.46.0...v1.47.0) (2026-11-11)
 
 
