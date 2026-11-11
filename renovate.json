@@ -40,6 +40,16 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+)\\s+ARG BAO_VERSION=(?<currentValue>[^\\s]+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Hugging Face CLI package pin in the Semaphore runner image, read from its renovate annotation",
+      "managerFilePatterns": [
+        "/^compose/semaphore/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG HF_HUB_VERSION=(?<currentValue>[^\\s]+)"
+      ]
     }
   ],
   "packageRules": [
