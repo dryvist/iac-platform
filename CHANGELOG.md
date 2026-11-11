@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.47.0](https://github.com/dryvist/iac-platform/compare/v1.46.0...v1.47.0) (2026-11-11)
+
+
+### Features
+
+* **semaphore:** add the apps-openhands template ([#521](https://github.com/dryvist/iac-platform/issues/521)) ([5538dff](https://github.com/dryvist/iac-platform/commit/5538dff0719e3d09cab5ca4ae1f5b0d61e79fc9d))
+
 ## [1.46.0](https://github.com/dryvist/iac-platform/compare/v1.45.0...v1.46.0) (2026-11-10)
 
 
