@@ -26,7 +26,7 @@ run "promotion_rail_contract" {
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
       ])) == 38 + length(regexall(
-      "name\\s*=\\s*\"([a-z0-9-]+)\"[^{}]*?\\brail_sec\\s*=\\s*([0-9]+)",
+      local.benchmark_tau2_lane_pattern,
       file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
     ))
     error_message = "rail_sec may be set only by the thirty-seven allowlisted catalog entries, by each benchmark lane in benchmark_tau2_lanes, and by the one lane-builder line that copies a lane's value. Every other template keeps the wrapper's 900-second default."

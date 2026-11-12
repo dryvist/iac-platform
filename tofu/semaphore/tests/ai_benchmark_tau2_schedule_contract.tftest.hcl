@@ -17,7 +17,7 @@ run "ai_benchmark_tau2_schedule_contract" {
   # The per-lane checks below are vacuous on an empty list, so require one lane.
   assert {
     condition = length(regexall(
-      "name\\s*=\\s*\"([a-z0-9-]+)\"[^{}]*?\\brail_sec\\s*=\\s*([0-9]+)",
+      local.benchmark_tau2_lane_pattern,
       file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
     )) > 0
     error_message = "The benchmark lane list must name at least one lane."
@@ -28,7 +28,7 @@ run "ai_benchmark_tau2_schedule_contract" {
   assert {
     condition = alltrue([
       for lane in regexall(
-        "name\\s*=\\s*\"([a-z0-9-]+)\"[^{}]*?\\brail_sec\\s*=\\s*([0-9]+)",
+        local.benchmark_tau2_lane_pattern,
         file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
         ) : alltrue([
           for check in [
@@ -72,7 +72,7 @@ run "ai_benchmark_tau2_schedule_contract" {
       can(regex("\\bapi_key_kv_path\\s*=\\s*var\\.benchmark_api_key_kv_path\\b", file("${path.module}/../../../templates-catalog-ai-scheduled.tf"))),
       can(regex("\\bapi_key_kv_field\\s*=\\s*var\\.benchmark_api_key_kv_field\\b", file("${path.module}/../../../templates-catalog-ai-scheduled.tf"))),
       can(regex(
-        "\"tau2-\\$\\{lane\\.name\\}-\\{\\{ now\\(utc=true, fmt='%Y%m%dT%H%M'\\) \\}\\}\"",
+        "\"tau2-\\$\\{lane\\.name\\}-\\{\\{now\\(utc=true,fmt='%Y%m%dT%H%M'\\)\\}\\}\"",
         file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
       )),
     ])

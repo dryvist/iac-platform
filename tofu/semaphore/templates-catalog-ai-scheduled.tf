@@ -97,7 +97,7 @@ locals {
             publish              = "false"
             api_key_kv_path      = var.benchmark_api_key_kv_path
             api_key_kv_field     = var.benchmark_api_key_kv_field
-            run_id               = "tau2-${lane.name}-{{ now(utc=true, fmt='%Y%m%dT%H%M') }}"
+            run_id               = "tau2-${lane.name}-{{now(utc=true,fmt='%Y%m%dT%H%M')}}"
             node                 = var.benchmark_client_node
             client_vmid          = var.benchmark_client_vmid
             gpu_guest_vmid       = var.benchmark_lane_guest_vmids[lane.guest_key]
