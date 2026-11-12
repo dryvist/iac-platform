@@ -25,8 +25,11 @@ run "promotion_rail_contract" {
     condition = length(flatten([
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
-    ])) == 39
-    error_message = "rail_sec may be set only by the thirty-nine allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
+      ])) == 40 + length(regexall(
+      local.benchmark_tau2_lane_pattern,
+      file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
+    ))
+    error_message = "rail_sec may be set only by the thirty-nine allowlisted catalog entries, by each benchmark lane in benchmark_tau2_lanes, and by the one lane-builder line that copies a lane's value. Every other template keeps the wrapper's 900-second default."
   }
 
   assert {
