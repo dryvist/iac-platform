@@ -165,3 +165,92 @@ variable "max_parallel_tasks" {
   }
 }
 
+variable "benchmark_client_node" {
+  description = <<-EOT
+    Published Proxmox inventory name of the node that hosts the benchmark client.
+
+    Supplied as TF_VAR_benchmark_client_node in the run environment. Like
+    openbao_address, the value is kept out of this repository.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]+$", var.benchmark_client_node))
+    error_message = "benchmark_client_node must be a lowercase inventory name of letters, digits and hyphens."
+  }
+}
+
+variable "benchmark_client_vmid" {
+  description = <<-EOT
+    VMID of the running LXC tagged benchmark-client that the tau2 lanes run from.
+
+    Supplied as TF_VAR_benchmark_client_vmid in the run environment.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]{3,9}$", var.benchmark_client_vmid))
+    error_message = "benchmark_client_vmid must be a numeric VMID of 3 to 9 digits."
+  }
+}
+
+variable "benchmark_lane_guest_vmids" {
+  description = <<-EOT
+    VMID of the measured GPU guest for each tau2 benchmark lane, keyed by the
+    guest_key that the lane names in benchmark_tau2_lanes.
+
+    Supplied as TF_VAR_benchmark_lane_guest_vmids in the run environment, as a
+    JSON object. A lane whose key is missing here fails the schedule guard.
+  EOT
+  type        = map(string)
+
+  validation {
+    condition     = alltrue([for v in values(var.benchmark_lane_guest_vmids) : can(regex("^[0-9]{3,9}$", v))])
+    error_message = "Every benchmark_lane_guest_vmids value must be a numeric VMID of 3 to 9 digits."
+  }
+}
+
+variable "benchmark_api_key_kv_path" {
+  description = <<-EOT
+    OpenBao KV path of the router API key that the tau2 lanes send.
+
+    Defaults to the evals path. Override with TF_VAR_benchmark_api_key_kv_path.
+  EOT
+  type        = string
+  default     = "apps/evals"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_/.-]+$", var.benchmark_api_key_kv_path))
+    error_message = "benchmark_api_key_kv_path must be a KV path of letters, digits, slashes, dots, underscores and hyphens."
+  }
+}
+
+variable "benchmark_api_key_kv_field" {
+  description = <<-EOT
+    Field name, under benchmark_api_key_kv_path, that holds the router API key.
+
+    Defaults to the evals field. Override with TF_VAR_benchmark_api_key_kv_field.
+  EOT
+  type        = string
+  default     = "evals_llm_router_key"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_-]+$", var.benchmark_api_key_kv_field))
+    error_message = "benchmark_api_key_kv_field must be a field name of letters, digits, underscores and hyphens."
+  }
+}
+
+variable "benchmark_router_url" {
+  description = <<-EOT
+    OpenAI-compatible /v1 endpoint the tau2 lanes send their requests to.
+
+    Supplied as TF_VAR_benchmark_router_url in the run environment.
+  EOT
+  type        = string
+
+  validation {
+    condition     = can(regex("^https://([a-z0-9-]+\\.)+[a-z]{2,}/v1$", var.benchmark_router_url))
+    error_message = "benchmark_router_url must be https://<DNS name>/v1, with no IP address, port or extra path."
+  }
+}
+

@@ -47,8 +47,8 @@ run "saturday_app_deploys_schedule_contract" {
 
   assert {
     condition = alltrue([
-      can(regex("scheduled_mutating_templates = \\[[^\\]]*\"apps-leantime\"", file("${path.module}/../../../schedules.tf"))),
-      can(regex("scheduled_mutating_templates = \\[[^\\]]*\"proxmox-oci-app-upgrade\"", file("${path.module}/../../../schedules.tf"))),
+      can(regex("scheduled_mutating_templates = (concat\\()?\\[[^\\]]*\"apps-leantime\"", file("${path.module}/../../../schedules.tf"))),
+      can(regex("scheduled_mutating_templates = (concat\\()?\\[[^\\]]*\"proxmox-oci-app-upgrade\"", file("${path.module}/../../../schedules.tf"))),
     ])
     error_message = "The schedule guard must explicitly allow apps-leantime and proxmox-oci-app-upgrade as mutating schedules."
   }

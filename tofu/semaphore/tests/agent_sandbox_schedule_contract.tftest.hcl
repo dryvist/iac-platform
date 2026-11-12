@@ -23,7 +23,7 @@ run "agent_sandbox_credentials_schedule" {
 
   assert {
     condition = can(regex(
-      "scheduled_mutating_templates = \\[[^\\]]*\"apps-agent-sandbox-credentials\"",
+      "scheduled_mutating_templates = (concat\\()?\\[[^\\]]*\"apps-agent-sandbox-credentials\"",
       file("${path.module}/../../../schedules.tf")
     ))
     error_message = "The schedule guard must explicitly allow the scoped sandbox template as a mutating schedule."
