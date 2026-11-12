@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.1](https://github.com/dryvist/iac-platform/compare/v1.49.0...v1.49.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **semaphore:** set rail_sec on the KV seed template ([#536](https://github.com/dryvist/iac-platform/issues/536)) ([cf5d040](https://github.com/dryvist/iac-platform/commit/cf5d040f899975400bfdc7bc920fede290e62b74))
+
 ## [1.49.0](https://github.com/dryvist/iac-platform/compare/v1.48.0...v1.49.0) (2026-11-12)
 
 
