@@ -74,6 +74,12 @@ resource "terraform_data" "schedule_guard" {
       condition     = alltrue([for lane in local.benchmark_tau2_lanes : contains(keys(var.benchmark_lane_guest_vmids), lane.guest_key)])
       error_message = "Every benchmark_tau2_lanes guest_key must be a key of benchmark_lane_guest_vmids."
     }
+    # Every benchmark lane names a tokenizer key; a missing key would send the
+    # lane's run with no tokenizer to interpret request lengths.
+    precondition {
+      condition     = alltrue([for lane in local.benchmark_tau2_lanes : contains(keys(var.benchmark_model_tokenizers), lane.model)])
+      error_message = "Every benchmark_tau2_lanes model must be a key of benchmark_model_tokenizers."
+    }
   }
 }
 

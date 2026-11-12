@@ -1,12 +1,3 @@
-# Placeholder values for the run-environment variables the tau2 lanes read.
-# The real values come from TF_VAR_* and are never committed.
-variables {
-  benchmark_client_node      = "example-node"
-  benchmark_client_vmid      = "100"
-  benchmark_router_url       = "https://router.example.invalid/v1"
-  benchmark_lane_guest_vmids = { medium = "101", small = "102" }
-}
-
 run "ai_benchmark_tau2_schedule_contract" {
   command = plan
 
@@ -33,7 +24,6 @@ run "ai_benchmark_tau2_schedule_contract" {
         ) : alltrue([
           for check in [
             "\\bmodel\\s*=\\s*\"[a-z]+\"",
-            "\\btokenizer\\s*=\\s*\"[^\"]+\"",
             "\\btau2_domain\\s*=\\s*\"[a-z_]+\"",
             "\\bconcurrency\\s*=\\s*[0-9]+",
             "\\btau2_num_trials\\s*=\\s*[0-9]+",
@@ -46,7 +36,7 @@ run "ai_benchmark_tau2_schedule_contract" {
           )))
       ])
     ])
-    error_message = "Every benchmark lane must set model, tokenizer, tau2_domain, concurrency, tau2_num_trials, cron (hourly), rail_sec and guest_key."
+    error_message = "Every benchmark lane must set model, tau2_domain, concurrency, tau2_num_trials, cron (hourly), rail_sec and guest_key."
   }
 
   # One builder generates every tau2 template. It must keep the fixed shape and
@@ -71,20 +61,21 @@ run "ai_benchmark_tau2_schedule_contract" {
       can(regex("\\bengine_url\\s*=\\s*var\\.benchmark_router_url\\b", file("${path.module}/../../../templates-catalog-ai-scheduled.tf"))),
       can(regex("\\bapi_key_kv_path\\s*=\\s*var\\.benchmark_api_key_kv_path\\b", file("${path.module}/../../../templates-catalog-ai-scheduled.tf"))),
       can(regex("\\bapi_key_kv_field\\s*=\\s*var\\.benchmark_api_key_kv_field\\b", file("${path.module}/../../../templates-catalog-ai-scheduled.tf"))),
+      can(regex("\\btokenizer\\s*=\\s*var\\.benchmark_model_tokenizers\\[lane\\.model\\]", file("${path.module}/../../../templates-catalog-ai-scheduled.tf"))),
       can(regex(
         "\"tau2-\\$\\{lane\\.name\\}-\\{\\{now\\(utc=true,fmt='%Y%m%dT%H%M'\\)\\}\\}\"",
         file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
       )),
     ])
-    error_message = "The tau2 builder must keep the fixed batch shape and read node, client VMID, guest VMID, router URL and key path from variables."
+    error_message = "The tau2 builder must keep the fixed batch shape and read node, client VMID, guest VMID, router URL, key path and tokenizer from variables."
   }
 
   assert {
     condition = !can(regex(
-      "\\b(node|client_vmid|gpu_guest_vmid|engine_url|api_key_kv_path|api_key_kv_field)\\s*=\\s*\"",
+      "\\b(node|client_vmid|gpu_guest_vmid|engine_url|api_key_kv_path|api_key_kv_field|tokenizer)\\s*=\\s*\"",
       file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
     ))
-    error_message = "No tau2 lane may pass a node, VMID, URL or key path as a literal string."
+    error_message = "No tau2 lane may pass a node, VMID, URL, key path or tokenizer as a literal string."
   }
 
   # The mutating allowlist and the cron map both derive from the lane list.
@@ -108,5 +99,13 @@ run "ai_benchmark_tau2_schedule_contract" {
       file("${path.module}/../../../schedules.tf")
     ))
     error_message = "The schedule guard must fail when a lane's guest_key is missing from benchmark_lane_guest_vmids."
+  }
+
+  assert {
+    condition = can(regex(
+      "contains\\(keys\\(var\\.benchmark_model_tokenizers\\), lane\\.model\\)",
+      file("${path.module}/../../../schedules.tf")
+    ))
+    error_message = "The schedule guard must fail when a lane's model is missing from benchmark_model_tokenizers."
   }
 }

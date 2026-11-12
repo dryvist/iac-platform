@@ -210,6 +210,25 @@ variable "benchmark_lane_guest_vmids" {
   }
 }
 
+variable "benchmark_model_tokenizers" {
+  description = <<-EOT
+    Tokenizer identifier that interprets request lengths for each tau2
+    benchmark lane, keyed by the model alias the lane sets in
+    benchmark_tau2_lanes.
+
+    The value is a model catalog fact — the hf_repo of the artifact the
+    lane's model alias serves in ansible-proxmox-ai's llm-models.d — so it
+    is supplied from the run environment as TF_VAR_benchmark_model_tokenizers
+    and never typed as a literal here.
+  EOT
+  type        = map(string)
+
+  validation {
+    condition     = alltrue([for t in values(var.benchmark_model_tokenizers) : can(regex("^[A-Za-z0-9][A-Za-z0-9.-]*/[A-Za-z0-9][A-Za-z0-9._-]*$", t))])
+    error_message = "Every benchmark_model_tokenizers value must be an org/name identifier from the model catalog."
+  }
+}
+
 variable "benchmark_api_key_kv_path" {
   description = <<-EOT
     OpenBao KV path of the router API key that the tau2 lanes send.

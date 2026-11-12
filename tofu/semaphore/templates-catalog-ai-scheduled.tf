@@ -13,7 +13,6 @@ locals {
     {
       name            = "medium"
       model           = "medium"
-      tokenizer       = "nvidia/Qwen3.8-27B-NVFP4"
       tau2_domain     = "banking_knowledge"
       concurrency     = 10
       tau2_num_trials = 1
@@ -24,7 +23,6 @@ locals {
     {
       name            = "small"
       model           = "small"
-      tokenizer       = "Qwen/Qwen3.5-9B"
       tau2_domain     = "retail"
       concurrency     = 2
       tau2_num_trials = 1
@@ -73,7 +71,9 @@ locals {
 
   # The fixed entries above and one generated template per tau2 lane, merged the
   # same way templates-catalog.tf merges the per-repository maps. Every lane
-  # shares one extra-vars builder; only the lane's own values differ.
+  # shares one extra-vars builder; only the lane's own values differ. The
+  # tokenizer comes from the benchmark_model_tokenizers variable, keyed by the
+  # lane's model alias.
   ansible_templates_ai_scheduled = merge(local.ansible_templates_ai_scheduled_fixed, {
     for tname, lane in local.benchmark_tau2_templates : tname => {
       repository       = "ansible-proxmox-ai"
@@ -92,7 +92,7 @@ locals {
             tau2_num_trials      = lane.tau2_num_trials
             concurrency          = lane.concurrency
             model                = lane.model
-            tokenizer            = lane.tokenizer
+            tokenizer            = var.benchmark_model_tokenizers[lane.model]
             upgrade              = "false"
             publish              = "false"
             api_key_kv_path      = var.benchmark_api_key_kv_path
