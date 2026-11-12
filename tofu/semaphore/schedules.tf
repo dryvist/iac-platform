@@ -23,7 +23,7 @@ locals {
   }
 
   schedule_crons = {
-    ai-llm-model-campaign-nightly  = "17 2 * * *"
+    ai-llm-model-campaign-nightly  = "17 * * * *"
     apps-agent-sandbox-credentials = "13 4,16 * * *"
     apps-verify-grafana-dashboards = "17 6 * * *"
     apps-upgrade                   = "45 6 * * 6"
