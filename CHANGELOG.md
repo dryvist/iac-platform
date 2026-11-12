@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.50.0](https://github.com/dryvist/iac-platform/compare/v1.49.1...v1.50.0) (2026-11-12)
+
+
+### Features
+
+* **semaphore:** add the OpenBao install phase template ([#539](https://github.com/dryvist/iac-platform/issues/539)) ([d7c73da](https://github.com/dryvist/iac-platform/commit/d7c73da7eda23cbac60761e87aaf8061826d9c95))
+
 ## [1.49.1](https://github.com/dryvist/iac-platform/compare/v1.49.0...v1.49.1) (2026-11-12)
 
 
