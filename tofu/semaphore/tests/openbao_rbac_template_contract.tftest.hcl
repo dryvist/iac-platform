@@ -11,13 +11,24 @@ run "openbao_rbac_template_contract" {
       for name, tag in {
         apps-openbao-rbac           = "openbao_rbac"
         apps-openbao-approle-config = "openbao_approle_config"
-        apps-openbao-kv-seed        = "openbao_kv_seed"
         } : can(regex(
           "${name} = \\{\\s*repository\\s*=\\s*\"ansible-proxmox-apps\"\\s*project\\s*=\\s*\"secrets\"\\s*playbook\\s*=\\s*\"playbooks/site[.]yml\"\\s*limit\\s*=\\s*\"openbao_group\"\\s*tags\\s*=\\s*\"${tag}\"\\s*mutating\\s*=\\s*true\\s*schedule_enabled\\s*=\\s*false\\s*extra_args\\s*=\\s*\\[\\]\\s*description\\s*=\\s*\"[^\"]+\"\\s*\\}",
           file("${path.module}/../../../templates-catalog-apps.tf")
       ))
     ])
     error_message = "OpenBao phase templates must run only their named phase in secrets, with the OpenBao group limit, no schedule, extra arguments or rail override."
+  }
+
+  assert {
+    condition = alltrue([
+      for name, tag in {
+        apps-openbao-kv-seed = "openbao_kv_seed"
+        } : can(regex(
+          "${name} = \\{\\s*repository\\s*=\\s*\"ansible-proxmox-apps\"\\s*project\\s*=\\s*\"secrets\"\\s*playbook\\s*=\\s*\"playbooks/site[.]yml\"\\s*limit\\s*=\\s*\"openbao_group\"\\s*tags\\s*=\\s*\"${tag}\"\\s*mutating\\s*=\\s*true\\s*schedule_enabled\\s*=\\s*false\\s*extra_args\\s*=\\s*\\[\\]\\s*description\\s*=\\s*\"[^\"]+\"\\s*\\}",
+          file("${path.module}/../../../templates-catalog-apps-openbao-kv-seed.tf")
+      ))
+    ])
+    error_message = "The KV seed phase template must run only its named phase in secrets, with the OpenBao group limit, no schedule, extra arguments or rail override."
   }
 
   assert {

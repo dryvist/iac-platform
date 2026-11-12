@@ -111,18 +111,6 @@ locals {
       description      = "OpenBao AppRole config phase only, via --tags openbao_approle_config; pass -e openbao_approle_config_name to reconcile one AppRole."
     }
 
-    apps-openbao-kv-seed = {
-      repository       = "ansible-proxmox-apps"
-      project          = "secrets"
-      playbook         = "playbooks/site.yml"
-      limit            = "openbao_group"
-      tags             = "openbao_kv_seed"
-      mutating         = true
-      schedule_enabled = false
-      extra_args       = []
-      description      = "OpenBao KV seed phase only, via --tags openbao_kv_seed (promoted and generated secret leaves, write-if-changed)."
-    }
-
     # Rotator and secret-age env files only, via --tags. The openbao role is
     # entered through an include_role that carries every phase tag, so the
     # inner tags select the tasks; the play-level tags stay on the same play.
