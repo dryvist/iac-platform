@@ -9,7 +9,8 @@ locals {
       mutating         = true
       schedule_enabled = false
       extra_args       = []
-      description      = "Full Splunk converge."
+      rail_sec         = 3600
+      description      = "Full Splunk converge, with the 60-minute task allowance."
     }
 
     splunk-weekly-update = {
