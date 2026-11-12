@@ -11,6 +11,7 @@ locals {
       tags             = "openbao_kv_seed"
       mutating         = true
       schedule_enabled = false
+      rail_sec         = 2400
       extra_args       = []
       description      = "OpenBao KV seed phase only, via --tags openbao_kv_seed (promoted and generated secret leaves, write-if-changed)."
     }

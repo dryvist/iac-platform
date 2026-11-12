@@ -24,7 +24,7 @@ run "openbao_rbac_template_contract" {
       for name, tag in {
         apps-openbao-kv-seed = "openbao_kv_seed"
         } : can(regex(
-          "${name} = \\{\\s*repository\\s*=\\s*\"ansible-proxmox-apps\"\\s*project\\s*=\\s*\"secrets\"\\s*playbook\\s*=\\s*\"playbooks/site[.]yml\"\\s*limit\\s*=\\s*\"openbao_group\"\\s*tags\\s*=\\s*\"${tag}\"\\s*mutating\\s*=\\s*true\\s*schedule_enabled\\s*=\\s*false\\s*extra_args\\s*=\\s*\\[\\]\\s*description\\s*=\\s*\"[^\"]+\"\\s*\\}",
+          "${name} = \\{\\s*repository\\s*=\\s*\"ansible-proxmox-apps\"\\s*project\\s*=\\s*\"secrets\"\\s*playbook\\s*=\\s*\"playbooks/site[.]yml\"\\s*limit\\s*=\\s*\"openbao_group\"\\s*tags\\s*=\\s*\"${tag}\"\\s*mutating\\s*=\\s*true\\s*schedule_enabled\\s*=\\s*false\\s*rail_sec\\s*=\\s*2400\\s*extra_args\\s*=\\s*\\[\\]\\s*description\\s*=\\s*\"[^\"]+\"\\s*\\}",
           file("${path.module}/../../../templates-catalog-apps-openbao-kv-seed.tf")
       ))
     ])
