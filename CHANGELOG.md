@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.51.0](https://github.com/dryvist/iac-platform/compare/v1.50.0...v1.51.0) (2026-11-12)
+
+
+### Features
+
+* **semaphore:** run the model campaign hourly ([#543](https://github.com/dryvist/iac-platform/issues/543)) ([89b0bd8](https://github.com/dryvist/iac-platform/commit/89b0bd8c00e20c15173ca9339db2910873d9c41e))
+
 ## [1.50.0](https://github.com/dryvist/iac-platform/compare/v1.49.1...v1.50.0) (2026-11-12)
 
 
