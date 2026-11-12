@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.52.0](https://github.com/dryvist/iac-platform/compare/v1.51.0...v1.52.0) (2026-11-12)
+
+
+### Features
+
+* **semaphore:** give splunk-site the 60-minute task allowance ([#547](https://github.com/dryvist/iac-platform/issues/547)) ([670d883](https://github.com/dryvist/iac-platform/commit/670d883c2bbf36c9acf3a0a0861e4c7bd964d3aa))
+
 ## [1.51.0](https://github.com/dryvist/iac-platform/compare/v1.50.0...v1.51.0) (2026-11-12)
 
 
