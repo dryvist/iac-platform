@@ -20,6 +20,18 @@ run "openbao_rbac_template_contract" {
   }
 
   assert {
+    condition = alltrue([
+      for name, tag in {
+        apps-openbao-kv-seed = "openbao_kv_seed"
+        } : can(regex(
+          "${name} = \\{\\s*repository\\s*=\\s*\"ansible-proxmox-apps\"\\s*project\\s*=\\s*\"secrets\"\\s*playbook\\s*=\\s*\"playbooks/site[.]yml\"\\s*limit\\s*=\\s*\"openbao_group\"\\s*tags\\s*=\\s*\"${tag}\"\\s*mutating\\s*=\\s*true\\s*schedule_enabled\\s*=\\s*false\\s*extra_args\\s*=\\s*\\[\\]\\s*description\\s*=\\s*\"[^\"]+\"\\s*\\}",
+          file("${path.module}/../../../templates-catalog-apps-openbao-kv-seed.tf")
+      ))
+    ])
+    error_message = "The KV seed phase template must run only its named phase in secrets, with the OpenBao group limit, no schedule, extra arguments or rail override."
+  }
+
+  assert {
     condition = can(regex(
       "t[.]repository == \"ansible-proxmox-apps\" && alltrue\\(\\[\\s*for tag in split\\(\",\", try\\(t[.]tags, \"\"\\)\\) : can\\(regex\\(\"[^\"]+\", tag\\)\\)\\s*\\]\\)",
       file("${path.module}/../../../templates.tf")
@@ -29,7 +41,7 @@ run "openbao_rbac_template_contract" {
 
   assert {
     condition = alltrue([
-      for tag in ["openbao", "openbao_rbac", "openbao_approle_config", "openbao_rotate"] : can(regex(
+      for tag in ["openbao", "openbao_rbac", "openbao_approle_config", "openbao_kv_seed", "openbao_rotate"] : can(regex(
         regex("for tag in split[^\n]+can\\(regex\\(\"([^\"]+)\", tag\\)", file("${path.module}/../../../templates.tf"))[0],
         tag
       ))

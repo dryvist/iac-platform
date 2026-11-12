@@ -67,6 +67,10 @@ the wrapper honours. Thirty entries do. Examples:
   only the `openbao_approle_config` phase in the secrets project, limited to
   `openbao_group,localhost`, with the default 900-second rail. Pass
   `-e openbao_approle_config_name=<approle>` to select one AppRole; both are unscheduled.
+- `apps-openbao-kv-seed` and `apps-openbao-kv-seed @ develop` run only the
+  `openbao_kv_seed` phase (promoted and generated secret leaves,
+  write-if-changed) in the secrets project, limited to
+  `openbao_group,localhost`, with the default 900-second rail; both are unscheduled.
 - `ai-llm-router` and `apps-openbao-rotators` at 2400 seconds.
 - `ai-hermes-agent` at 2400 seconds.
 - `apps-upgrade` and its five wave siblings, `apps-upgrade-lxc-1` through
