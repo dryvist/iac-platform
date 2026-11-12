@@ -10,7 +10,7 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
       "ai-llm-model-campaign-nightly = \\{[\\s\\S]*?repository\\s*=\\s*\"ansible-proxmox-ai\"[\\s\\S]*?playbook\\s*=\\s*\"playbooks/site.yml\"[\\s\\S]*?limit\\s*=\\s*\"llm-blackwell-7-96GB-medium\"[\\s\\S]*?tags\\s*=\\s*\"model_campaign\"[\\s\\S]*?mutating\\s*=\\s*true[\\s\\S]*?schedule_enabled\\s*=\\s*true[\\s\\S]*?extra_args\\s*=\\s*\\[",
       file("${path.module}/../../../templates-catalog-ai-scheduled.tf")
     ))
-    error_message = "The nightly campaign must use the released AI site playbook, campaign tag, fixed values, and mutating schedule."
+    error_message = "The model campaign must use the released AI site playbook, campaign tag, fixed values, and mutating schedule."
   }
 
   assert {
@@ -26,13 +26,24 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "ai-llm-model-campaign-nightly\\s*=\\s*\"17 2 \\* \\* \\*\"",
+      "ai-llm-model-campaign-nightly\\s*=\\s*\"17 \\* \\* \\* \\*\"",
       file("${path.module}/../../../schedules.tf")
       )) && can(regex(
       "scheduled_mutating_templates = \\[[^\\]]*\"ai-llm-model-campaign-nightly\"",
       file("${path.module}/../../../schedules.tf")
     ))
-    error_message = "The nightly campaign must have its UTC cron and appear in the mutating schedule allowlist."
+    error_message = "The model campaign must have its UTC cron and appear in the mutating schedule allowlist."
+  }
+
+  assert {
+    condition = can(regex(
+      "project_max_parallel_tasks\\s*=\\s*1",
+      file("${path.module}/../../../project.tf")
+      )) && can(regex(
+      "max_parallel_tasks\\s*=\\s*local\\.project_max_parallel_tasks",
+      file("${path.module}/../../../project.tf")
+    ))
+    error_message = "Semaphore's native per-project one-task limit must remain enabled so campaign runs cannot overlap."
   }
 
   assert {
