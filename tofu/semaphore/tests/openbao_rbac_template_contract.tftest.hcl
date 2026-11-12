@@ -28,7 +28,7 @@ run "openbao_rbac_template_contract" {
           file("${path.module}/../../../templates-catalog-apps-openbao-kv-seed.tf")
       ))
     ])
-    error_message = "The KV seed phase template must run only its named phase in secrets, with the OpenBao group limit, no schedule, extra arguments or rail override."
+    error_message = "The KV seed phase template must run only its named phase in secrets, with the OpenBao group limit, no schedule or extra arguments, and a 2400-second rail."
   }
 
   assert {
