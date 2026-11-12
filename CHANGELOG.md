@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.0](https://github.com/dryvist/iac-platform/compare/v1.48.0...v1.49.0) (2026-11-12)
+
+
+### Features
+
+* **semaphore:** add the OpenBao KV seed phase template ([#533](https://github.com/dryvist/iac-platform/issues/533)) ([d57b411](https://github.com/dryvist/iac-platform/commit/d57b41189b6108d817666def6f8ae99624add027))
+
 ## [1.48.0](https://github.com/dryvist/iac-platform/compare/v1.47.0...v1.48.0) (2026-11-11)
 
 
