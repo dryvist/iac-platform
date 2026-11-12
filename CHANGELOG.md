@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.0](https://github.com/dryvist/iac-platform/compare/v1.52.0...v1.53.0) (2026-11-12)
+
+
+### Features
+
+* **semaphore:** schedule tau2 benchmark runs on two lanes ([#554](https://github.com/dryvist/iac-platform/issues/554)) ([d59cccc](https://github.com/dryvist/iac-platform/commit/d59cccc6219c68707f631c90b97ef34e961a1374))
+
 ## [1.52.0](https://github.com/dryvist/iac-platform/compare/v1.51.0...v1.52.0) (2026-11-12)
 
 
