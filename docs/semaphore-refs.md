@@ -63,6 +63,10 @@ the wrapper honours. Thirty entries do. Examples:
   `openbao_rbac` phase in the secrets project, limited to
   `openbao_group,localhost`, with the default 900-second rail. Pass
   `-e openbao_rbac_policy_name=<policy>` to select one policy; both are unscheduled.
+- `apps-openbao-install` and `apps-openbao-install @ develop` run only the
+  `openbao_install` phase in the secrets project, limited to
+  `openbao_group,localhost`, with the default 900-second rail. Pass
+  `--limit <member>,localhost` to upgrade one store member; both are unscheduled.
 - `apps-openbao-approle-config` and `apps-openbao-approle-config @ develop` run
   only the `openbao_approle_config` phase in the secrets project, limited to
   `openbao_group,localhost`, with the default 900-second rail. Pass

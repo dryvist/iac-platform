@@ -55,6 +55,7 @@ locals {
     local.ansible_templates_apps_upgrade,
     local.ansible_templates_apps_site_split,
     local.ansible_templates_apps_nautobot,
+    local.ansible_templates_apps_openbao_install,
     local.ansible_templates_apps_openhands,
     local.ansible_templates_proxmox,
     local.ansible_templates_proxmox_timers,
