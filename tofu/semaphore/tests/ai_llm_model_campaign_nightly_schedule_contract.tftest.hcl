@@ -21,7 +21,7 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_cache_path={{hostvars[machine].container_models_cache_mount_path}}"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "engine=vllm model_size=size-medium concurrency_list=4 context_list=32768 power_cap_w=325"),
     ])
-    error_message = "The nightly campaign must pin one supported recipe and resolve its endpoint and cache from inventory."
+    error_message = "The model campaign must pin one supported recipe and resolve its endpoint and cache from inventory."
   }
 
   assert {
@@ -37,10 +37,10 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "project_max_parallel_tasks\\s*=\\s*1",
+      "(?m)^\\s*project_max_parallel_tasks\\s*=\\s*1\\s*(?:#.*)?$",
       file("${path.module}/../../../project.tf")
       )) && can(regex(
-      "max_parallel_tasks\\s*=\\s*local\\.project_max_parallel_tasks",
+      "(?m)^\\s*max_parallel_tasks\\s*=\\s*local\\.project_max_parallel_tasks\\s*(?:#.*)?$",
       file("${path.module}/../../../project.tf")
     ))
     error_message = "Semaphore's native per-project one-task limit must remain enabled so campaign runs cannot overlap."
