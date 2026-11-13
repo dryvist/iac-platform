@@ -105,3 +105,12 @@ resource "semaphoreui_project_schedule" "openbao_rotate_scheduled" {
   cron_format = "13 3,15 * * *"
   enabled     = true
 }
+
+# Every 5 minutes, off the :00/:15/:30/:45 marks: dispatch the pr-reconcile GitHub workflow.
+resource "semaphoreui_project_schedule" "pr_reconcile_dispatch" {
+  project_id  = semaphoreui_project_template.pr_reconcile_dispatch.project_id
+  template_id = semaphoreui_project_template.pr_reconcile_dispatch.id
+  name        = "pr-reconcile-dispatch"
+  cron_format = "2-57/5 * * * *"
+  enabled     = true
+}
