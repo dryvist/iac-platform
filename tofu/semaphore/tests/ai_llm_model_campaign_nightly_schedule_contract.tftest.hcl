@@ -20,7 +20,7 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_endpoint_root=https://{{machine|lower}}.{{lookup('ansible.builtin.env','PROXMOX_SUBDOMAIN')}}"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_cache_path={{hostvars[machine].container_models_cache_mount_path}}"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "engine=vllm model_size=size-medium concurrency_list=4 context_list=32768 power_cap_w=325"),
-      strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "llm_model_campaign_output_dir={{lookup('ansible.builtin.env','HOME')}}/benchmark-envelopes"),
+      strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "llm_model_campaign_output_dir=/var/lib/semaphore/benchmark-envelopes"),
     ])
     error_message = "The model campaign must pin one supported recipe and resolve its endpoint and cache from inventory."
   }
