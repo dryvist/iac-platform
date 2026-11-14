@@ -6,10 +6,11 @@
 # passes `-i localhost,` the way the OpenBao templates do.
 #
 # The target owner and repository reach the playbook through the apps
-# environment, never this declaration.
+# environment, never this declaration. The playbook runs from the project's
+# own deployed checkout, the one its inventory already points at.
 resource "semaphoreui_project_template" "pr_reconcile_dispatch" {
   project_id     = semaphoreui_project.each["apps"].id
-  repository_id  = semaphoreui_project_repository.ansible["apps/ansible-proxmox-apps"].id
+  repository_id  = semaphoreui_project_inventory.homelab_tofu["apps"].file.repository_id
   inventory_id   = semaphoreui_project_inventory.homelab_tofu["apps"].id
   environment_id = semaphoreui_project_environment.homelab["apps"].id
 
