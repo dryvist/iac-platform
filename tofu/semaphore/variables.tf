@@ -165,3 +165,9 @@ variable "max_parallel_tasks" {
   }
 }
 
+variable "recurring_jobs_enabled" {
+  description = "Gate for the recurring PR-status schedules declared in this root. Left false, applying this configuration creates every gated schedule disabled; the run environment sets it true only once their playbook ships in the apps repository."
+  type        = bool
+  default     = false
+}
+
