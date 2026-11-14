@@ -21,7 +21,7 @@ die() { echo "git-credential-openbao: $*" >&2; exit 1; }
 
 bao_approle() {
   if command -v bao-approle >/dev/null 2>&1; then bao-approle "$@"
-  else nix run "github:dryvist/homelab-contracts/2be2e713ed203f1fd02304a157b706d4d0b1cbed#bao-approle" -- "$@"; fi
+  else nix run "github:jpe-ansible/homelab-contracts/2be2e713ed203f1fd02304a157b706d4d0b1cbed#bao-approle" -- "$@"; fi
 }
 
 [ "${1:-}" = "get" ] || exit 0
