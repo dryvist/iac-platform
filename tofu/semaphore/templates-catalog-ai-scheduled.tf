@@ -26,6 +26,7 @@ locals {
       tags             = "model_campaign"
       mutating         = true
       schedule_enabled = true
+      rail_sec         = 3300
       extra_args = [
         "--extra-vars",
         "config_name=lm-eval/quick-intelligence artifact_id=qwen38-27b-nvfp4 machine=llm-blackwell-7-96GB-medium benchmark_endpoint_root=https://{{machine|lower}}.{{lookup('ansible.builtin.env','PROXMOX_SUBDOMAIN')}} benchmark_cache_path={{hostvars[machine].container_models_cache_mount_path}} engine=vllm model_size=size-medium concurrency_list=4 context_list=32768 power_cap_w=325 llm_model_campaign_output_dir=/var/lib/semaphore/benchmark-envelopes",
