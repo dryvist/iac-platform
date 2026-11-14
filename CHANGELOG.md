@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.1](https://github.com/dryvist/iac-platform/compare/v1.54.0...v1.54.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **semaphore:** disable the pr-reconcile-dispatch schedule ([#571](https://github.com/dryvist/iac-platform/issues/571)) ([24d1941](https://github.com/dryvist/iac-platform/commit/24d1941b68bf9cd8e794cbe255db6786f58b8186))
+
 ## [1.54.0](https://github.com/dryvist/iac-platform/compare/v1.53.0...v1.54.0) (2026-11-14)
 
 
