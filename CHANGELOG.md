@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.56.0](https://github.com/dryvist/iac-platform/compare/v1.55.0...v1.56.0) (2026-11-14)
+
+
+### Features
+
+* **semaphore:** write campaign result envelopes to a directory ([#594](https://github.com/dryvist/iac-platform/issues/594)) ([fd11cfd](https://github.com/dryvist/iac-platform/commit/fd11cfd5274567b5947f4740378779c23916c8b9))
+
 ## [1.55.0](https://github.com/dryvist/iac-platform/compare/v1.54.2...v1.55.0) (2026-11-14)
 
 
