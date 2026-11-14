@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.0](https://github.com/dryvist/iac-platform/compare/v1.56.1...v1.57.0) (2026-11-14)
+
+
+### Features
+
+* **semaphore:** give the model campaign template a 55-minute task allowance ([#601](https://github.com/dryvist/iac-platform/issues/601)) ([9b327f3](https://github.com/dryvist/iac-platform/commit/9b327f3324da91b35e5a741d9c27489a5a9844b1))
+
 ## [1.56.1](https://github.com/dryvist/iac-platform/compare/v1.56.0...v1.56.1) (2026-11-14)
 
 
