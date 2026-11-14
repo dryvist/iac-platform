@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.0](https://github.com/dryvist/iac-platform/compare/v1.53.0...v1.54.0) (2026-11-14)
+
+
+### Features
+
+* **semaphore:** schedule the workflow dispatch playbook ([#567](https://github.com/dryvist/iac-platform/issues/567)) ([0d8ccb6](https://github.com/dryvist/iac-platform/commit/0d8ccb6117f239e3503c784825890c616517a966))
+
 ## [1.53.0](https://github.com/dryvist/iac-platform/compare/v1.52.0...v1.53.0) (2026-11-12)
 
 
