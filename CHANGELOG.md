@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.56.1](https://github.com/dryvist/iac-platform/compare/v1.56.0...v1.56.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **semaphore:** keep campaign result envelopes on the runner data volume ([#596](https://github.com/dryvist/iac-platform/issues/596)) ([4893dbf](https://github.com/dryvist/iac-platform/commit/4893dbf493a7a7c4fc5c4912506b85902ed70bab))
+
 ## [1.56.0](https://github.com/dryvist/iac-platform/compare/v1.55.0...v1.56.0) (2026-11-14)
 
 
