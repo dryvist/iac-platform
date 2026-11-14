@@ -17,7 +17,7 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
     condition = alltrue([
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "config_name=lm-eval/quick-intelligence"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "artifact_id=qwen38-27b-nvfp4"),
-      strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_endpoint_root=https://{{hostvars[machine].tofu_data.containers[machine].fqdn}}"),
+      strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_endpoint_root=https://{{machine|lower}}.{{lookup('ansible.builtin.env','PROXMOX_SUBDOMAIN')}}"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_cache_path={{hostvars[machine].container_models_cache_mount_path}}"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "engine=vllm model_size=size-medium concurrency_list=4 context_list=32768 power_cap_w=325"),
     ])

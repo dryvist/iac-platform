@@ -28,7 +28,7 @@ locals {
       schedule_enabled = true
       extra_args = [
         "--extra-vars",
-        "config_name=lm-eval/quick-intelligence artifact_id=qwen38-27b-nvfp4 machine=llm-blackwell-7-96GB-medium benchmark_endpoint_root=https://{{hostvars[machine].tofu_data.containers[machine].fqdn}} benchmark_cache_path={{hostvars[machine].container_models_cache_mount_path}} engine=vllm model_size=size-medium concurrency_list=4 context_list=32768 power_cap_w=325",
+        "config_name=lm-eval/quick-intelligence artifact_id=qwen38-27b-nvfp4 machine=llm-blackwell-7-96GB-medium benchmark_endpoint_root=https://{{machine|lower}}.{{lookup('ansible.builtin.env','PROXMOX_SUBDOMAIN')}} benchmark_cache_path={{hostvars[machine].container_models_cache_mount_path}} engine=vllm model_size=size-medium concurrency_list=4 context_list=32768 power_cap_w=325",
       ]
       description = "Run the quick-intelligence quality recipe hourly on the medium vLLM lane."
     }
