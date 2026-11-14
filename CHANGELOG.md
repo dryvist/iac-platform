@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.57.1](https://github.com/dryvist/iac-platform/compare/v1.57.0...v1.57.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **deps:** resolve homelab-contracts from jpe-ansible ([#611](https://github.com/dryvist/iac-platform/issues/611)) ([b63d11d](https://github.com/dryvist/iac-platform/commit/b63d11dbd7200e382a5f051e511ebaa34d48560d))
+
 ## [1.57.0](https://github.com/dryvist/iac-platform/compare/v1.56.1...v1.57.0) (2026-11-14)
 
 
