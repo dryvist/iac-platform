@@ -15,7 +15,7 @@ terraform {
       # planJob/approveJob/role attributes, whether or not the deployed
       # server now accepts them.
       source  = "azbuilder/terrakube"
-      version = "~> 0.29.0"
+      version = "~> 0.30.0"
     }
     vault = {
       source  = "hashicorp/vault"
