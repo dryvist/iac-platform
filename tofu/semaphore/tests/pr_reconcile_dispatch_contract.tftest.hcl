@@ -74,13 +74,13 @@ run "pr_reconcile_dispatch_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "enabled\\s*=\\s*true",
+      "enabled\\s*=\\s*false",
       regex(
         "resource \\\"semaphoreui_project_schedule\\\" \\\"pr_reconcile_dispatch\\\" \\{([^}]*)\\}",
         file("${path.module}/../../../schedules.tf")
       )[0]
     ))
-    error_message = "pr_reconcile_dispatch's schedule must be enabled."
+    error_message = "pr_reconcile_dispatch's schedule stays off until the dispatch playbook ships in the apps repository."
   }
 
   assert {
