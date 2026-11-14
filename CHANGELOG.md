@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.54.2](https://github.com/dryvist/iac-platform/compare/v1.54.1...v1.54.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* **semaphore:** build the model campaign endpoint from the proxied host name ([ddf3852](https://github.com/dryvist/iac-platform/commit/ddf38523cf5c73f186ca373fa185e5251ed07626))
+* **semaphore:** update the endpoint argument of the scheduled model campaign ([#589](https://github.com/dryvist/iac-platform/issues/589)) ([ddf3852](https://github.com/dryvist/iac-platform/commit/ddf38523cf5c73f186ca373fa185e5251ed07626))
+
 ## [1.54.1](https://github.com/dryvist/iac-platform/compare/v1.54.0...v1.54.1) (2026-11-14)
 
 
