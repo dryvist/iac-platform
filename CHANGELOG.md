@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.55.0](https://github.com/dryvist/iac-platform/compare/v1.54.2...v1.55.0) (2026-11-14)
+
+
+### Features
+
+* **agent:** zcode run j-ea99b0d12a10966a ([5fad6fa](https://github.com/dryvist/iac-platform/commit/5fad6fa0f383919cebbf8118b1cdea1485c2c99b))
+* **semaphore:** declare the hourly status job, disabled by default ([#592](https://github.com/dryvist/iac-platform/issues/592)) ([5fad6fa](https://github.com/dryvist/iac-platform/commit/5fad6fa0f383919cebbf8118b1cdea1485c2c99b))
+
 ## [1.54.2](https://github.com/dryvist/iac-platform/compare/v1.54.1...v1.54.2) (2026-11-14)
 
 
