@@ -54,7 +54,7 @@ Semaphore's `max_task_duration_sec` is one server-wide value, the 3600-second
 ceiling in `compose/docker-compose.yml`, so a single template cannot be given
 more time through it. A catalog entry requests more with `rail_sec`, which
 templates.tf turns into `--rail-sec=N` as the first argument, the only position
-the wrapper honours. Thirty entries do. Examples:
+the wrapper honours. Forty-one entries do. Examples:
 
 - `ai-site-promotion @ develop`, the develop-to-main promotion check, at 3600
   seconds and only from the develop ref (`only_branch`).
@@ -80,6 +80,8 @@ the wrapper honours. Thirty entries do. Examples:
 - `apps-upgrade` and its five wave siblings, `apps-upgrade-lxc-1` through
   `apps-upgrade-lxc-3`, `apps-upgrade-lxc-rest` and `apps-upgrade-vms`, at 3000
   seconds each.
+- `proxmox-ssh-ca-trust` at 1800 seconds, the daily `ssh_ca_trust`-tagged run
+  on the Proxmox nodes.
 
 `tofu/semaphore/tests/promotion_rail_contract.tftest.hcl` pins that exact list.
 A task override is appended after the template's arguments, so it cannot raise

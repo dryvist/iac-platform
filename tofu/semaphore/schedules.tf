@@ -16,6 +16,7 @@ locals {
     "apps-upgrade-vms",
     "apps-leantime",
     "proxmox-oci-app-upgrade",
+    "proxmox-ssh-ca-trust",
   ]
 
   scheduled_templates = {
@@ -37,6 +38,7 @@ locals {
     splunk-weekly-update           = "40 6 * * 6"
     apps-leantime                  = "55 6 * * 6"
     proxmox-oci-app-upgrade        = "5 7 * * 6"
+    proxmox-ssh-ca-trust           = "23 5 * * *"
   }
 }
 
