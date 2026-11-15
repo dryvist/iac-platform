@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.59.0](https://github.com/dryvist/iac-platform/compare/v1.58.0...v1.59.0) (2026-11-15)
+
+
+### Features
+
+* **terrakube:** set recurring_jobs_enabled on the Semaphore workspace ([#630](https://github.com/dryvist/iac-platform/issues/630)) ([22a717e](https://github.com/dryvist/iac-platform/commit/22a717e8e11bbd295df362d2b1bef18689e88f4a))
+
 ## [1.58.0](https://github.com/dryvist/iac-platform/compare/v1.57.1...v1.58.0) (2026-11-15)
 
 
