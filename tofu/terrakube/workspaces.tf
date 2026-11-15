@@ -250,6 +250,19 @@ resource "terrakube_workspace_variable" "semaphore_openbao_address" {
   hcl             = false
 }
 
+# Turns on the Semaphore schedules gated by the root's recurring_jobs_enabled
+# variable. Set on the workspace for the same reason as openbao_address above.
+resource "terrakube_workspace_variable" "semaphore_recurring_jobs_enabled" {
+  organization_id = terrakube_organization.org.id
+  workspace_id    = terrakube_workspace_cli.iac_platform_semaphore.id
+  key             = "recurring_jobs_enabled"
+  value           = "true"
+  description     = "Enables the Semaphore schedules gated by recurring_jobs_enabled"
+  category        = "TERRAFORM"
+  sensitive       = false
+  hcl             = false
+}
+
 # OpenTofu 1.7+ supports for_each in import blocks:
 # https://opentofu.org/docs/v1.7/language/import/
 import {
