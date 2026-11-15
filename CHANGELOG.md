@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.58.0](https://github.com/dryvist/iac-platform/compare/v1.57.1...v1.58.0) (2026-11-15)
+
+
+### Features
+
+* **agent:** zcode run j-793e5ae700a66daf ([a1a6a3f](https://github.com/dryvist/iac-platform/commit/a1a6a3f12cd14d0a94e5c5d2892ee78ca21de748))
+* **semaphore:** run the SSH CA trust play on the Proxmox nodes daily ([#627](https://github.com/dryvist/iac-platform/issues/627)) ([a1a6a3f](https://github.com/dryvist/iac-platform/commit/a1a6a3f12cd14d0a94e5c5d2892ee78ca21de748))
+
 ## [1.57.1](https://github.com/dryvist/iac-platform/compare/v1.57.0...v1.57.1) (2026-11-14)
 
 
