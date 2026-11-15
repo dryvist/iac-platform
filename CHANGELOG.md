@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.59.1](https://github.com/dryvist/iac-platform/compare/v1.59.0...v1.59.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* **semaphore:** converge the package caches in apps-baseline-lxc ([#636](https://github.com/dryvist/iac-platform/issues/636)) ([50d5cdb](https://github.com/dryvist/iac-platform/commit/50d5cdb552ad471fcd458a51015196441adc2aa5))
+
 ## [1.59.0](https://github.com/dryvist/iac-platform/compare/v1.58.0...v1.59.0) (2026-11-15)
 
 
