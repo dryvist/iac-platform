@@ -161,3 +161,11 @@ locals {
   })
 }
 
+
+# OpenTofu 1.7+ supports for_each in import blocks:
+# https://opentofu.org/docs/v1.7/language/import/
+import {
+  for_each = local.terrakube_local_workspaces
+  to       = terrakube_workspace_cli.local[each.key]
+  id       = "${terrakube_organization.org.id},${data.terrakube_workspace.local[each.key].id}"
+}
