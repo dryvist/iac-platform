@@ -27,7 +27,7 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "ai-llm-model-campaign-nightly\\s*=\\s*\"17 \\* \\* \\* \\*\"",
+      "ai-llm-model-campaign-nightly\\s*=\\s*\"17 \\*/6 \\* \\* \\*\"",
       file("${path.module}/../../../schedules.tf")
       )) && can(regex(
       "scheduled_mutating_templates = \\[[^\\]]*\"ai-llm-model-campaign-nightly\"",
