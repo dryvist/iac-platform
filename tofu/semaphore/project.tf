@@ -7,9 +7,11 @@
 #
 # Two concurrency limits, deliberately different:
 #
-#   * per project, max_parallel_tasks = 1 — two tasks in one project share a
-#     checkout, and a git operation racing another in the same working copy is
-#     the hazard this bounds;
+#   * per project, local.project_max_parallel_tasks (1 unless named) — each
+#     template has its own checkout and Semaphore runs one task per template
+#     at a time, so a project's cap only bounds how many of its templates run
+#     at once. `ai` stays at 1: its GPU templates (model campaign, serving,
+#     profile, model-store seed) must never overlap each other;
 #   * server-wide, var.max_parallel_tasks — the shared memory budget of the
 #     runner (compose/docker-compose.yml &max_parallel_tasks, held equal by
 #     tests/max_parallel_tasks_contract.tftest.hcl). Cross-project overlap on
@@ -30,7 +32,13 @@ locals {
     ansible-proxmox-ai   = "ai"
   }
 
-  project_max_parallel_tasks = 1
+  project_max_parallel_tasks = merge(
+    { for p in local.semaphore_project_names : p => 1 },
+    {
+      ai   = 1
+      apps = 2
+    },
+  )
 }
 
 resource "semaphoreui_project" "each" {
@@ -45,11 +53,11 @@ resource "semaphoreui_project" "each" {
   alert      = false
   alert_chat = ""
 
-  max_parallel_tasks = local.project_max_parallel_tasks
+  max_parallel_tasks = local.project_max_parallel_tasks[each.value]
 
   lifecycle {
     precondition {
-      condition     = local.project_max_parallel_tasks <= var.max_parallel_tasks
+      condition     = local.project_max_parallel_tasks[each.value] <= var.max_parallel_tasks
       error_message = "A project's own cap cannot exceed the server-wide max_parallel_tasks budget."
     }
   }
