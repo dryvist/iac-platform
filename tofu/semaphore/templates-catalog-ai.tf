@@ -256,11 +256,11 @@ locals {
 
     # An entry point in its own right: the playbook imports its inventory loader,
     # so it is not reached through site.yml. The survey picks one instance tag,
-    # which the wrapper passes as --tags; the limit names both eval groups.
+    # which the wrapper passes as --tags; the limit names the playbook's only eval group.
     ai-specialist-eval = {
       repository  = "ansible-proxmox-ai"
       playbook    = "playbooks/specialist-eval.yml"
-      limit       = "sim_eval_group,langflow_eval_group,dify_eval_group"
+      limit       = "sim_eval_group"
       only_branch = "develop"
       mutating    = true
       survey_vars = [
@@ -271,13 +271,11 @@ locals {
           required    = true
           type        = "enum"
           enum_values = {
-            sim_docker      = "sim_docker"
-            langflow_docker = "langflow_docker"
-            dify_docker     = "dify_docker"
+            sim_docker = "sim_docker"
           }
         },
       ]
-      description = "Converge one specialist evaluation instance (Sim, LangFlow or Dify)."
+      description = "Converge the Sim specialist evaluation instance."
     }
   }
 }
