@@ -38,13 +38,13 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "(?m)^\\s*project_max_parallel_tasks\\s*=\\s*1\\s*(?:#.*)?$",
+      "(?m)^\\s*ai\\s*=\\s*1\\s*(?:#.*)?$",
       file("${path.module}/../../../project.tf")
       )) && can(regex(
-      "(?m)^\\s*max_parallel_tasks\\s*=\\s*local\\.project_max_parallel_tasks\\s*(?:#.*)?$",
+      "(?m)^\\s*max_parallel_tasks\\s*=\\s*local\\.project_max_parallel_tasks\\[each\\.value\\]\\s*(?:#.*)?$",
       file("${path.module}/../../../project.tf")
     ))
-    error_message = "Semaphore's native per-project one-task limit must remain enabled so campaign runs cannot overlap."
+    error_message = "Semaphore's native one-task limit on the ai project must remain enabled so campaign runs cannot overlap other GPU templates."
   }
 
   assert {
