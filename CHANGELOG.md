@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.60.0](https://github.com/dryvist/iac-platform/compare/v1.59.1...v1.60.0) (2026-11-16)
+
+
+### Features
+
+* **semaphore:** allow two concurrent apps project tasks ([#656](https://github.com/dryvist/iac-platform/issues/656)) ([5aaff5e](https://github.com/dryvist/iac-platform/commit/5aaff5eef684155c5e813e53ebd267dafb6a7001))
+
 ## [1.59.1](https://github.com/dryvist/iac-platform/compare/v1.59.0...v1.59.1) (2026-11-15)
 
 
