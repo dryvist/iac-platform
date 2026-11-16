@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.61.0](https://github.com/dryvist/iac-platform/compare/v1.60.0...v1.61.0) (2026-11-16)
+
+
+### Features
+
+* **semaphore:** run the model campaign every 6 hours ([#657](https://github.com/dryvist/iac-platform/issues/657)) ([b93c35a](https://github.com/dryvist/iac-platform/commit/b93c35a6d206ea41f91cbe8144fabb32c3a43d85))
+
 ## [1.60.0](https://github.com/dryvist/iac-platform/compare/v1.59.1...v1.60.0) (2026-11-16)
 
 
