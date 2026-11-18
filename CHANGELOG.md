@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.61.1](https://github.com/dryvist/iac-platform/compare/v1.61.0...v1.61.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* **semaphore:** point the ansible-splunk repository at jpe-ansible ([7f86c51](https://github.com/dryvist/iac-platform/commit/7f86c515ba41092e394f5dca82ee0faa5720175e))
+* **semaphore:** point the ansible-splunk repository at jpe-ansible ([#669](https://github.com/dryvist/iac-platform/issues/669)) ([861646c](https://github.com/dryvist/iac-platform/commit/861646cf707371c8a49db386177bf2e0b891a662))
+
 ## [1.61.0](https://github.com/dryvist/iac-platform/compare/v1.60.0...v1.61.0) (2026-11-16)
 
 
