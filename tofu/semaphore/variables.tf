@@ -92,8 +92,8 @@ variable "ansible_repositories" {
     # No develop branch upstream: this repository releases from main only, so
     # naming one here would produce a template whose every run fails to clone.
     ansible-splunk = {
-      url = "https://github.com/dryvist/ansible-splunk.git"
-      # renovate: datasource=github-tags depName=dryvist/ansible-splunk
+      url = "https://github.com/jpe-ansible/ansible-splunk.git"
+      # renovate: datasource=github-tags depName=jpe-ansible/ansible-splunk
       branch = "v0.122.3"
     }
   }
