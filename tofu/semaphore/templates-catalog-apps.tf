@@ -57,6 +57,7 @@ locals {
       limit            = "zammad_group"
       tags             = "zammad"
       mutating         = true
+      rail_sec         = 1800
       schedule_enabled = false
       extra_args       = []
       description      = "Zammad ITSM converge only (bootstrap seeds the incident closure-contract Job, SLA and overview), via --tags zammad."
