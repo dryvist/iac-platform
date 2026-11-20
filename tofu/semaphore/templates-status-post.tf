@@ -9,6 +9,7 @@ locals {
   # Odd minutes, off the quarter-hour marks; the lane post owns :53.
   status_posts = {
     tracker = "37 * * * *"
+    gpu     = "7,37 * * * *"
   }
 }
 
