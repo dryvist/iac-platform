@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.62.0](https://github.com/dryvist/iac-platform/compare/v1.61.2...v1.62.0) (2026-11-20)
+
+
+### Features
+
+* **semaphore:** add one status-post template and schedule per post ([#685](https://github.com/dryvist/iac-platform/issues/685)) ([124a353](https://github.com/dryvist/iac-platform/commit/124a353537a3eb45d736efadd767dbeb2d069fe9))
+
 ## [1.61.2](https://github.com/dryvist/iac-platform/compare/v1.61.1...v1.61.2) (2026-11-20)
 
 
