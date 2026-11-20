@@ -60,6 +60,29 @@ locals {
       hcl         = local.tofu_github_inputs[pair[1]].hcl
     }
   }
+
+  # Orgs whose private repositories are declared in their own overrides
+  # document, published by the private root as private-overrides-<org>.
+  tofu_github_private_override_orgs = setintersection(local.tofu_github_orgs, toset(["jpe-ai-agents"]))
+
+  tofu_github_private_override_inputs = merge([
+    for org in local.tofu_github_private_override_orgs : {
+      "${org}:private_repo_overrides_enabled" = {
+        org         = org
+        key         = "private_repo_overrides_enabled"
+        value       = "true"
+        description = "Read this organization's private repository overrides document"
+        hcl         = true
+      }
+      "${org}:private_repo_overrides_kv_name" = {
+        org         = org
+        key         = "private_repo_overrides_kv_name"
+        value       = "infrastructure/tofu-github/private-overrides-${org}"
+        description = "KV v2 document holding this organization's private repository overrides"
+        hcl         = false
+      }
+    }
+  ]...)
 }
 
 resource "terrakube_workspace_variable" "tofu_github_inputs" {
@@ -76,7 +99,7 @@ resource "terrakube_workspace_variable" "tofu_github_inputs" {
 }
 
 resource "terrakube_workspace_variable" "tofu_github_org_inputs" {
-  for_each = local.tofu_github_org_inputs
+  for_each = merge(local.tofu_github_org_inputs, local.tofu_github_private_override_inputs)
 
   organization_id = terrakube_organization.org.id
   workspace_id    = terrakube_workspace_cli.tofu_github_org[each.value.org].id
