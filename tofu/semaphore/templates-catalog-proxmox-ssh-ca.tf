@@ -12,7 +12,7 @@ locals {
       mutating         = true
       schedule_enabled = true
       extra_args       = []
-      rail_sec         = 1800
+      rail_sec         = 3600
       description      = "SSH CA trust and LXC host certificates only, via --tags ssh_ca_trust."
     }
   }
