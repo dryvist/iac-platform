@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.63.0](https://github.com/dryvist/iac-platform/compare/v1.62.0...v1.63.0) (2026-11-20)
+
+
+### Features
+
+* **semaphore:** schedule the GPU status post at minutes 7 and 37 ([#693](https://github.com/dryvist/iac-platform/issues/693)) ([caa7ffd](https://github.com/dryvist/iac-platform/commit/caa7ffd5d364c52827f4f1bdddd62c4e438c9726))
+
 ## [1.62.0](https://github.com/dryvist/iac-platform/compare/v1.61.2...v1.62.0) (2026-11-20)
 
 
