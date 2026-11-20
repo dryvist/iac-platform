@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.61.2](https://github.com/dryvist/iac-platform/compare/v1.61.1...v1.61.2) (2026-11-20)
+
+
+### Bug Fixes
+
+* **semaphore:** give proxmox-ssh-ca-trust a 3600-second rail ([d628a2b](https://github.com/dryvist/iac-platform/commit/d628a2bab1c8ac1fb2750f21047be64a9981a291))
+
 ## [1.61.1](https://github.com/dryvist/iac-platform/compare/v1.61.0...v1.61.1) (2026-11-18)
 
 
