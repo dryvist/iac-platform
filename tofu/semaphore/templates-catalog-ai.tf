@@ -23,6 +23,7 @@ locals {
       playbook    = "playbooks/site.yml"
       limit       = "all"
       mutating    = true
+      rail_sec    = 1800
       description = "Full AI/LLM stack converge (Ollama, LiteLLM, Qdrant, Hermes, Langfuse, etc.)."
     }
 
