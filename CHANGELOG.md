@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.65.0](https://github.com/dryvist/iac-platform/compare/v1.64.0...v1.65.0) (2026-11-21)
+
+
+### Features
+
+* **semaphore:** converge the runner hosts after each AppRole rotation ([#721](https://github.com/dryvist/iac-platform/issues/721)) ([058f5aa](https://github.com/dryvist/iac-platform/commit/058f5aa01b44c124527bd012111e881e4bc41719))
+
 ## [1.64.0](https://github.com/dryvist/iac-platform/compare/v1.63.1...v1.64.0) (2026-11-21)
 
 
