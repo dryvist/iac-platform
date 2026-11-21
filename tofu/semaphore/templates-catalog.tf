@@ -58,6 +58,7 @@ locals {
     local.ansible_templates_apps_openbao_kv_seed,
     local.ansible_templates_apps_openbao_install,
     local.ansible_templates_apps_openhands,
+    local.ansible_templates_apps_runner_audit,
     local.ansible_templates_proxmox,
     local.ansible_templates_proxmox_ssh_ca,
     local.ansible_templates_proxmox_timers,
