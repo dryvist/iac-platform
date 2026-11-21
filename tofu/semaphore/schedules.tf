@@ -17,6 +17,7 @@ locals {
     "apps-leantime",
     "proxmox-oci-app-upgrade",
     "proxmox-ssh-ca-trust",
+    "apps-github-runner",
   ]
 
   scheduled_templates = {
@@ -39,6 +40,8 @@ locals {
     apps-leantime                  = "55 6 * * 6"
     proxmox-oci-app-upgrade        = "5 7 * * 6"
     proxmox-ssh-ca-trust           = "23 5 * * *"
+    # 30 min after openbao-rotate-approles-scheduled (13 3,15), which rotates the runner AppRole secret_id.
+    apps-github-runner = "43 3,15 * * *"
   }
 }
 
