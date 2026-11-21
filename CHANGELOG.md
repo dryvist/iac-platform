@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.64.0](https://github.com/dryvist/iac-platform/compare/v1.63.1...v1.64.0) (2026-11-21)
+
+
+### Features
+
+* **semaphore:** add the apps-github-runner-audit template ([#713](https://github.com/dryvist/iac-platform/issues/713)) ([87506d9](https://github.com/dryvist/iac-platform/commit/87506d9a2b4cc60671b1f2966791091500206d63))
+
 ## [1.63.1](https://github.com/dryvist/iac-platform/compare/v1.63.0...v1.63.1) (2026-11-21)
 
 
