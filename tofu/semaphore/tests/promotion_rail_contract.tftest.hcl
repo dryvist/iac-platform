@@ -25,7 +25,7 @@ run "promotion_rail_contract" {
     condition = length(flatten([
       for f in fileset("${path.module}/../../..", "*.tf") :
       regexall("rail_sec\\s*=", file("${path.module}/../../../${f}"))
-    ])) == 43
+    ])) == 44
     error_message = "rail_sec may be set only by the forty-three allowlisted catalog entries. Every other template keeps the wrapper's 900-second default."
   }
 
@@ -51,6 +51,7 @@ run "promotion_rail_contract" {
       "ai-llm-gpu-container-trial"    = 1800
       "ai-llm-model-trial"            = 3600
       "apps-openbao-tagged"           = 3600
+      "apps-vikunja"                  = 3600
       "apps-openbao-kv-seed"          = 2400
       "apps-openbao-rotators"         = 2400
       "apps-site"                     = 3600
