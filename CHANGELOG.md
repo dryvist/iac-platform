@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.63.1](https://github.com/dryvist/iac-platform/compare/v1.63.0...v1.63.1) (2026-11-21)
+
+
+### Bug Fixes
+
+* **semaphore:** give ai-site and apps-zammad an 1800-second rail ([#700](https://github.com/dryvist/iac-platform/issues/700)) ([6c3ec49](https://github.com/dryvist/iac-platform/commit/6c3ec49293e816ee68ffdf3c1f48f684d158394e))
+
 ## [1.63.0](https://github.com/dryvist/iac-platform/compare/v1.62.0...v1.63.0) (2026-11-20)
 
 
