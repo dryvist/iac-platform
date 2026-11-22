@@ -247,14 +247,14 @@ run "recurring_jobs_enabled_gates_only_pr_status_post" {
         )[0]
       )),
       can(regex(
-        "enabled\\s*=\\s*false",
+        "enabled\\s*=\\s*true",
         regex(
           "resource \\\"semaphoreui_project_schedule\\\" \\\"pr_reconcile_dispatch\\\" \\{([^}]*)\\}",
           file("${path.module}/../../../schedules.tf")
         )[0]
       )),
     ])
-    error_message = "pr_reconcile_dispatch's cron and enabled = false must be left untouched by this declaration."
+    error_message = "pr_reconcile_dispatch's cron and enabled = true must be left untouched by this declaration."
   }
 
   assert {
