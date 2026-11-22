@@ -242,6 +242,7 @@ locals {
       limit            = "docker_vms"
       tags             = "github_runner"
       mutating         = true
+      rail_sec         = 2400
       schedule_enabled = true
       extra_args       = []
       description      = "Runner host converge only, via --tags github_runner."
