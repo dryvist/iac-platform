@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.65.1](https://github.com/dryvist/iac-platform/compare/v1.65.0...v1.65.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* **semaphore:** 2400-second rail for the apps-github-runner template ([#731](https://github.com/dryvist/iac-platform/issues/731)) ([b94021a](https://github.com/dryvist/iac-platform/commit/b94021ab1e44a66828555807e0a4e08488128bb3))
+
 ## [1.65.0](https://github.com/dryvist/iac-platform/compare/v1.64.0...v1.65.0) (2026-11-21)
 
 
