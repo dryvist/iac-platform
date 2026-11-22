@@ -18,6 +18,11 @@ locals {
       description = "GitHub App IDs allowed to bypass automation rules"
       hcl         = true
     }
+    merge_bypass_app_ids = {
+      value       = "[]"
+      description = "GitHub App IDs allowed to update repositories listed in merge-restriction.yml through pull requests"
+      hcl         = true
+    }
     org_branch_write_restriction_enforcement = {
       value       = "evaluate"
       description = "Organization branch-write restriction enforcement mode"
@@ -47,6 +52,12 @@ locals {
     JacobPEvans = "[2956476, 3923580, 4241562, 4282473]"
   }
 
+  # The seat App and the release bot may merge into the restricted repositories of these owners.
+  tofu_github_org_merge_bypass_app_ids = {
+    JacobPEvans    = "[2956476, 3923580]"
+    JacobPEvans-ai = "[2956476]"
+  }
+
   tofu_github_org_inputs = {
     for pair in setproduct(local.tofu_github_orgs, keys(local.tofu_github_inputs)) : "${pair[0]}:${pair[1]}" => {
       org = pair[0]
@@ -54,6 +65,7 @@ locals {
       value = (
         pair[1] == "github_owner" ? pair[0] :
         pair[1] == "automation_bypass_app_ids" ? lookup(local.tofu_github_org_bypass_app_ids, pair[0], local.tofu_github_org_overrides[pair[1]]) :
+        pair[1] == "merge_bypass_app_ids" ? lookup(local.tofu_github_org_merge_bypass_app_ids, pair[0], local.tofu_github_inputs[pair[1]].value) :
         lookup(local.tofu_github_org_overrides, pair[1], local.tofu_github_inputs[pair[1]].value)
       )
       description = local.tofu_github_inputs[pair[1]].description
@@ -73,6 +85,12 @@ resource "terrakube_workspace_variable" "tofu_github_inputs" {
   category        = "TERRAFORM"
   sensitive       = false
   hcl             = each.value.hcl
+}
+
+# Adopts the variable that already exists on this owner's workspace.
+import {
+  to = terrakube_workspace_variable.tofu_github_org_inputs["JacobPEvans-ai:merge_bypass_app_ids"]
+  id = "${terrakube_organization.org.id},${terrakube_workspace_cli.tofu_github_org["JacobPEvans-ai"].id},61d5082b-746f-41d0-8520-ef952fe7bc70"
 }
 
 resource "terrakube_workspace_variable" "tofu_github_org_inputs" {
