@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.67.0](https://github.com/dryvist/iac-platform/compare/v1.66.0...v1.67.0) (2026-11-22)
+
+
+### Features
+
+* **terrakube:** declare the merge bypass input of the tofu-github workspaces ([#747](https://github.com/dryvist/iac-platform/issues/747)) ([700ef61](https://github.com/dryvist/iac-platform/commit/700ef6134012ca7dcfd3ff4dd1d7343a382a4183))
+
 ## [1.66.0](https://github.com/dryvist/iac-platform/compare/v1.65.1...v1.66.0) (2026-11-22)
 
 
