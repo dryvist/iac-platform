@@ -117,8 +117,7 @@ resource "semaphoreui_project_schedule" "pr_reconcile_dispatch" {
   template_id = semaphoreui_project_template.pr_reconcile_dispatch.id
   name        = "pr-reconcile-dispatch"
   cron_format = "2-57/5 * * * *"
-  # Off until playbooks/pr-reconcile-dispatch.yml ships in the apps repository.
-  enabled = false
+  enabled     = true
 }
 
 # Hourly, at :53 (odd minute, off the quarter-hour marks): run the PR census
