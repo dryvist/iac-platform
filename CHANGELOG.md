@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.67.1](https://github.com/dryvist/iac-platform/compare/v1.67.0...v1.67.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* **semaphore:** 3600-second rail for the apps-vikunja templates ([#734](https://github.com/dryvist/iac-platform/issues/734)) ([dbc80f6](https://github.com/dryvist/iac-platform/commit/dbc80f65d46c43860f13bb73e27c1d2c571a8add))
+
 ## [1.67.0](https://github.com/dryvist/iac-platform/compare/v1.66.0...v1.67.0) (2026-11-22)
 
 
