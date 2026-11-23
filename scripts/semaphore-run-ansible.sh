@@ -226,6 +226,7 @@ if [ "$benchmark_seen" -eq 1 ]; then
   case "$benchmark_config" in
     llama-cpp/cross-card|vllm/cross-card|mlx/cross-card) ;;
     lm-eval/quick-intelligence|lm-eval/gpqa-diamond|evalscope/livecodebench) ;;
+    gbench/golden-smoke|gbench/stress-agentic|gbench/capability-unsat) ;;
     *) echo "semaphore-run-ansible.sh: invalid config_name survey value" >&2; exit 2 ;;
   esac
   [[ "$benchmark_machine" =~ ^[A-Za-z][A-Za-z0-9_-]*$ ]] || {

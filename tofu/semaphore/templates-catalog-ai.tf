@@ -148,6 +148,9 @@ locals {
             "lm-eval/quick-intelligence" = "lm-eval/quick-intelligence"
             "lm-eval/gpqa-diamond"       = "lm-eval/gpqa-diamond"
             "evalscope/livecodebench"    = "evalscope/livecodebench"
+            "gbench/golden-smoke"        = "gbench/golden-smoke"
+            "gbench/stress-agentic"      = "gbench/stress-agentic"
+            "gbench/capability-unsat"    = "gbench/capability-unsat"
           }
         },
         {
