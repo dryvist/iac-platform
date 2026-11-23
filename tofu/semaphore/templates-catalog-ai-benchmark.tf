@@ -59,8 +59,22 @@ locals {
         {
           name        = "suite"
           title       = "Suite"
-          description = "bigcodebench-hard, promptfoo-<suite>, or one fixed-length vllm-sweep cell."
+          description = "bigcodebench-hard, promptfoo-<suite>, tau2-banking-knowledge, gbench-{golden,stress-agentic,capability-unsat}, or one fixed-length vllm-sweep cell."
           required    = true
+          type        = "string"
+        },
+        {
+          name        = "api_key_kv_path"
+          title       = "API key OpenBao KV path"
+          description = "Optional OpenBao KV v2 path containing the endpoint bearer key for tau2 or gbench."
+          required    = false
+          type        = "string"
+        },
+        {
+          name        = "api_key_kv_field"
+          title       = "API key OpenBao field"
+          description = "Field name within api_key_kv_path holding the bearer key."
+          required    = false
           type        = "string"
         },
         {
@@ -161,7 +175,7 @@ locals {
           }
         },
       ]
-      description = "Run BigCodeBench-Hard or a pinned Promptfoo suite in a tagged client and archive raw results on its node."
+      description = "Run BigCodeBench-Hard, Promptfoo, tau2, gbench, or vLLM sweep suites in a tagged client and archive raw results on its node."
     }
 
   }

@@ -15,7 +15,7 @@ run "ai_benchmark_run_template_contract" {
 
   assert {
     condition = alltrue([
-      for v in ["node", "client_vmid", "gpu_guest_vmid", "engine_url", "model", "tokenizer", "suite", "items_file", "reasoning_arm", "concurrency", "max_tokens", "sandbox_pool", "input_tokens", "request_rate", "num_prompts", "seed", "run_id", "upgrade", "publish"] :
+      for v in ["node", "client_vmid", "gpu_guest_vmid", "engine_url", "model", "tokenizer", "suite", "items_file", "api_key_kv_path", "api_key_kv_field", "reasoning_arm", "concurrency", "max_tokens", "sandbox_pool", "input_tokens", "request_rate", "num_prompts", "seed", "run_id", "upgrade", "publish"] :
       can(regex(
         "name\\s*=\\s*\\\"${v}\\\"[\\s\\S]*?required\\s*=\\s*(true|false)[\\s\\S]*?type\\s*=\\s*\\\"(string|enum)\\\"",
         regex(
@@ -25,6 +25,17 @@ run "ai_benchmark_run_template_contract" {
       ))
     ])
     error_message = "The benchmark-run template must expose every suite survey variable."
+  }
+
+  assert {
+    condition = alltrue([
+      for s in ["gbench-{golden,stress-agentic,capability-unsat}"] :
+      strcontains(file("${path.module}/../../../templates-catalog-ai-benchmark.tf"), s)
+      ]) && alltrue([
+      for c in ["gbench/golden-smoke", "gbench/stress-agentic", "gbench/capability-unsat"] :
+      strcontains(file("${path.module}/../../../templates-catalog-ai.tf"), c)
+    ])
+    error_message = "Semaphore benchmark templates must advertise gbench suites and config names."
   }
 
   assert {
