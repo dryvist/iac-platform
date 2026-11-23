@@ -63,12 +63,14 @@ locals {
       description      = "Zammad ITSM converge only (bootstrap seeds the incident closure-contract Job, SLA and overview), via --tags zammad."
     }
 
+    # The 3600-second rail: the per-tier project access reconcile runs past 900 seconds.
     apps-vikunja = {
       repository       = "ansible-proxmox-apps"
       playbook         = "playbooks/site.yml"
       limit            = "vikunja_group"
       tags             = "vikunja"
       mutating         = true
+      rail_sec         = 3600
       schedule_enabled = false
       extra_args       = []
       description      = "Vikunja converge only, via --tags vikunja."
