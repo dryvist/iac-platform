@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.68.0](https://github.com/dryvist/iac-platform/compare/v1.67.1...v1.68.0) (2026-11-23)
+
+
+### Features
+
+* **semaphore:** advertise gbench suites and config names ([#770](https://github.com/dryvist/iac-platform/issues/770)) ([e7966aa](https://github.com/dryvist/iac-platform/commit/e7966aa631e95be261e50af2b697f96c18205692))
+
 ## [1.67.1](https://github.com/dryvist/iac-platform/compare/v1.67.0...v1.67.1) (2026-11-23)
 
 
