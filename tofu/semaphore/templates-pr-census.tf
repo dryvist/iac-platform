@@ -1,4 +1,4 @@
-# Hourly PR status post.
+# Daily PR status post.
 #
 # Declared apart from templates.tf to keep that file under the size limit,
 # same as templates-pr-reconcile.tf. Its play runs on localhost only: no host
@@ -33,7 +33,7 @@ resource "semaphoreui_project_template" "pr_status_post" {
     "--limit", "localhost", "--diff",
   ]
 
-  # Success alerts would fire every hour; failures still alert.
+  # Success alerts would fire every run; failures still alert.
   allow_override_args_in_task = false
   suppress_success_alerts     = true
 }

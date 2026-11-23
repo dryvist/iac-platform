@@ -1,4 +1,4 @@
-# The hourly PR status post: one template, one schedule, the census gathered
+# The daily PR status post: one template, one schedule, the census gathered
 # inside playbooks/pr-status-post.yml rather than by a separate template.
 # Both halves are pinned here the way the pr_reconcile_dispatch contract pins
 # its halves, plus the recurring_jobs_enabled gate itself and a final run
@@ -148,35 +148,35 @@ run "pr_status_post_schedule_contract" {
 
   assert {
     condition = can(regex(
-      "cron_format\\s*=\\s*\\\"53 \\* \\* \\* \\*\\\"",
+      "cron_format\\s*=\\s*format\\(\\\"53 %d \\* \\* \\*\\\", local[.]status_post_daily_hour\\)",
       regex(
         "resource \\\"semaphoreui_project_schedule\\\" \\\"pr_status_post\\\" \\{([^}]*)\\}",
         file("${path.module}/../../../schedules.tf")
       )[0]
     ))
-    error_message = "pr_status_post must run hourly at minute 53."
+    error_message = "pr_status_post must run once a day, at minute 53 of local.status_post_daily_hour."
   }
 
   assert {
     condition = tonumber(regex(
-      "cron_format\\s*=\\s*\\\"([0-9]+) \\* \\* \\* \\*\\\"",
+      "cron_format\\s*=\\s*format\\(\\\"([0-9]+) %d \\* \\* \\*\\\", local[.]status_post_daily_hour\\)",
       regex(
         "resource \\\"semaphoreui_project_schedule\\\" \\\"pr_status_post\\\" \\{([^}]*)\\}",
         file("${path.module}/../../../schedules.tf")
       )[0]
     )[0]) % 2 == 1
-    error_message = "The hourly minute must be odd."
+    error_message = "The daily minute must be odd."
   }
 
   assert {
     condition = !contains([0, 15, 30, 45], tonumber(regex(
-      "cron_format\\s*=\\s*\\\"([0-9]+) \\* \\* \\* \\*\\\"",
+      "cron_format\\s*=\\s*format\\(\\\"([0-9]+) %d \\* \\* \\*\\\", local[.]status_post_daily_hour\\)",
       regex(
         "resource \\\"semaphoreui_project_schedule\\\" \\\"pr_status_post\\\" \\{([^}]*)\\}",
         file("${path.module}/../../../schedules.tf")
       )[0]
     )[0]))
-    error_message = "The hourly minute must sit off the quarter-hour marks."
+    error_message = "The daily minute must sit off the quarter-hour marks."
   }
 
   assert {
