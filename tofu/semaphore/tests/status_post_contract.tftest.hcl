@@ -1,6 +1,6 @@
 # Status posts: one template and one schedule per entry of local.status_posts,
 # each selecting its post with -e status_post=<key>, on the deployed ref, with
-# the schedule gated by recurring_jobs_enabled and on odd minutes.
+# the schedule gated by recurring_jobs_enabled, once a day on an odd minute.
 
 run "status_post_contract" {
   command = plan
@@ -49,10 +49,17 @@ run "status_post_contract" {
 
   assert {
     condition = alltrue([
-      for minute in flatten([
-        for cron in regexall("= \"([0-9,]+) \\* \\* \\* \\*\"", file("${path.module}/../../../templates-status-post.tf")) : split(",", cron[0])
-      ]) : tonumber(minute) % 2 == 1 && tonumber(minute) % 15 != 0
-    ]) && length(regexall("= \"([0-9,]+) \\* \\* \\* \\*\"", file("${path.module}/../../../templates-status-post.tf"))) > 0
-    error_message = "Every status post cron must run hourly on odd minutes only, never on a quarter-hour mark."
+      for cron in regexall("format\\(\"([0-9]+) %d \\* \\* \\*\", local[.]status_post_daily_hour\\)", file("${path.module}/../../../templates-status-post.tf")) :
+      tonumber(cron[0]) % 2 == 1 && tonumber(cron[0]) % 15 != 0
+    ]) && length(regexall("format\\(\"([0-9]+) %d \\* \\* \\*\", local[.]status_post_daily_hour\\)", file("${path.module}/../../../templates-status-post.tf"))) > 0 && !can(regex("\"[0-9,*/-]+ [*] [*] [*] [*]\"", file("${path.module}/../../../templates-status-post.tf")))
+    error_message = "Every status post cron must run once a day at local.status_post_daily_hour, on an odd minute, never on a quarter-hour mark."
+  }
+
+  assert {
+    condition = can(regex(
+      "status_post_daily_hour\\s*=\\s*([0-9]|1[0-9]|2[0-3])\\n",
+      file("${path.module}/../../../templates-status-post.tf")
+    ))
+    error_message = "status_post_daily_hour must be one literal UTC hour, 0 to 23."
   }
 }

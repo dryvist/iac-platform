@@ -1,4 +1,4 @@
-# Hourly status posts rendered by playbooks/status-post.yml in the apps
+# Daily status posts rendered by playbooks/status-post.yml in the apps
 # repository, one template and one schedule per post. A Semaphore schedule
 # carries no task parameters, so the post is chosen by each template's own
 # `-e status_post=<key>` argument; the map below is the one place a post is
@@ -6,10 +6,16 @@
 # apps environment, never this declaration.
 
 locals {
-  # Odd minutes, off the quarter-hour marks; the lane post owns :53.
+  # Every status post is a routine digest, nothing in it needs action within
+  # the hour, so each runs once a day: a red line repeats at most every 24 h.
+  # 12 UTC lands before the Eastern workday. The PR status post in
+  # schedules.tf shares this hour.
+  status_post_daily_hour = 12
+
+  # Odd minutes, off the quarter-hour marks; the PR status post owns :53.
   status_posts = {
-    tracker = "37 * * * *"
-    gpu     = "7,37 * * * *"
+    tracker = format("37 %d * * *", local.status_post_daily_hour)
+    gpu     = format("7 %d * * *", local.status_post_daily_hour)
   }
 }
 
@@ -37,7 +43,7 @@ resource "semaphoreui_project_template" "status_post" {
     "-e", "status_post=${each.key}",
   ]
 
-  # Success alerts would fire every hour; failures still alert.
+  # Success alerts would fire every run; failures still alert.
   allow_override_args_in_task = false
   suppress_success_alerts     = true
 }

@@ -120,8 +120,9 @@ resource "semaphoreui_project_schedule" "pr_reconcile_dispatch" {
   enabled     = true
 }
 
-# Hourly, at :53 (odd minute, off the quarter-hour marks): run the PR census
-# and post the chat status built from it. Declared apart from
+# Daily, at :53 of local.status_post_daily_hour (odd minute, off the
+# quarter-hour marks; see templates-status-post.tf): run the PR census and
+# post the chat status built from it. Declared apart from
 # schedule_crons/scheduled, same as pr_reconcile_dispatch above, because the
 # scheduled resource hardcodes enabled = true and this one is gated behind the
 # recurring_jobs_enabled variable instead — left false, merging and applying
@@ -130,6 +131,6 @@ resource "semaphoreui_project_schedule" "pr_status_post" {
   project_id  = semaphoreui_project_template.pr_status_post.project_id
   template_id = semaphoreui_project_template.pr_status_post.id
   name        = "pr-status-post"
-  cron_format = "53 * * * *"
+  cron_format = format("53 %d * * *", local.status_post_daily_hour)
   enabled     = var.recurring_jobs_enabled
 }
