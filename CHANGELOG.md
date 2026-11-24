@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.68.1](https://github.com/dryvist/iac-platform/compare/v1.68.0...v1.68.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **semaphore:** run the status posts once a day instead of every hour ([b49bfa8](https://github.com/dryvist/iac-platform/commit/b49bfa8fbcd78f5f7886e8c110383debb180a406))
+* **semaphore:** run the status posts once a day instead of every hour ([#776](https://github.com/dryvist/iac-platform/issues/776)) ([2fc58ac](https://github.com/dryvist/iac-platform/commit/2fc58acaa38246b5bb9e58d1a7f9d85b71f8fccf))
+
 ## [1.68.0](https://github.com/dryvist/iac-platform/compare/v1.67.1...v1.68.0) (2026-11-23)
 
 
