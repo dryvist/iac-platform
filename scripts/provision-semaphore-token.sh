@@ -140,6 +140,12 @@ fi
 if [ "$SKIP_MISSING_USER" = true ] \
    && ! docker --host "$DEPLOY_HOST" exec "$CONTAINER" \
      semaphore user get --login "$LOGIN" >/dev/null 2>&1; then
+  # A rejected token whose user is gone is a broken agent, not a first run:
+  # fail so deploy.sh warns, instead of leaving a dead token behind a clean skip.
+  if [ -n "$existing_token" ]; then
+    echo "provision-semaphore-token: stored $FIELD was rejected and Semaphore user '$LOGIN' no longer exists" >&2
+    exit 1
+  fi
   echo "skip Semaphore user '$LOGIN' does not exist yet (tofu/semaphore/ not applied) — rerun after it is"
   exit 0
 fi

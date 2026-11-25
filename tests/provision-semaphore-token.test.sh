@@ -184,6 +184,13 @@ TEST_API_STATUS=200
 TEST_USER_EXISTS=yes
 run_case 'agent: valid stored token is reused' 0 'is valid at agent-tier/semaphore-write'
 
+TEST_CASE=unauthorized
+TEST_API_STATUS=401
+TEST_USER_EXISTS=no
+TEST_MINT=forbidden
+run_case 'agent: rejected token with a missing user fails without minting' 1 \
+  "user 'semaphore-agent' no longer exists"
+
 TEST_PROFILE=bogus
 run_case 'unknown profile is rejected' 2 'usage: provision-semaphore-token.sh [agent]'
 
