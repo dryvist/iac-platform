@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.68.2](https://github.com/dryvist/iac-platform/compare/v1.68.1...v1.68.2) (2026-11-25)
+
+
+### Bug Fixes
+
+* **semaphore:** give the Hermes crons template a 1200-second rail ([#788](https://github.com/dryvist/iac-platform/issues/788)) ([b43ed61](https://github.com/dryvist/iac-platform/commit/b43ed617a18680d1702ddeba91bc64d4d5815881))
+
 ## [1.68.1](https://github.com/dryvist/iac-platform/compare/v1.68.0...v1.68.1) (2026-11-24)
 
 
