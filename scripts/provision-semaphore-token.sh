@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
-# Validate-or-mint Semaphore's automation API token into OpenBao
-# (secret/apps/semaphore, field semaphore_api_token).
+# Validate-or-mint a Semaphore API token into OpenBao. Two profiles, each one
+# login, one OpenBao leaf and one field (the table below is their only source):
+#
+#   (default) the automation token tofu/semaphore/ authenticates with, owned
+#             by the local break-glass admin -> secret/apps/semaphore.
+#   agent     the converge agent's token, owned by the task_runner-only user
+#             tofu/semaphore/users.tf declares -> agent-tier/semaphore-write,
+#             the exact leaf the router's semaphore-write tier reads. That user
+#             exists only once tofu/semaphore/ has applied, so a missing user
+#             is a clean skip here, not an error: the next deploy mints it.
 #
 # tofu/semaphore/ declares Semaphore's object graph — project, repositories,
 # inventories, environments, templates, schedules — through Semaphore's REST
@@ -9,21 +17,21 @@
 # a compose variable: it is the same chicken-and-egg the Terrakube signing
 # keypair has, and it gets the same answer (see provision-signing-key.sh).
 #
-# Minted against the LOCAL break-glass admin, never the SSO user. A Semaphore
-# API token carries the same privileges as its owner with no scoping, so an
-# SSO-owned token would tie the automation credential to one human's identity
-# and orphan it the moment that account changes.
+# The default profile is minted against the LOCAL break-glass admin, never the
+# SSO user. A Semaphore API token carries the same privileges as its owner with
+# no scoping, so an SSO-owned token would tie the automation credential to one
+# human's identity and orphan it the moment that account changes.
 #
 # Idempotent: validate a stored token before reusing it, and mint a replacement
 # only when the field is empty or Semaphore rejects it. Nothing secret touches
 # disk, and the token value is never echoed.
 #
-# Lives under secret/apps/ because it is an application credential, not part of
-# the IaC kernel. That is also what makes it writable at all: the OpenBao access
-# model grants a write leaf per entry in openbao_ai_domains ([ai, apps]), while
-# `platform` is listed in openbao_ai_readonly_extra_subtrees and has no write
-# leaf by design. Writing an app token there would have meant widening the
-# access model to fit one field.
+# The default profile lives under secret/apps/ because it is an application
+# credential, not part of the IaC kernel. That is also what makes it writable at
+# all: the OpenBao access model grants a write leaf per entry in
+# openbao_ai_domains ([ai, apps]), while `platform` is listed in
+# openbao_ai_readonly_extra_subtrees and has no write leaf by design. Writing an
+# app token there would have meant widening the access model to fit one field.
 #
 # Read-merge-write rather than a blind put, so a field this script does not know
 # about (anything a role later publishes to the same path) survives. The path
@@ -33,13 +41,34 @@
 #   export BAO_ADDR=https://openbao.<domain>
 #   export BAO_TOKEN=<short-lived token from a native auth method>
 #   export DEPLOY_HOST=<docker host, e.g. ssh://user@host>
-#   ./scripts/provision-semaphore-token.sh
+#   ./scripts/provision-semaphore-token.sh [agent]
+#
+# The agent leaf is writable because the Semaphore and ansible AppRoles carry
+# the ansible-converge policy, which grants create/update/read on every leaf
+# ansible-secrets-management's openbao_app_agent_tier_readers declares — the
+# same publisher grant the app roles use for their own agent tiers.
 set -euo pipefail
 
-PATH_KV="secret/apps/semaphore"
-FIELD="semaphore_api_token"
-TOKEN_NAME="iac-platform-tofu"
 CONTAINER="semaphore"
+case "${1:-}" in
+  "")
+    PATH_KV="secret/apps/semaphore"
+    FIELD="semaphore_api_token"
+    TOKEN_NAME="iac-platform-tofu"
+    # The local break-glass admin login, the same value the compose stack seeds.
+    LOGIN="${SEMAPHORE_ADMIN:-admin}"
+    SKIP_MISSING_USER=false
+    ;;
+  agent)
+    PATH_KV="agent-tier/semaphore-write"
+    FIELD="SEMAPHORE_AGENT_WRITE_TOKEN"
+    TOKEN_NAME="agent-semaphore-write"
+    # Held equal to tofu/semaphore/users.tf by tests/agent_user_contract.tftest.hcl.
+    LOGIN="semaphore-agent"
+    SKIP_MISSING_USER=true
+    ;;
+  *) echo "usage: provision-semaphore-token.sh [agent]" >&2; exit 2 ;;
+esac
 
 for bin in curl jq docker; do
   command -v "$bin" >/dev/null || { echo "$bin required (enter the dev shell)" >&2; exit 1; }
@@ -48,16 +77,14 @@ done
 : "${BAO_ADDR:?BAO_ADDR missing}"
 : "${DEPLOY_HOST:?DEPLOY_HOST missing (the docker host this stack runs on)}"
 
-# The local break-glass admin login, the same value the compose stack seeds.
-admin_login="${SEMAPHORE_ADMIN:-admin}"
-
 token="${BAO_TOKEN:-${VAULT_TOKEN:-}}"
 [ -n "$token" ] || { echo "provision-semaphore-token: authenticate to OpenBao and set BAO_TOKEN" >&2; exit 1; }
 bao_token_config="${token//\\/\\\\}"
 bao_token_config="${bao_token_config//\"/\\\"}"
 
 # KV v2 read/write insert "/data/" after the mount (logical
-# secret/apps/semaphore -> /v1/secret/data/apps/semaphore).
+# secret/apps/semaphore -> /v1/secret/data/apps/semaphore; agent-tier is a KV v2
+# mount of its own, agent-tier/semaphore-write -> /v1/agent-tier/data/semaphore-write).
 mount="${PATH_KV%%/*}"
 subpath="${PATH_KV#*/}"
 data_url="${BAO_ADDR}/v1/${mount}/data/${subpath}"
@@ -110,11 +137,18 @@ if [ -n "$existing_token" ]; then
   esac
 fi
 
-echo "minting Semaphore API token for '$admin_login' ..."
+if [ "$SKIP_MISSING_USER" = true ] \
+   && ! docker --host "$DEPLOY_HOST" exec "$CONTAINER" \
+     semaphore user get --login "$LOGIN" >/dev/null 2>&1; then
+  echo "skip Semaphore user '$LOGIN' does not exist yet (tofu/semaphore/ not applied) — rerun after it is"
+  exit 0
+fi
+
+echo "minting Semaphore API token for '$LOGIN' ..."
 # `users token create` prints the token id on success. Capture it rather than
 # teeing, so the value never reaches this script's stdout.
 api_token="$(docker --host "$DEPLOY_HOST" exec "$CONTAINER" \
-  semaphore users token create --login "$admin_login" --name "$TOKEN_NAME" \
+  semaphore users token create --login "$LOGIN" --name "$TOKEN_NAME" \
   2>/dev/null | tr -d '\r' | tail -n 1 | tr -d '[:space:]')" || true
 
 # A token is an opaque string. Reject an empty capture or an obvious error line
@@ -122,7 +156,7 @@ api_token="$(docker --host "$DEPLOY_HOST" exec "$CONTAINER" \
 # cause would read as an auth problem instead of a bad mint.
 if [ -z "$api_token" ] || [ "${#api_token}" -lt 16 ] \
    || printf '%s' "$api_token" | grep -qiE 'error|usage|not found'; then
-  echo "provision-semaphore-token: token mint produced no usable value — is the '$admin_login' user present and the container up?" >&2
+  echo "provision-semaphore-token: token mint produced no usable value — is the '$LOGIN' user present and the container up?" >&2
   exit 1
 fi
 
@@ -144,4 +178,4 @@ curl -sf --max-time 10 -X "$write_method" \
   --data-binary @- "$data_url" <<<"$write_body" >/dev/null \
   || { echo "provision-semaphore-token: $write_method write to $PATH_KV failed" >&2; exit 1; }
 
-echo "ok   wrote $FIELD to $PATH_KV (tofu/semaphore/ reads it ephemerally)"
+echo "ok   wrote $FIELD to $PATH_KV"

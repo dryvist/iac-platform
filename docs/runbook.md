@@ -143,7 +143,11 @@ Two things that are *not* in that root, each for a stated reason:
   merge-patched into the platform KV path. Generate-if-absent, called from
   `deploy.sh`, so it is a no-op on every deploy after the first. A token cannot
   be a compose variable because it can only be minted against a server that is
-  already up and migrated.
+  already up and migrated. The same script's `agent` profile mints the converge
+  agent's token: the user is declared in `tofu/semaphore/users.tf` (a
+  `task_runner` in every project, never admin), and its token goes to the
+  agent-tier leaf the router's `semaphore-write` tier reads. Until that user
+  exists the profile skips cleanly, and `deploy.sh` only warns if it fails.
 - **The run credentials.** `BAO_ADDR`, the ansible-converge AppRole pair, the
   Splunk HEC token and the Nautobot read-only token are passed into the
   container by `compose/docker-compose.yml` and inherited by every task process.
