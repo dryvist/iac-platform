@@ -21,8 +21,11 @@ locals {
 
     # Ansible unions repeated --tags, so the hermes_crons component cannot be
     # selected by adding a tag to ai-hermes-agent: it needs its own template.
-    # diff = false for the same reason as ai-hermes-agent; the 540-second rail
-    # fits the 10-minute component rule.
+    # diff = false for the same reason as ai-hermes-agent. The rail is a
+    # temporary exception to the 10-minute component rule: the direct-cron
+    # reconcile includes its per-job task file once per job, about 8 s each, so
+    # a full fleet run takes about 15 minutes. Return to 540 once the reconcile
+    # handles every job in one pass.
     ai-hermes-crons = {
       repository       = "ansible-proxmox-ai"
       playbook         = "playbooks/site.yml"
@@ -31,7 +34,7 @@ locals {
       mutating         = true
       schedule_enabled = false
       diff             = false
-      rail_sec         = 540
+      rail_sec         = 1200
       description      = "Hermes cron reconcile only: prompt catalog, pre-reconcile checks and the cron fleet."
     }
   }
