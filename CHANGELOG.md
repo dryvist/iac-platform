@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.70.0](https://github.com/dryvist/iac-platform/compare/v1.69.0...v1.70.0) (2026-11-26)
+
+
+### Features
+
+* **semaphore:** add an apps object-store repair template ([#802](https://github.com/dryvist/iac-platform/issues/802)) ([cffa4e1](https://github.com/dryvist/iac-platform/commit/cffa4e11892ca1c5748021e95c4edf1c1078fe2c))
+
 ## [1.69.0](https://github.com/dryvist/iac-platform/compare/v1.68.2...v1.69.0) (2026-11-26)
 
 
