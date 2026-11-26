@@ -15,7 +15,7 @@ run "ai_llm_model_campaign_nightly_schedule_contract" {
 
   assert {
     condition = alltrue([
-      strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "config_name=lm-eval/quick-intelligence"),
+      strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "config_name=gbench/nightly"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "artifact_id=qwen38-27b-nvfp4"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_endpoint_root=https://{{machine|lower}}.{{lookup('ansible.builtin.env','PROXMOX_SUBDOMAIN')}}"),
       strcontains(file("${path.module}/../../../templates-catalog-ai-scheduled.tf"), "benchmark_cache_path={{hostvars[machine].container_models_cache_mount_path}}"),
