@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.69.0](https://github.com/dryvist/iac-platform/compare/v1.68.2...v1.69.0) (2026-11-26)
+
+
+### Features
+
+* **semaphore:** run the gbench nightly recipe in the model campaign ([#794](https://github.com/dryvist/iac-platform/issues/794)) ([b3a4961](https://github.com/dryvist/iac-platform/commit/b3a4961bac83e108e2d9570b6e3f582330ed0b52))
+
 ## [1.68.2](https://github.com/dryvist/iac-platform/compare/v1.68.1...v1.68.2) (2026-11-25)
 
 
