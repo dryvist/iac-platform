@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.73.0](https://github.com/dryvist/iac-platform/compare/v1.72.0...v1.73.0) (2026-11-27)
+
+
+### Features
+
+* **terrakube:** add an optional clerk team and approval template ([#829](https://github.com/dryvist/iac-platform/issues/829)) ([9e2fb08](https://github.com/dryvist/iac-platform/commit/9e2fb084d9a180b24c4c9b839945bc6d191d8b7c))
+
 ## [1.72.0](https://github.com/dryvist/iac-platform/compare/v1.71.0...v1.72.0) (2026-11-27)
 
 
