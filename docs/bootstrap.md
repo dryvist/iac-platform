@@ -75,6 +75,11 @@ Browser: `https://terrakube.<domain>` → Login with OpenBao → authenticate wi
 an enabled OpenBao human auth method → confirm the Organizations page offers
 admin actions through the `terrakube-admins` group mapping.
 
+A nonempty `clerk_workspaces` value creates the `<organization>:terrakube-clerk`
+team with no organization-wide permissions. It grants `manage_job` only on the
+listed workspaces. The `clerk_plan_apply` template runs a plan, waits for
+approval by the clerk team, then applies.
+
 ## Workspaces-as-code (local state first)
 
 ```bash

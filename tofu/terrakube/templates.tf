@@ -126,6 +126,25 @@ locals {
             step: 200
       EOF
     }
+    } : {}, local.clerk_enabled ? {
+    # The clerk approves this job's plan before the saved plan is applied.
+    clerk_plan_apply = {
+      name        = "Clerk plan and apply"
+      description = "Running Terraform plan and apply with clerk-team approval"
+      content     = <<-EOF
+        flow:
+          - type: "terraformPlan"
+            name: "Plan"
+            step: 100
+          - type: "approval"
+            name: "Approve Apply"
+            step: 150
+            team: "${terrakube_team.clerk[0].name}"
+          - type: "terraformApply"
+            name: "Apply"
+            step: 200
+      EOF
+    }
   } : {})
 
   # Flow steps in step order, decoded from each template's own content — not
