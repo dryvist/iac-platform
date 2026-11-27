@@ -45,6 +45,7 @@ import {
 locals {
   # The desired-state team, credential and template exist only for a configured repository.
   desired_state_enabled = var.desired_state_repo != ""
+  clerk_enabled         = length(var.clerk_workspaces) > 0
 }
 
 # A team with zero organization-wide permissions; its only rights are the
@@ -63,6 +64,24 @@ resource "terrakube_workspace_access" "desired_state_apply" {
   organization_id = terrakube_organization.org.id
   workspace_id    = terrakube_workspace_cli.tofu_proxmox.id
   name            = terrakube_team.desired_state_apply[0].name
+  manage_job      = true
+}
+
+# This team has no organization-wide permissions; its only rights are the
+# manage_job grants on the configured workspaces below.
+resource "terrakube_team" "clerk" {
+  count = local.clerk_enabled ? 1 : 0
+
+  name            = "${var.organization_name}:terrakube-clerk"
+  organization_id = terrakube_organization.org.id
+}
+
+resource "terrakube_workspace_access" "clerk" {
+  for_each = toset(var.clerk_workspaces)
+
+  organization_id = terrakube_organization.org.id
+  workspace_id    = local.workspace_ids[each.key]
+  name            = terrakube_team.clerk[0].name
   manage_job      = true
 }
 

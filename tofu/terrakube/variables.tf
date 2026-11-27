@@ -64,3 +64,9 @@ variable "desired_state_ref" {
   type        = string
   default     = "refs/heads/main"
 }
+
+variable "clerk_workspaces" {
+  description = "Names of the workspaces declared in this directory on which the clerk team may manage jobs; empty means the clerk team and its template are not created."
+  type        = list(string)
+  default     = []
+}

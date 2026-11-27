@@ -17,3 +17,13 @@ output "desired_state_apply_template_id" {
   description = "Job template id for the desired-state gated apply workflow input"
   value       = try(terrakube_organization_template.this["desired_state_apply"].id, null)
 }
+
+output "clerk_team_name" {
+  description = "Org-qualified name of the clerk team"
+  value       = try(terrakube_team.clerk[0].name, null)
+}
+
+output "clerk_plan_apply_template_id" {
+  description = "Job template id for the clerk-approved plan and apply workflow"
+  value       = try(terrakube_organization_template.this["clerk_plan_apply"].id, null)
+}
