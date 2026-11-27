@@ -44,5 +44,19 @@ locals {
       extra_args       = []
       description      = "Restart the Splunk container and wait for the management port."
     }
+
+    # Standalone search head: native install, then licence manager. Runs the
+    # playbook untagged on purpose: the role includes its task files
+    # dynamically, so --tags would skip them. The search-peer play is tagged
+    # `never` and stays out of this run.
+    splunk-search-head = {
+      repository       = "ansible-splunk"
+      playbook         = "playbooks/deploy-search-head.yml"
+      limit            = "splunk_sh"
+      mutating         = true
+      schedule_enabled = false
+      extra_args       = []
+      description      = "Install Splunk on the standalone search head and make it the licence manager."
+    }
   }
 }
