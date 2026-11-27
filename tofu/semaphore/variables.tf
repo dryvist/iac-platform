@@ -80,13 +80,13 @@ variable "ansible_repositories" {
     ansible-secrets-management = {
       url = "https://github.com/jpe-ansible/ansible-secrets-management.git"
       # renovate: datasource=github-tags depName=jpe-ansible/ansible-secrets-management
-      branch           = "v0.150.0"
+      branch           = "v0.150.2"
       preview_branches = ["develop"]
     }
     ansible-proxmox-ai = {
       url = "https://github.com/dryvist/ansible-proxmox-ai.git"
       # renovate: datasource=github-tags depName=dryvist/ansible-proxmox-ai
-      branch           = "v2.83.2"
+      branch           = "v2.84.1"
       preview_branches = ["develop"]
     }
     # No develop branch upstream: this repository releases from main only, so
@@ -94,7 +94,7 @@ variable "ansible_repositories" {
     ansible-splunk = {
       url = "https://github.com/jpe-ansible/ansible-splunk.git"
       # renovate: datasource=github-tags depName=jpe-ansible/ansible-splunk
-      branch = "v0.126.1"
+      branch = "v0.128.2"
     }
   }
 
