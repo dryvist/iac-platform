@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.71.0](https://github.com/dryvist/iac-platform/compare/v1.70.2...v1.71.0) (2026-11-27)
+
+
+### Features
+
+* **semaphore:** task_runner-only converge agent user and token ([#792](https://github.com/dryvist/iac-platform/issues/792)) ([9a037f9](https://github.com/dryvist/iac-platform/commit/9a037f9e8bf27d939531159a6e35044edf5e879c))
+
 ## [1.70.2](https://github.com/dryvist/iac-platform/compare/v1.70.1...v1.70.2) (2026-11-27)
 
 
