@@ -210,6 +210,13 @@ SEMAPHORE_ADMIN_EMAIL"
   # replacement can only be minted against a server that is already serving.
   DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh"
 
+  # The converge agent's own token (task_runner-only user, tofu/semaphore/users.tf).
+  # Optional for the platform itself, so a failure here warns instead of failing
+  # the deploy: until ansible-secrets-management declares the agent-tier leaf,
+  # the write is refused, and the agent simply stays without a token.
+  DEPLOY_HOST="$host" "$REPO_ROOT/scripts/provision-semaphore-token.sh" agent \
+    || echo "WARN: the Semaphore converge agent's token was not provisioned; the agent stays unusable until a later deploy succeeds." >&2
+
   # Inject runtime credentials into each project's "homelab" environment so
   # task worker processes inherit them (Semaphore LocalJob does not inherit
   # container os.Environ unless mapped in the project environment template).
