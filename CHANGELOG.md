@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.72.0](https://github.com/dryvist/iac-platform/compare/v1.71.0...v1.72.0) (2026-11-27)
+
+
+### Features
+
+* **agent:** zcode run j-23f4fec3fa800400 ([5efd9a9](https://github.com/dryvist/iac-platform/commit/5efd9a9fbd23727e2b8b9048139594011329611e))
+* **semaphore:** add the Splunk search head template ([#825](https://github.com/dryvist/iac-platform/issues/825)) ([5efd9a9](https://github.com/dryvist/iac-platform/commit/5efd9a9fbd23727e2b8b9048139594011329611e))
+
 ## [1.71.0](https://github.com/dryvist/iac-platform/compare/v1.70.2...v1.71.0) (2026-11-27)
 
 
