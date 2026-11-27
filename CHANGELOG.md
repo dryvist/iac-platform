@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.70.2](https://github.com/dryvist/iac-platform/compare/v1.70.1...v1.70.2) (2026-11-27)
+
+
+### Bug Fixes
+
+* **semaphore:** deploy ansible-splunk v0.128.2 ([#812](https://github.com/dryvist/iac-platform/issues/812)) ([5d70c0c](https://github.com/dryvist/iac-platform/commit/5d70c0c26dfffb43f64b3da3f7e008c7c22740a8))
+
 ## [1.70.1](https://github.com/dryvist/iac-platform/compare/v1.70.0...v1.70.1) (2026-11-26)
 
 
