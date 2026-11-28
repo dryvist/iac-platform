@@ -80,7 +80,7 @@ variable "ansible_repositories" {
     ansible-secrets-management = {
       url = "https://github.com/jpe-ansible/ansible-secrets-management.git"
       # renovate: datasource=github-tags depName=jpe-ansible/ansible-secrets-management
-      branch           = "v0.154.0"
+      branch           = "v0.156.0"
       preview_branches = ["develop"]
     }
     ansible-proxmox-ai = {
