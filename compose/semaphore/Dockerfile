@@ -13,12 +13,12 @@ FROM semaphoreui/semaphore:${SEMAPHORE_VERSION}
 # Fleet servers run OpenBao 2.7.1; the runner pins the official 2.7.2 CLI
 # release archive and verifies it against the release's checksums file.
 # renovate: datasource=github-releases depName=openbao/openbao extractVersion=^v(?<version>.*)$
-ARG BAO_VERSION=2.7.2
+ARG BAO_VERSION=2.7.3
 
 # uv runs the pinned benchmark converter during campaign preflight. Install the
 # official musl release in the image so the execution plane owns the binary.
 # renovate: datasource=github-releases depName=astral-sh/uv
-ARG UV_VERSION=0.13.8
+ARG UV_VERSION=0.13.10
 
 # The Hugging Face CLI (`hf`) the model-trial preflight runs on the controller:
 # Hub metadata, the revision-pinned file tree, and downloads.
